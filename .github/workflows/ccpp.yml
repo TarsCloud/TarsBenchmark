@@ -13,7 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install
-      run: git clone https://github.com/TarsCloud/TarsCpp.git --recursive;cd TarsCpp;mkdir build;cd build;cmake .. -DTARS_MYSQL=OFF -DTARS_SSL=OFF -DTARS_HTTP2=OFF-DTARS_PROTOBUF=OFF;make -j4;make install
+      run: sudo apt-get install -y bison flex cmake psmisc libncurses5-dev zlib1g-dev; cmake --version
+    - name: tarsconfigure
+      run: git clone https://github.com/TarsCloud/TarsCpp.git --recursive;cd TarsCpp;mkdir build;
+    - name: tarsinstall
+      run: cd build;cmake .. -DTARS_MYSQL=OFF;make -j4;make install
     - name: configure
       run: mkdir build;cd build;cmake ..
     - name: make
