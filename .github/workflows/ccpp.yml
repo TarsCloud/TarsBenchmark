@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install
-      run: git clone https://github.com/TarsCloud/TarsCpp.git --recursive;cd TarsCpp;make build;cd build;cmake .. -DTARS_MYSQL=OFF -DTARS_SSL=OFF -DTARS_HTTP2=OFF-DTARS_PROTOBUF=OFF;make -j4;make install
+      run: git clone https://github.com/TarsCloud/TarsCpp.git --recursive;cd TarsCpp;mkdir build;cd build;cmake .. -DTARS_MYSQL=OFF -DTARS_SSL=OFF -DTARS_HTTP2=OFF-DTARS_PROTOBUF=OFF;make -j4;make install
     - name: configure
       run: mkdir build;cd build;cmake ..
     - name: make
