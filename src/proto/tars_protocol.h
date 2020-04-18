@@ -63,15 +63,15 @@ namespace bm
          * @param buf  数据包指针
          * @param len  网络数据包长度
          *
-         * @return int
+         * @return int =0报文不完整; >0:实际报文长度; <0:出错
          */
         virtual int input(const char *buf, size_t len);
 
         /**
          * @brief  TARS服务协议打包
          *
-         * @param req  业务数据实例
-         * @param len  网络数据包长度
+         * @param buf  数据包指针
+         * @param len  数据包长度
          * @param uniqId  全局唯一ID
          *
          * @return 0成功, 其他失败

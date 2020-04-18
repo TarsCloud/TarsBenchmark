@@ -17,7 +17,6 @@
 #define _TRANSPORT_H_
 
 #include "monitor.h"
-#include "commdefs.h"
 #include "protocol.h"
 #include "proto_factory.h"
 
@@ -83,6 +82,8 @@ namespace bm
         /**
          * @brief  检查是否已经超时
          *
+         * @param tCurTime 当前时间
+         *
          * @return bool
          */
         virtual bool checkTimeOut(int64_t tCurTime);
@@ -90,22 +91,24 @@ namespace bm
         /**
          * @brief  获取句柄/socket
          *
-         * @return int
          */
         virtual TC_Socket *getSocket() { return TC_ClientSocket::getSocket(); }
         virtual int getfd() { return this->getSocket()->getfd(); }
 
         /**
          * @brief  尝试发送
-         * @param uniqId 业务数据实例
+         *
+         * @param uniqId 全局唯一ID
          *
          * @return int
          */
         int trySend(int uniqId);
 
         /**
-         * @brief  处理epoll时间
+         * @brief  处理poll事件
          *
+         * @param loop   事件管理器指针
+         * @param time   最长等待时间
          */
         static void handle(TC_Epoller* loop, int time);
     protected:
@@ -143,7 +146,6 @@ namespace bm
          *
          * @param buf  数据指针
          * @param len  数据长度
-         * @param flag 标志位
          *
          * @return 0成功, 其他失败
          */
@@ -230,7 +232,6 @@ namespace bm
          *
          * @param buf  数据指针
          * @param len  数据长度
-         * @param flag 标志位
          *
          * @return 0成功, 其他失败
          */

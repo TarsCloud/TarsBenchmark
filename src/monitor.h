@@ -151,9 +151,9 @@ namespace bm
          bool fetch(vector<IntfStat>& itemList);
 
         /**
-         * @brief  计算百分比
+         * @brief  计算千分比
          *
-         * @param @param percent     上报的时间点
+         * @param percent  分子数
          */
         double calcPercent(size_t percent);
 

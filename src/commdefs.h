@@ -82,59 +82,59 @@ enum
 /**
  * @brief  string转换map
  *
- * @param sStr  业务数据实例
+ * @param ss  目标string
  *
- * @return map<string, string>
+ * @return map<int, int>
  */
-inline map<int, int> str2map(const string &sStr)
+inline map<int, int> str2map(const string &ss)
 {
     int flag = 0;
-    map<int, int> mapVal;
+    map<int, int> mm;
+    string name, val, buff;
     char ch1 = ':', ch2 = ',';
-    string sName, sValue, sBuffer;
-    for (string::size_type pos = 0; pos < sStr.length(); pos++)
+    for (string::size_type pos = 0; pos < ss.length(); pos++)
     {
         //中间分隔符,前面读入是name
-        if (sStr[pos] == ch1)
+        if (ss[pos] == ch1)
         {
             flag = 1;
-            sName = sBuffer;
-            sBuffer = "";
+            name = buff;
+            buff = "";
         }
-        else if (sStr[pos] == ch2 || (pos + 1) == sStr.length())  //结束符,读入的是值
+        else if (ss[pos] == ch2 || (pos + 1) == ss.length())  //结束符,读入的是值
         {
-            sValue  = sBuffer;
-            sBuffer = "";
-            if ((pos + 1) == sStr.length())
+            val  = buff;
+            buff = "";
+            if ((pos + 1) == ss.length())
             {
-                sValue += sStr[pos];
+                val += ss[pos];
             }
 
-            if (sName.length() > 0 && flag)
+            if (name.length() > 0 && flag)
             {
-                mapVal[atoi(sName.c_str())] = atoi(sValue.c_str());
+                mm[atoi(name.c_str())] = atoi(val.c_str());
                 flag = 0;
             }
         }
         else
         {
-            sBuffer += sStr[pos];
+            buff += ss[pos];
         }
     }
-    return mapVal;
+    return mm;
 }
 
 /**
  * @brief  map转换string
  *
- * @param mMap 业务数据实例
+ * @param mm 目标map
  *
  * @return string
  */
-inline string map2str(const map<int, int>& mMap)
+inline string map2str(const map<int, int>& mm)
 {
     ostringstream os;
-    for (map<int, int>::const_iterator itm = mMap.begin(); itm != mMap.end(); itm++)
+    for (map<int, int>::const_iterator itm = mm.begin(); itm != mm.end(); itm++)
     {
         os << itm->first << ":" << itm->second << ",";
     }
@@ -148,12 +148,12 @@ inline string map2str(const map<int, int>& mMap)
  */
 inline int64_t getProcNum(void)
 {
-    static int procNum = 0;
-    if (procNum == 0)
+    static int np = 0;
+    if (np == 0)
     {
-        procNum = sysconf(_SC_NPROCESSORS_ONLN);
+        np = sysconf(_SC_NPROCESSORS_ONLN);
     }
-    return procNum;
+    return np;
 }
 
 #define MAX_FD  50001
