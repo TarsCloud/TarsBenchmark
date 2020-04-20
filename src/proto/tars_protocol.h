@@ -101,23 +101,25 @@ namespace bm
          *
          * @return  string
          */
-	    string getType(const string& type);
+        string getType(const string& type);
 
         /**
-         * @brief  函数注释
+         * @brief  解析成员变量
          *
-         * @param req 业务数据实例
+         * @param type 数据类型
+         * @param tag  数据编号
+         * @param require 是否必须
          *
-         * @return 0成功, 其他失败
+         * @return Field结构
          */
         Field getField(const string& type, int tag, bool require);
 
         /**
-         * @brief  函数注释
+         * @brief  解析列表成员
          *
-         * @param req 业务数据实例
+         * @param val 配置string变量
          *
-         * @return 0成功, 其他失败
+         * @return vector<string>
          */
         vector<string> getArray(const string& val);
 
