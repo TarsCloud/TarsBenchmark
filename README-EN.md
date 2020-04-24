@@ -2,78 +2,38 @@
 
 ## Introduction
 
-tb is an uncoded pressure measurement tool specially tailored for tars services. It utilizes event-driven and multi-process to fully explore the performance of the pressure measurement machine and has the following features:
+**tb**(TarsBenchmark)It is a non-code benchmark tool specially tailored for tars service, with the following features:
 
- - High network performance(8-core machine supports more than 20W/S TPS)
- - Communication scalability(The network layer supports two TCP / UDP protocol modes)
- - Protocol scalability(the application layer supports Http/Tars service pressure testing)
- - Perfect real-time statistics and monitoring support. Provide the number of requests/TPS/time-consuming/success rate distribution in the cycle
+ - High performance: 8-core machine TPS supports more than 20W/s;
+ - Network compatibility: The network layer supports TCP and UDP protocol;
+ - Protocol scalability: It supports http/tars service benchmark, open to third-protocol agreements
+ - Perfect real-time monitor. Provide the number of TPS/Success Rate/Cost time within the cycle;
 
-## How to compile tb
-###  Dependence
-Install TarsCpp development environment before compiling tb, since it is based on [TarsCpp](https://tarscloud.gitbook.io/tarsdocs/rumen/env/tarscpp).
+## Framework
 
-### Compilation:
-```
-mkdir build; cd build; cmake ..; make;
-```
+The tb is designed in a multi-process model. The main process is responsible for resource scheduling and display, and the benchmark process is responsible for network transmission and reception and statistics. The network layer can flexibly choose TCP or UDP; adopts a protocol factory to manage various service protocols, supports http/tars by default; the main process and the benchmark process exchange signals through control information, and the data interacts through the lock-free shared memory queue to achieve the lowest resource consumption. The main process periodically collects each The network statistics of the benchmark process are output to the console after a simple summary.
+
+![tb system](https://github.com/TarsCloud/TarsDocs_en/blob/master/assets/tb-platform.png)
+
 
 ## Usage
-### Example
-```
+
+Sample
+```text
 ./tb -c 600 -s 6000 -D 192.168.31.1 -P 10505 -p tars -S tars.DemoServer.DemoObj -M test -C test.txt
 ```
-
-### Case File generation
-The use case file is recommended to be automatically generated using the tars2case tool. Users can modify the parameter values according to business needs
+参数说明
+```text
+  -h                   帮助信息
+  -c                   number of connections
+  -D                   target server address(ipv4)
+  -P                   target server port
+  -p                   service protocol(tars|http)
+  -t(optional)         overtime time，default 3 second
+  -T(optional)         network protocol，default tcp
+  -I(optional)         continue time(by second)，default 1h
+  -i(optional)         view interval(by second)，default 10s
+  -s(optional)         maximum tps limit per target server
+  -n(optional)         maximum process
 ```
-/usr/local/tars/cpp/tools/tars2case Demo.tars --dir=benchmark
-
-cd benchmark && ls
-echo.case  test.case
-```
-
-### Introduction to writing case
-The file is divided into upper and lower parts, separated by a line beginning with "#", the upper part is the RPC parameter, and the lower part is the value of the RPC call parameter, which corresponds to the parameter one by one
-
-- **Parameter help description**：
-1. Input parameters are separated by "|" symbols, that is, "," in tars parameters are replaced with "|"
-2. Parameters of struct like: struct <tag require | optional field 1, field 2, field 3 ...>, if tag starts from 0, directly field 1
-3. Parameters of vector like: vector <type>
-4. Parameters of map lik: map <key type, value type>
-5. 2, 3, 4 can be nested
-
-- **Parameter Value help description**：
-1. <strong> Basic type </strong> random value setting:
-   <strong>Random Random Value</strong> like as [1-100], which means it appears randomly within 1-100, type must be a number
-   <strong>Limited random value</strong> like as [1,123,100], which means it appears randomly in 1,123,100, which type can be a string
-2. Enter the parameters for each parameter line, that is, the "," in the tars parameter list is replaced with a carriage return
-3. Value of struct like: <field value 1, field value 2, field value 3 ...>
-4. Value of vector like: <value 1, value 2, value 3 ...>
-5. Value of map like: [key1 = val1, key2 = val2, key3 = val3 ...]
-6. 3, 4, 5 can be nested
-
-- **E.g**：
-```
-vector<string>|struct<string, int>|map<string, string>
-#######
-<abc, def, tt, fbb>
-<abc, 1>
-[abc=def, dfd=bbb]
-```
-
-### Pressure test result display
-![results](docs/image/result.jpg)
-
-## FAQ
-
- - What is the solution for the specified rate of tb
-1. The specified unit of rate is a single target machine. If there are n target machines, the statistical TPS = rate * n
-2. If the pressure measurement rate is not specified, tb will launch a shock to the target machine at full speed.
-
- - How is tb high performance achieved?
-First, avoid the network IO blocking of the process through event-driven, maximize the CPU utilization,
-Secondly, the tool will create the same number of pressure test processes based on the number of CPU cores, and the number of connections and the pressure test rate will be divided equally among the child processes.
-
- - How to synchronize data synchronization between tb pressure testing process?
-Data sharing is achieved through a lock-free shared memory queue, and the statistical results are output in the main process
+See details in [develop.md](https://github.com/TarsCloud/TarsDocs_en/blob/master/benchmark/develop.md)
