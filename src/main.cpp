@@ -131,18 +131,10 @@ int run(int seqNum, int argc, char* argv[])
     {
         for (size_t ii = 0; ii < gEps.size(); ii++)
         {
-            if (gEps[ii].isTcp())
-            {
-                Transport* pConn = new TCPTransport(gEps[ii], &eLoop);
-                pConn->initialize(gProtoName, argc, argv);
-                vCons.push_back(pConn);
-            }
-            else
-            {
-                Transport* pConn = new UDPTransport(gEps[ii], &eLoop);
-                pConn->initialize(gProtoName, argc, argv);
-                vCons.push_back(pConn);
-            }
+            Transport* pConn = gEps[ii].isTcp() ? (Transport*)(new TCPTransport(gEps[ii], &eLoop))
+                                                : (Transport*)(new UDPTransport(gEps[ii], &eLoop));
+            pConn->initialize(gProtoName, argc, argv);
+            vCons.push_back(pConn);
         }
     }
 

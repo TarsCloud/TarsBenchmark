@@ -134,11 +134,7 @@ namespace bm
     class TCPTransport : public Transport
     {
     public:
-        TCPTransport(const TC_Endpoint& ep, TC_Epoller* loop): Transport(ep, loop)
-        {
-
-        }
-
+        TCPTransport(const TC_Endpoint& ep, TC_Epoller* loop): Transport(ep, loop) {}
         /**
          * @brief  检查Socket操作
          *
@@ -201,11 +197,7 @@ namespace bm
     class UDPTransport : public Transport
     {
     public:
-        UDPTransport(const TC_Endpoint& ep, TC_Epoller* loop) : Transport(ep, loop)
-        {
-
-        }
-
+        UDPTransport(const TC_Endpoint& ep, TC_Epoller* loop) : Transport(ep, loop) {}
         /**
          * @brief  检查Socket操作
          *
