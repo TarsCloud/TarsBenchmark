@@ -2,7 +2,7 @@
 
 ## 介绍
 
-tb(TarsBenchmark)是专门为tars服务量身订做的无码压测工具，具备以下特性：
+**tb**(TarsBenchmark)是专门为tars服务量身订做的无码压测工具，具备以下特性：
 
  - 网络高性能：8核机器TPS支持超过20W/S;
  - 通讯扩展性：网络层支持TCP/UDP两种协议方式;
@@ -36,5 +36,5 @@ tb工具采用多进程方式设计，主进程负责资源调度和外显，压
   -n(可选)             最大压测进程限制，默认跟CPU核心数
 ```
 
-详细使用参考[tb工具编译说明](develop.md)
+详细使用参考[tb工具编译说明](https://github.com/TarsCloud/TarsDocs/blob/master/benchmark/develop.md)
 
