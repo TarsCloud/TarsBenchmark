@@ -21,6 +21,17 @@ using namespace tars;
 #define CONNECT_TIMEOUT_MS 3000
 namespace bm
 {
+    void Transport::initialize(Monitor* monitor, const string& proto, int argc, char** argv)
+    {
+        _proto   = _factory.get(proto, argc, argv);
+        _monitor = monitor;
+    }
+
+    void Transport::initialize(Monitor* monitor, Protocol* protocol)
+    {
+        _proto   = protocol;
+        _monitor = monitor;
+    }
     int Transport::handleWrite()
     {
         if (checkSocket() < 0)
@@ -34,7 +45,7 @@ namespace bm
             int sndLen = this->send(_sendBuffer.c_str(), _sendBuffer.size());
             if (sndLen < 0)
             {
-                Monitor::getInstance()->report(BM_SOCK_SEND_ERROR);
+                _monitor->report(BM_SOCK_SEND_ERROR);
                 return BM_SOCK_SEND_ERROR;
             }
             else if(sndLen == 0 && errno == EAGAIN)
@@ -51,7 +62,7 @@ namespace bm
     {
         if (checkSocket() < 0)
         {
-            Monitor::getInstance()->report(BM_SOCK_INVALID);
+            _monitor->report(BM_SOCK_INVALID);
             return BM_SOCK_INVALID;
         }
 
@@ -60,7 +71,7 @@ namespace bm
         while (this->recv(buff, rcvLen) == BM_SUCC && rcvLen > 0)
         {
             _recvBuffer.append(buff, rcvLen);
-            Monitor::getInstance()->reportRecv(TBNOWMS, (int)rcvLen);
+            _monitor->reportRecv(TBNOWMS, (int)rcvLen);
         }
 
         handleProcess();
@@ -71,7 +82,7 @@ namespace bm
     {
         close();
         checkSocket();
-        Monitor::getInstance()->report(BM_SOCK_ERROR);
+        _monitor->report(BM_SOCK_ERROR);
         return BM_SUCC;
     }
 
@@ -86,7 +97,7 @@ namespace bm
             auto it = _proto->isSupportSeq() ? _sendQueue.find(reqIdx) : _sendQueue.begin();
             if (it != _sendQueue.end())
             {
-                Monitor::getInstance()->report(ret, (tCurTime - it->second));
+                _monitor->report(ret, (tCurTime - it->second));
                 _sendQueue.erase(it);
             }
 
@@ -115,7 +126,7 @@ namespace bm
             if ((tCurTime - it->second) > _ep.getTimeout())
             {
                 _sendQueue.erase(it++);
-                Monitor::getInstance()->report(BM_SOCK_RECV_TIMEOUT, _ep.getTimeout());
+                _monitor->report(BM_SOCK_RECV_TIMEOUT, _ep.getTimeout());
             }
             else
             {
@@ -129,13 +140,13 @@ namespace bm
     {
         if (this->checkSocket() < 0)
         {
-            Monitor::getInstance()->report(BM_SOCK_INVALID);
+            _monitor->report(BM_SOCK_INVALID);
             return BM_SOCK_INVALID;
         }
 
         if (!this->checkConnect())
         {
-            Monitor::getInstance()->report(BM_SOCK_CONN_ERROR);
+            _monitor->report(BM_SOCK_CONN_ERROR);
             return BM_SOCK_CONN_ERROR;
         }
 
@@ -151,12 +162,12 @@ namespace bm
         int iRet = _proto->encode(buf, bufLen, reqIdx);
         if (iRet != 0)
         {
-            Monitor::getInstance()->report(iRet);
+            _monitor->report(iRet);
             return BM_PACKET_ENCODE;
         }
 
         // 启动一次发送
-        Monitor::getInstance()->reportSend(tCurTime, bufLen);
+        _monitor->reportSend(tCurTime, bufLen);
         _sendBuffer.append(buf, bufLen);
         _sendQueue[reqIdx] = tCurTime;
         handleWrite();

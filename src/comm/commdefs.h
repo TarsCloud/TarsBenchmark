@@ -16,13 +16,15 @@
 #ifndef _COMMDEFS_H_
 #define _COMMDEFS_H_
 
-#include <errno.h>
+#include <unordered_map>
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sstream>
 #include <fstream>
-#include <unordered_map>
+#include <errno.h>
+
 #include "licote.h"
+#include <tup/Tars.h>
 #include "util/tc_common.h"
 #include "util/tc_epoller.h"
 #include "util/tc_clientsocket.h"
@@ -142,6 +144,51 @@ inline string map2str(const map<int, int>& mm)
 }
 
 /**
+ * 通用模板方法: Tars对象T序列化
+ *
+ * @param t 类型T的对象
+ * @return 字符串
+ */
+template<typename T> string tostring(const T& t)
+{
+    string s;
+    TarsOutputStream<BufferWriter> osk;
+    t.writeTo(osk);
+    s.assign(osk.getBuffer(), osk.getLength());
+
+    return s;
+}
+
+/**
+ * 通用模板方法: Tars对象T结构化
+ *
+ * @param t 字符串
+ * @return 类型T的对象
+ */
+template<typename T> T& toObj(const string& s, T& t)
+{
+    TarsInputStream<BufferReader> isk;
+    isk.setBuffer(s.c_str(), s.length());
+    t.readFrom(isk);
+
+    return t;
+}
+
+
+/**
+ * 通用模板方法: Tars对象日志化打印
+ *
+ * @param t 类型T的对象
+ * @return string
+ */
+template<typename T> std::string logTars(const T& t, bool simple = true)
+{
+    ostringstream os;
+    simple ? t.displaySimple(os) : t.display(os);
+    return os.str();
+}
+
+/**
  * @brief 获取当前CPU数量
  *
  * @return int
@@ -156,10 +203,58 @@ inline int64_t getProcNum(void)
     return np;
 }
 
+//过程控制
+#ifndef PROC_BEGIN
+#define PROC_BEGIN do{
+#endif
+
+#ifndef PROC_END
+#define PROC_END   }while(0);
+#endif
+
+#ifndef PROC_TRY_BEGIN       // 带try版本
+#define PROC_TRY_BEGIN        do{             \
+    try{
+#endif
+#ifndef PROC_TRY_END    // 带try版本
+#define PROC_TRY_END(msg, ret, errcode, defcode)    }   \
+    catch(TC_Exception& e) {                            \
+        (msg) = string("tars exception:") + e.what();   \
+        (ret) = (errcode);                              \
+    }                                                   \
+    catch(std::exception& e) {                          \
+        (msg) = string("std exception:") + e.what();    \
+        (ret) = (errcode);                              \
+    }                                                   \
+    catch(...) {                                        \
+        (msg) = "unknown exception";                    \
+        (ret) = (defcode);                              \
+    }                                                   \
+}while(0);
+#endif
+#ifndef PROC_EXIT
+#define PROC_EXIT(ret, value) {(ret)=(value);break;};
+#endif
+#ifndef PROC_TRY_EXIT
+#define PROC_TRY_EXIT(ret,retval,code,errcode,desc,errdesc) {   \
+        (ret)=(retval);                                         \
+        (code) = (errcode);                                     \
+        (desc) = (errdesc);                                     \
+        break;                                                  \
+    };
+#endif
+#ifndef PROC_EQ_EXIT
+#define PROC_EQ_EXIT(expr, eval, ret, value) {if( (expr) == (eval) ) { (ret) = (value); break; } };
+#endif
+#ifndef PROC_NE_EXIT
+#define PROC_NE_EXIT(expr, eval, ret, value) {if( (expr) != (eval) ) { (ret) = (value); break; } };
+#endif
+
 #define MAX_FD  50001
 #define TBNOWMS TC_Common::now2ms()
 #define LICODE_GETINT(x, v) (licote_option_exist(x) ? TC_Common::strto<int>(licote_option_get(x)) : v)
 #define LICODE_GETSTR(x, v) (licote_option_exist(x) ? TC_Common::trim(licote_option_get(x)) : v)
+
 
 #define CAS(ptr, old, new)({ char ret; __asm__ __volatile__("lock; cmpxchgl %2,%0; setz %1": "+m"(*ptr), "=q"(ret): "r"(new),"a"(old): "memory"); ret;})
 #define WMB() __asm__ __volatile__("sfence":::"memory")

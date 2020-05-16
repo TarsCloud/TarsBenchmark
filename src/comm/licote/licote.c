@@ -157,7 +157,7 @@ static struct __licote_core{
 	uint16_t				count;		/* 选项的个数(包括分隔符/附件选项等) */
 	uint8_t					style;		/* Licote风格 */
 	uint8_t					gather;		/* 开关型短选项的个数 */
-}g_LicoteC;
+}g_LicoteC = {0, NULL, NULL, NULL, NULL, 0, 0, 0, 0};
 
 /* 所有选项链表 */
 static struct list_head		g_list;		/* 原始选项链表 */
@@ -185,10 +185,10 @@ static const char* g_LicoteM[][2] = {
 	{"option",               "Option"},
 	{"example",              "Example"},
 	{"不支持的命令选项",   	  "Unsupported option"},
-	{"请输入必须的选项",   "Please input the option"},
-	{"请设置选项的值",     "The option missing argument"},
-	{"错误的用法",         "Invalid usage"},
-	{"此命令至少需要%d个参数",  "Options less than %d"},
+	{"请输入必须的选项",   	  "Please input the option"},
+	{"请设置选项的值",     	  "The option missing argument"},
+	{"错误的用法",         	  "Invalid usage"},
+	{"此命令至少需要%d个参数", "Options less than %d"},
 	{"密码错误,请重新输入","Error password, input again"}
 };
 
@@ -304,10 +304,11 @@ licote_option_init(int argc, char* argv[])
 	return __licote_parse_input(argc, argv);
 }
 
-void
-licote_option_exit(void)
+void licote_option_exit(void)
 {
-	__licote_core_exit();
+	// 未初始化的函数不执行
+	if (g_LicoteC.argc != 0)
+		__licote_core_exit();
 }
 
 void
@@ -586,8 +587,7 @@ licote_option_debug(void)
 * Local API
 ***************************************************************/
 /* 命令启动执行函数 */
-void
-__licote_core_init(void)
+void __licote_core_init(void)
 {
 	memset(&g_LicoteC, 0, sizeof(g_LicoteC));
 
@@ -600,9 +600,9 @@ __licote_core_init(void)
 		INIT_HLIST_HEAD(&g_hash[i]);
 	}
 }
+
 /* 命令退出执行函数 */
-static void
-__licote_core_exit(void)
+static void __licote_core_exit(void)
 {
 	struct list_head* pos = NULL;
 	list_for_each(pos, &g_list){
@@ -637,8 +637,7 @@ __licote_core_exit(void)
 	memset(&g_LicoteC, 0, sizeof(g_LicoteC));
 }
 
-static int
-__licote_parse_input(int argc, char** argv)
+static int __licote_parse_input(int argc, char** argv)
 {
 	ASSERT(argv);
 

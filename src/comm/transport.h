@@ -25,7 +25,7 @@ namespace bm
     class Transport : TC_ClientSocket
     {
     public:
-        Transport(const TC_Endpoint& ep, TC_Epoller* loop) : _ep(ep), _loop(loop)
+        Transport(const TC_Endpoint& ep, TC_Epoller* loop): _ep(ep), _loop(loop), _monitor(NULL)
         {
             this->close();
             this->init(ep.getHost(), ep.getPort(), ep.getTimeout());
@@ -37,17 +37,25 @@ namespace bm
             close();
         }
 
+                /**
+         * @brief  初始化函数
+         * 
+         * @param monitor   监控指针
+         * @param protocol  协议类指针
+         *
+         */
+        virtual void initialize(Monitor *monitor, Protocol *protocol);
+
         /**
          * @brief  初始化函数
+         * 
+         * @param monitor   监控指针
          * @param proto     协议名称
          * @param argc      参数个数
          * @param argv      参数内容
          *
          */
-        virtual void initialize(const string& proto, int argc, char** argv)
-        {
-            _proto = _factory.get(proto, argc, argv);
-        }
+        virtual void initialize(Monitor *monitor, const string &proto, int argc, char **argv);
 
         /**
          * @brief  关闭资源
@@ -122,6 +130,7 @@ namespace bm
         TC_Endpoint             _ep;
         TC_Epoller*             _loop;
         Protocol*               _proto;
+        Monitor*                _monitor;
         ProtoFactory            _factory;
 
         string                  _sendBuffer;
@@ -185,7 +194,7 @@ namespace bm
             if (rcvLen < 0 && errno != EAGAIN)
             {
                 close();
-                Monitor::getInstance()->report(BM_SOCK_RECV_ERROR);
+                _monitor->report(BM_SOCK_RECV_ERROR);
                 return BM_SOCK_RECV_ERROR;
             }
 
@@ -244,7 +253,7 @@ namespace bm
             if (rcvLen < 0 && errno != EAGAIN)
             {
                 this->close();
-                Monitor::getInstance()->report(BM_SOCK_RECV_ERROR);
+                _monitor->report(BM_SOCK_RECV_ERROR);
                 return BM_SOCK_CONN_ERROR;
             }
 

@@ -287,16 +287,17 @@ namespace bm
 
     string tarsProtocol::genRandomValue(const string& v, bool isIntegal)
     {
-        string::size_type l = v.find_first_of('[');
-        string::size_type r = v.find_last_of(']');
+        string vv = unescapeStr(v);
+        string::size_type l = vv.find_first_of('[');
+        string::size_type r = vv.find_last_of(']');
         if (l == string::npos || r == string::npos)
         {
-            return v;
+            return vv;
         }
 
-        string nv = v.substr(l + 1, r - l - 1);
-        string::size_type m = nv.find_first_of('-');
-        string::size_type n = nv.find_first_of(',');
+        string nv = vv.substr(l + 1, r - l - 1);
+        string::size_type m = vv.find_first_of('-');
+        string::size_type n = vv.find_first_of(',');
         if (m == string::npos && n == string::npos)
         {
             return nv;
@@ -738,7 +739,7 @@ namespace bm
             TarsOutputStream<BufferWriter> os, os_;
             for (size_t ii = 0; ii < _paraList.size(); ii++)
             {
-                encode(os, _paraList[ii], _paraVals[ii], ii + 1);
+                encode(os, _paraList[ii], escapeStr(_paraVals[ii]), ii + 1);
             }
 
             RequestPacket req;
@@ -804,6 +805,24 @@ namespace bm
         cerr << __FILE__ << ":" << __LINE__ << "|" << oss.str() << endl;
 #endif
         return BM_PACKET_DECODE;
+    }
+
+    string tarsProtocol::escapeStr(const string& sSrc)
+    {
+        string dst = sSrc;
+        dst = TC_Common::replace(dst, "\\,", LABEL_ASCII_2C);
+        dst = TC_Common::replace(dst, "\\<", LABEL_ASCII_3C);
+        dst = TC_Common::replace(dst, "\\>", LABEL_ASCII_3E);
+        return dst;
+    }
+
+    string tarsProtocol::unescapeStr(const string& sSrc)
+    {
+        string dst = sSrc;
+        dst = TC_Common::replace(dst, LABEL_ASCII_2C, ",");
+        dst = TC_Common::replace(dst, LABEL_ASCII_3C, "<");
+        dst = TC_Common::replace(dst, LABEL_ASCII_3E, ">");
+        return dst;
     }
 
     int tarsProtocol::input(const char *buf, size_t len)

@@ -133,7 +133,7 @@ int run(int seqNum, int argc, char* argv[])
         {
             Transport* pConn = gEps[ii].isTcp() ? (Transport*)(new TCPTransport(gEps[ii], &eLoop))
                                                 : (Transport*)(new UDPTransport(gEps[ii], &eLoop));
-            pConn->initialize(gProtoName, argc, argv);
+            pConn->initialize(Monitor::getInstance(), gProtoName, argc, argv);
             vCons.push_back(pConn);
         }
     }

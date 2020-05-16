@@ -42,11 +42,18 @@ namespace bm
         {
             // 首次创建 or 数据紊乱，清空内存
             memset(pData, 0, iShmSize);
-            ch->headIdx  = 0;
-            ch->tailIdx  = 0;
             ch->itemSize = queueSize;
         }
+
+        ch->headIdx  = 0;
+        ch->tailIdx  = 0;
         return 0;
+    }
+
+    void Monitor::clear()
+    {
+        vector<IntfStat> vis;
+        fetch(vis);
     }
 
     void Monitor::report(int retCode)
@@ -84,8 +91,8 @@ namespace bm
         queueCost.push_back(costTime);
         double dCostTime  = (double)costTime;
         tmpStat.totalTime += dCostTime;
-        tmpStat.maxTime = max(dCostTime, tmpStat.maxTime);
-        tmpStat.minTime = min(dCostTime, tmpStat.minTime);
+        tmpStat.maxTime = std::max<double>(dCostTime, tmpStat.maxTime);
+        tmpStat.minTime = std::min<double>(dCostTime, tmpStat.minTime);
         static int costStep[MAX_STEP_COST] = {10, 30, 50, 100, 500, 3000, 5000, 0, 0, 0};
         for (size_t i = 0; i < MAX_STEP_COST; i++)
         {
@@ -163,6 +170,8 @@ namespace bm
         }
         return itemList.size() > 0;
     }
+
+
 
     double Monitor::calcPercent(size_t percent)
     {

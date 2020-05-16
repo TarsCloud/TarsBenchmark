@@ -73,8 +73,8 @@ namespace bm
             succCount  += src.succCount;
             totalSendBytes += src.totalSendBytes;
             totalRecvBytes += src.totalRecvBytes;
-            maxTime = std::max(src.maxTime, maxTime);
-            minTime = std::min(src.minTime, minTime);
+            maxTime = std::max<double>(src.maxTime, maxTime);
+            minTime = std::min<double>(src.minTime, minTime);
             return *this;
         }
 
@@ -116,11 +116,10 @@ namespace bm
         int initialize(int iShmKey = 0x19453959, int iShmSize = 1024 * 1024);
 
         /**
-         * @brief  析构
+         * @brief  清除数据
          *
          */
-        void destroy();
-
+        void clear();
 
         /**
          * @brief  接口上报

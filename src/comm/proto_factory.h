@@ -45,7 +45,11 @@ namespace bm
                     throw runtime_error("null protocol:" + name);
                 }
 
-                cmd->initialize(argc, argv);
+                if (argc > 0 && argv != NULL)
+                {
+                    cmd->initialize(argc, argv);
+                }
+
                 _protos[name] = obj;
             }
 

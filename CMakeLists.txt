@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(tb)
+project(TarsBenchmark)
 
 option(TARS_SSL "option for ssl" OFF)
 option(TARS_MYSQL "option for mysql" OFF)
