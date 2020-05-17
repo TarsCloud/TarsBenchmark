@@ -228,7 +228,6 @@ void ProxyServer::scanActiveNode(long cur_time, bool refresh)
     catch (TC_Exception& e)
     {
         FDLOG("error") << "exception:" << e.what() << endl;
-        throw runtime_error("taf::TC_Exception");
     }
     catch (...)
     {
