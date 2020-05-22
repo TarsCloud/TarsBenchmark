@@ -38,7 +38,7 @@ namespace bm
     int tarsProtocol::initialize(int argc, char** argv)
     {
         // 支持命令
-        licote_option_add("-S", "o",   "tars servant");
+        licote_option_add("-S", NULL,  "tars servant");
         licote_option_add("-M", NULL,  "tars single interface name");
         licote_option_add("-C", NULL,  "tars single interface case");
         licote_option_init(argc, argv);
@@ -49,9 +49,9 @@ namespace bm
         return parseCaseFile(LICODE_GETSTR("-C", ""));
     }
 
-    int tarsProtocol::parseCaseFile(const string& sFileName)
+    int tarsProtocol::parseCaseFile(const string& file_name)
     {
-        ifstream ifs(sFileName.c_str());
+        ifstream ifs(file_name.c_str());
         if (!ifs.is_open())
         {
             licote_option_help("case file open failed\n");
@@ -163,7 +163,7 @@ namespace bm
             }
         }
 
-        if ( 0 == p)
+        if (0 == p)
         {
             p = type.size();
         }
@@ -278,14 +278,14 @@ namespace bm
         return vs;
     }
 
-    long tarsProtocol::genRandomValue(const string& range_min, const string& range_max)
+    long tarsProtocol::genRandomValue(const string& rmin, const string& rmax)
     {
-        long max = TC_Common::strto<long>(range_max);
-        long min = TC_Common::strto<long>(range_min);
+        long max = TC_Common::strto<long>(rmax);
+        long min = TC_Common::strto<long>(rmin);
         return (long)(rand() % (max - min + 1) + min);
     }
 
-    string tarsProtocol::genRandomValue(const string& v, bool isIntegal)
+    string tarsProtocol::genRandomValue(const string& v, bool is_int)
     {
         string vv = unescapeStr(v);
         string::size_type l = vv.find_first_of('[');
@@ -303,7 +303,7 @@ namespace bm
             return nv;
         }
 
-        if (m != string::npos && isIntegal)
+        if (m != string::npos && is_int)
         {
             vector<string> vs = TC_Common::sepstr<string>(nv, "-");
             if (vs.size() == 2)
@@ -323,10 +323,10 @@ namespace bm
         return nv;
     }
 
-    int tarsProtocol::encode(TarsOutputStream<BufferWriter> &os, const string& sType, const string& sVal, int tag, bool usigned)
+    int tarsProtocol::encode(TarsOutputStream<BufferWriter> &os, const string& stype, const string& sval, int tag, bool usigned)
     {
-        string type = TC_Common::trim(sType);
-        string val  = TC_Common::trim(sVal);
+        string type = TC_Common::trim(stype);
+        string val  = TC_Common::trim(sval);
         if (type.find(PT_VOID) == 0)
         {
             return 0;
@@ -388,14 +388,13 @@ namespace bm
         {
             os.write(genRandomValue(val, false), tag);
         }
-        else if (type.find(PT_VECTOR) == 0)//todo write bytes exists some question
+        else if (type.find(PT_VECTOR) == 0)
         {
             vector<string> vs = getArray(val);
             string sub_type = getType(type);
 
             if (PT_BYTE.compare(sub_type) == 0)
             {
-                // os.reserve(os, vs.size() + 4);
                 TarsWriteToHead(os, TarsHeadeSimpleList, tag);
                 TarsWriteToHead(os, TarsHeadeChar, tag);
                 os.write(vs.size(),0);
@@ -406,10 +405,8 @@ namespace bm
             }
             else
             {
-                os.reserve(os, 8);
                 TarsWriteToHead(os, TarsHeadeList, tag);
                 os.write(vs.size(), 0);
-
                 for (int i = 0; i < (int)vs.size(); ++i)
                 {
                     encode(os, sub_type, vs.at(i), 0, false);
@@ -424,15 +421,13 @@ namespace bm
             {
                 throw runtime_error("invalid struct");
             }
+
             TarsWriteToHead(os, TarsHeadeStructBegin, tag);
-            int ttag = 0;
-            for (int i = 0; i < (int)vt.size(); ++i)
+            for (int i = 0, ttag = 0; i < (int)vt.size(); ++i)
             {
-                string type_desc = vt.at(i);
-                Field field = getField(type_desc, ttag, true);
-                ttag = field.tag_;
+                Field field = getField(vt.at(i), ttag, true);
                 encode(os, field.type_, vv.at(i), field.tag_, false);
-                ++ttag;
+                ttag = field.tag_ + 1;
             }
             TarsWriteToHead(os, TarsHeadeStructEnd, 0);
         }
@@ -704,19 +699,10 @@ namespace bm
                     for (int i = 0; i < (int)vt.size(); ++i)
                     {
                         string type_desc = vt.at(i);
-
                         Field field = getField(type_desc, struct_tag, require);
                         struct_tag = field.tag_;
                         string tmp = decode(is, field.type_, struct_tag, field.require_, false);
-                        s += tmp;
-                        if (i != (int)vt.size() - 1)
-                        {
-                            s += ",";
-                        }
-                        else
-                        {
-                            s += ">";
-                        }
+                        s += tmp + ((i != int(vt.size() - 1)) ? "," : ">");
                         struct_tag++;
                     }
                     is.skipToStructEnd();
@@ -807,18 +793,18 @@ namespace bm
         return BM_PACKET_DECODE;
     }
 
-    string tarsProtocol::escapeStr(const string& sSrc)
+    string tarsProtocol::escapeStr(const string& src)
     {
-        string dst = sSrc;
+        string dst = src;
         dst = TC_Common::replace(dst, "\\,", LABEL_ASCII_2C);
         dst = TC_Common::replace(dst, "\\<", LABEL_ASCII_3C);
         dst = TC_Common::replace(dst, "\\>", LABEL_ASCII_3E);
         return dst;
     }
 
-    string tarsProtocol::unescapeStr(const string& sSrc)
+    string tarsProtocol::unescapeStr(const string& src)
     {
-        string dst = sSrc;
+        string dst = src;
         dst = TC_Common::replace(dst, LABEL_ASCII_2C, ",");
         dst = TC_Common::replace(dst, LABEL_ASCII_3C, "<");
         dst = TC_Common::replace(dst, LABEL_ASCII_3E, ">");
@@ -827,11 +813,11 @@ namespace bm
 
     int tarsProtocol::input(const char *buf, size_t len)
     {
-        size_t iHeaderLen = ntohl(*(uint32_t *)(buf));
-        if ((size_t)len < sizeof(uint32_t) || iHeaderLen < sizeof(int) || len < iHeaderLen)
+        size_t head_len = ntohl(*(uint32_t *)(buf));
+        if ((size_t)len < sizeof(uint32_t) || head_len < sizeof(int) || len < head_len)
         {
             return 0;
         }
-        return (int)iHeaderLen;
+        return (int)head_len;
     }
 };
