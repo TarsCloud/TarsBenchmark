@@ -69,14 +69,9 @@ int NodeImp::startup(const TaskConf& req, TarsCurrentPtr curr)
     PROC_TRY_BEGIN
 
     int left_speed = req.speed * req.endpoints.size();
-    if (req.servant.empty() || req.rpcfunc.empty() || left_speed < 0)
+    if (req.service.empty() || req.proto.empty() || left_speed < 0)
     {
-        PROC_TRY_EXIT(ret_code, BM_ERR_PARAM, err_code, 0, err_msg, "check param")
-    }
-
-    if (req.paravals.size() != req.paralist.size())
-    {
-        PROC_TRY_EXIT(ret_code, BM_NODE_ERR_CASEMATCH, err_code, 0, err_msg, "case para not match val")
+        PROC_TRY_EXIT(ret_code, BM_SERVER_ERR_PARAM, err_code, 0, err_msg, "check param")
     }
 
     if ((req.speed % req.links != 0) || (req.speed / req.links) > 1000)
@@ -118,10 +113,9 @@ int NodeImp::startup(const TaskConf& req, TarsCurrentPtr curr)
         if (tconf.runflag == TS_IDLE)
         {
             int threadspeed = std::min(left_speed, _max_speed_per_thread);
-            tconf.servant = req.servant;
-            tconf.rpcfunc = req.rpcfunc;
+            tconf.proto = req.proto;
+            tconf.service = req.service;
             tconf.paralist = req.paralist;       // 压测的入参配置
-            tconf.paravals = req.paravals;       // 压测的入参值
             tconf.endpoints = req.endpoints;     // 压测目标服务器
             tconf.links = req.links / need_thread;   // 压测目标服务器
             tconf.speed = threadspeed / req.endpoints.size();
@@ -146,9 +140,9 @@ int NodeImp::shutdown(const TaskConf& req, QueryRsp& rsp, TarsCurrentPtr curr)
     Int64 f_start = TNOWMS;
     PROC_TRY_BEGIN
 
-    if (req.servant.empty() || req.rpcfunc.empty())
+    if (req.service.empty() || req.proto.empty())
     {
-        PROC_TRY_EXIT(ret_code, BM_ERR_PARAM, err_code, 0, err_msg, "check param")
+        PROC_TRY_EXIT(ret_code, BM_SERVER_ERR_PARAM, err_code, 0, err_msg, "check param")
     }
 
     // 停止前把数据搜集上来
@@ -178,9 +172,9 @@ int NodeImp::query(const TaskConf& req, QueryRsp& rsp, TarsCurrentPtr curr)
     Int64 f_start = TNOWMS;
     PROC_TRY_BEGIN
 
-    if (req.servant.empty() || req.rpcfunc.empty())
+    if (req.service.empty() || req.proto.empty())
     {
-        PROC_TRY_EXIT(ret_code, BM_ERR_PARAM, err_code, 0, err_msg, "check param")
+        PROC_TRY_EXIT(ret_code, BM_SERVER_ERR_PARAM, err_code, 0, err_msg, "check param")
     }
 
     IntfStat stat_final;
@@ -258,7 +252,7 @@ int NodeImp::capacity(NodeStat &stats, TarsCurrentPtr curr)
         if (tconf.runflag)
         {
             cur_thread += 1;
-            string main_key = tconf.servant + "." + tconf.rpcfunc;
+            string main_key = tconf.proto + "." + tconf.service;
             if (cur_task.find(main_key) == cur_task.end())
             {
                 cur_task[main_key] = tconf;
@@ -274,8 +268,8 @@ int NodeImp::capacity(NodeStat &stats, TarsCurrentPtr curr)
     for (auto &itm : cur_task)
     {
         ExecItem runner;
-        runner.servant = itm.second.servant;
-        runner.rpcfunc = itm.second.rpcfunc;
+        runner.proto   = itm.second.proto;
+        runner.service = itm.second.service;
         runner.speed   = itm.second.speed * itm.second.endpoints.size();
         runner.links   = itm.second.links;
         runner.threads = (_max_speed_per_thread + itm.second.speed - 1) / _max_speed_per_thread;

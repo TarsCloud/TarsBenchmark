@@ -38,6 +38,15 @@ namespace bm
         virtual int initialize(int argc, char** argv) = 0;
 
         /**
+         * @brief  初始化函数
+         *
+         * @param params  参数
+         *
+         * @return 0成功, 其他失败
+         */
+        virtual int initialize(const vector<string>& params) = 0;
+
+        /**
          * @brief  协议是否支持有序的
          *
          * @return true: 支持; false: 不支持

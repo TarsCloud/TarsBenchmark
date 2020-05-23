@@ -32,51 +32,77 @@ namespace bm
         licote_option_add("-u", NULL, "target url");
         licote_option_init(argc, argv);
 
-        TC_URL cUrl;
-        TC_HttpRequest reqHttp;
-        reqHttp.setConnection("Keep-Alive");
-
         // 处理URL
+        TC_URL cUrl;
         if (!cUrl.parseURL(LICODE_GETSTR("-u", "")))
         {
             licote_option_help("参数格式不正确: 错误的目的URL\n");
         }
 
-        // 处理Head
-        string sHead = LICODE_GETSTR("-H", "");
-        if (!sHead.empty())
+        string post_body;
+        string file_name = LICODE_GETSTR("-F", "");
+        if (!file_name.empty())
         {
-            vector<string> vsHead = TC_Common::sepstr<string>(sHead, ";");
-            for (size_t ii = 0; ii < vsHead.size(); ii++)
+            ifstream ifs(file_name.c_str());
+            post_body = string(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>());
+        }
+
+        return fill_http_body(cUrl.getURL(), LICODE_GETSTR("-H", ""), LICODE_GETSTR("-C", ""), post_body);
+    }
+
+    int httpProtocol::initialize(const vector<string>& params)
+    {
+        if (params.size() != 4)
+        {
+            return BM_INIT_PARAM;
+        }
+
+        // 处理URL
+        TC_URL cUrl;
+        if (!cUrl.parseURL(params[0]))
+        {
+            return BM_ERROR_URL;
+        }
+        
+        return fill_http_body(cUrl.getURL(), params[1], params[2], params[3]);
+    }
+
+    int httpProtocol::fill_http_body(const string& url, const string& header, const string& cookie, const string& body)
+    {
+        TC_HttpRequest http;
+        http.setConnection("Keep-Alive");
+
+        // 处理Header
+        if (!header.empty())
+        {
+            vector<string> vh = TC_Common::sepstr<string>(header, ";");
+            for (size_t ii = 0; ii < vh.size(); ii++)
             {
-                vector<string> kvHead = TC_Common::sepstr<string>(vsHead[ii], ":");
-                if (kvHead.size() == 2)
+                vector<string> kvh = TC_Common::sepstr<string>(vh[ii], ":");
+                if (kvh.size() == 2)
                 {
-                    reqHttp.setHeader(kvHead[0], kvHead[1]);
+                    http.setHeader(kvh[0], kvh[1]);
                 }
             }
         }
 
         // 处理Cookie
-        string sCookie = LICODE_GETSTR("-C", "");
-        if (!sCookie.empty())
+        if (!cookie.empty())
         {
-            reqHttp.setCookie(sCookie);
+            http.setCookie(cookie);
         }
 
         // 处理POST/GET
-        string sFileName = LICODE_GETSTR("-F", "");
-        if (!sFileName.empty())
+        if (!body.empty())
         {
-            ifstream ifs(sFileName.c_str());
-            reqHttp.setPostRequest(cUrl.getURL(), string(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>()));
+            http.setPostRequest(url, body);
         }
         else
         {
-            reqHttp.setGetRequest(cUrl.getURL());
+            http.setGetRequest(url);
         }
 
-        _reqBuff = reqHttp.encode();
+        _reqBuff = http.encode();
         return 0;
     }
 

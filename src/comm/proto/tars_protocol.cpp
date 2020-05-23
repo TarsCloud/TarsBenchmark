@@ -45,62 +45,88 @@ namespace bm
 
         _servant  = LICODE_GETSTR("-S", "");
         _function = LICODE_GETSTR("-M", "");
-        _timeOut  = LICODE_GETINT("-t", 3000);
-        return parseCaseFile(LICODE_GETSTR("-C", ""));
-    }
+        _timeout  = LICODE_GETINT("-t", 3000);
 
-    int tarsProtocol::parseCaseFile(const string& file_name)
-    {
-        ifstream ifs(file_name.c_str());
+        ifstream ifs(licote_option_get("-C"));
         if (!ifs.is_open())
         {
             licote_option_help("case file open failed\n");
         }
 
-        string sLine;
-        int parseState = 0;
-        while (getline(ifs, sLine))
+        int parse_state = 0;
+        string s_line, s_param, s_value;
+        while (getline(ifs, s_line))
         {
-            string ss = TC_Common::trim(sLine);
+            string ss = TC_Common::trim(s_line);
             if (ss.empty())
             {
                 continue;
             }
 
             // 以#为开始的注释
-            if (parseState != 2 && ss.find_first_of("#") == 0)
+            if (parse_state != 2 && ss.find_first_of("#") == 0)
             {
                 continue;
             }
 
-            if (parseState == 0)
+            if (parse_state == 0)
             {
-                parseState = 1; //
-                _paraList  = TC_Common::sepstr<string>(ss, "|");
+                s_param = ss;
+                parse_state = 1;
                 continue;
             }
 
-            parseState = 2;
-            _paraVals.push_back(ss);
-        }
-
-        if (_paraVals.size() !=  _paraList.size())
-        {
-            licote_option_help("case parameter not match\n");
+            parse_state = 2;
+            s_value.append(ss + "\n");
         }
 
         try
         {
-            TarsOutputStream<BufferWriter> os;
-            for (size_t ii = 0; ii < _paraList.size(); ii++)
-            {
-                encode(os, _paraList[ii], _paraVals[ii], ii + 1);
-            }
+            parseCase(s_param, s_value);
         }
         catch (exception& e)
         {
-            string s = string("case datatype not match:") + e.what() + "\n";
+            string s = string(e.what()) + "\n";
             licote_option_help(s.c_str());
+        }
+    
+        return BM_SUCC;
+    }
+
+    int tarsProtocol::initialize(const vector<string>& params)
+    {
+        if (params.size() != 5)
+        {
+            return BM_INIT_PARAM;
+        }
+
+        _servant  = TC_Common::trim(params[0]);
+        _function = TC_Common::trim(params[1]);
+        _timeout  = TC_Common::strto<int>(params[2]);
+        try
+        {
+            parseCase(params[3], params[4]);
+        }
+        catch (exception& e)
+        {
+            return BM_PACKET_ERROR;
+        }
+        return BM_SUCC;
+    }
+
+    int tarsProtocol::parseCase(const string& in_param, const string& in_value)
+    {
+        _para_list = TC_Common::sepstr<string>(in_param, "|");
+        _para_vals = TC_Common::sepstr<string>(in_value, "\n");
+        if (_para_vals.size() !=  _para_list.size())
+        {
+            throw runtime_error("case parameter not match");
+        }
+
+        TarsOutputStream<BufferWriter> os;
+        for (size_t ii = 0; ii < _para_list.size(); ii++)
+        {
+            encode(os, _para_list[ii], _para_vals[ii], ii + 1);
         }
         return 0;
     }
@@ -717,22 +743,22 @@ namespace bm
         ostringstream oss;
         try
         {
-            if (_paraList.size() != _paraVals.size())
+            if (_para_list.size() != _para_vals.size())
             {
                 return BM_PACKET_PARAM;
             }
 
             TarsOutputStream<BufferWriter> os, os_;
-            for (size_t ii = 0; ii < _paraList.size(); ii++)
+            for (size_t ii = 0; ii < _para_list.size(); ii++)
             {
-                encode(os, _paraList[ii], escapeStr(_paraVals[ii]), ii + 1);
+                encode(os, _para_list[ii], escapeStr(_para_vals[ii]), ii + 1);
             }
 
             RequestPacket req;
             req.iRequestId   = uniqId;
             req.iVersion     = 1;
             req.cPacketType  = 0;
-            req.iTimeout     = _timeOut;
+            req.iTimeout     = _timeout;
             req.sServantName = _servant;
             req.sFuncName    = _function;
             req.context["AppName"] = "bmClient";

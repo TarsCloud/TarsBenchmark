@@ -35,10 +35,11 @@ using namespace tars;
 
 enum ErrorCode
 {
-    BM_SUCC = 0,
-    BM_UNEXPECT           = 9000,
-    BM_SEQUENCE           = 9001,
+    BM_SUCC               = 0,
+    BM_SEQUENCE           = 1,
+    BM_EXCEPTION          = -1,
     BM_INIT_PARAM         = -101,
+    BM_ERROR_URL          = -102,
 
     BM_PACKET_ERROR       = -1000,
     BM_PACKET_ENCODE      = -1001,

@@ -81,29 +81,55 @@ namespace bm
 
         _function = LICODE_GETSTR("-M", "");
         _servant  = LICODE_GETSTR("-S", "");
-        _timeOut  = LICODE_GETINT("-t", 3000);
-        return parseCaseFile(LICODE_GETSTR("-C", _function));
-    }
-
-    int jsonProtocol::parseCaseFile(const string& file_pre)
-    {
-        string file_field = TC_File::load2str(file_pre + ".desc");
-        parseField(JsonValueObjPtr::dynamicCast(TC_Json::getValue(file_field)), _paraField);
-        _paraJson = JsonValueObjPtr::dynamicCast(TC_Json::getValue(TC_File::load2str(file_pre + ".case")));
-
+        _timeout  = LICODE_GETINT("-t", 3000);
         try
         {
-            TarsOutputStream<BufferWriter> os;
-            for (auto& field : _paraField)
+            string file_pre = LICODE_GETSTR("-C", _function);
+            if (!TC_File::isFileExist(file_pre + ".desc"))
             {
-                encode(os, field, _paraJson->value[field.name]);
+                licote_option_help("interface description file not exist\n");
             }
+            
+            if (!TC_File::isFileExist(file_pre + ".case"))
+            {
+                licote_option_help("interface json case file not exist\n");
+            }
+
+            parseCase(TC_File::load2str(file_pre + ".desc"), TC_File::load2str(file_pre + ".case"));
         }
         catch (exception& e)
         {
             string s = string("case datatype not match:") + e.what() + "\n";
             licote_option_help(s.c_str());
         }
+        return BM_SUCC;
+    }
+
+    int jsonProtocol::initialize(const vector<string>& params)
+    {
+        if (params.size() != 5)
+        {
+            return BM_INIT_PARAM;
+        }
+
+        _servant  = TC_Common::trim(params[0]);
+        _function = TC_Common::trim(params[1]);
+        _timeout  = TC_Common::strto<int>(params[2]);
+        try
+        {
+            parseCase(params[3], params[4]);
+        }
+        catch (exception& e)
+        {
+            return BM_PACKET_ERROR;
+        }
+        return BM_SUCC;
+    }
+
+    int jsonProtocol::parseCase(const string& in_param, const string& in_value)
+    {
+        parseField(JsonValueObjPtr::dynamicCast(TC_Json::getValue(in_param)), _para_field);
+        _para_value = JsonValueObjPtr::dynamicCast(TC_Json::getValue(in_value));
         return 0;
     }
 
@@ -337,16 +363,16 @@ namespace bm
         try
         {
             TarsOutputStream<BufferWriter> os, os_;
-            for (auto& field : _paraField)
+            for (auto& field : _para_field)
             {
-                encode(os, field, _paraJson->value[field.name]);
+                encode(os, field, _para_value->value[field.name]);
             }
 
             RequestPacket req;
             req.iRequestId   = uniqId;
             req.iVersion     = 1;
             req.cPacketType  = 0;
-            req.iTimeout     = _timeOut;
+            req.iTimeout     = _timeout;
             req.sServantName = _servant;
             req.sFuncName    = _function;
             req.context["AppName"] = "bmClient";

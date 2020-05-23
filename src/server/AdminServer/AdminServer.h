@@ -1,5 +1,5 @@
-﻿#ifndef _ProxyServer_H_
-#define _ProxyServer_H_
+﻿#ifndef _ADMIN_SERVER_H_
+#define _ADMIN_SERVER_H_
 
 #include <iostream>
 
@@ -8,22 +8,59 @@
 #include "util/tc_thread_pool.h"
 #include "transport.h"
 #include "commdefs.h"
-#include "Proxy.h"
+#include "Admin.h"
 #include "Node.h"
 
 using namespace bm;
 using namespace tars;
 
+inline string GetMainKey(const TaskConf& tconf)
+{
+    ostringstream osk;
+    osk << tconf.proto << "." << tconf.service;
+    return osk.str();
+}
+
+inline ResultStat& operator+=(ResultStat& l, ResultStat& r)
+{
+    uint64_t total_request = l.total_request + r.total_request;
+    if (total_request > 0)
+    {
+        l.p90_time  = (l.p90_time*l.total_request + r.p90_time*r.total_request) / total_request;
+        l.p99_time  = (l.p99_time*l.total_request + r.p99_time*r.total_request) / total_request;
+        l.p999_time = (l.p999_time*l.total_request + r.p999_time*r.total_request) / total_request;
+    }
+
+    for (auto & it : r.ret_map)
+    {
+        l.ret_map[it.first] += it.second;
+    }
+
+    for (auto & it : r.cost_map)
+    {
+        l.cost_map[it.first] += it.second;
+    }
+
+    l.total_request += r.total_request;
+    l.succ_request  += r.succ_request;
+    l.fail_request  += r.fail_request;
+    l.total_time    += r.total_time;
+    l.send_bytes    += r.send_bytes;
+    l.recv_bytes    += r.recv_bytes;
+    l.max_time = std::max<double>(l.max_time, r.max_time);
+    l.min_time = std::min<double>(l.min_time, r.min_time);
+    return l;
+}
 /**
  *
  **/
-class ProxyServer : public Application, public TC_ThreadLock
+class AdminServer : public Application, public TC_ThreadLock
 {
 public:
     /**
      *
      **/
-    virtual ~ProxyServer() {};
+    virtual ~AdminServer() {};
 
     /**
      *
@@ -110,7 +147,7 @@ private:
     map<string, NodePrx>    _nodeprx;             // 以机器IP为key
 };
 
-extern ProxyServer g_app;
+extern AdminServer g_app;
 
 ////////////////////////////////////////////
 #endif

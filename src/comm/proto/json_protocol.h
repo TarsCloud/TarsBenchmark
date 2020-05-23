@@ -61,6 +61,15 @@ namespace bm
         virtual int initialize(int argc, char** argv);
 
         /**
+         * @brief  初始化函数
+         *
+         * @param params  参数
+         *
+         * @return 0成功, 其他失败
+         */
+        virtual int initialize(const vector<string>& params);
+
+        /**
          * @brief  协议是否支持有序的
          *
          * @return true: 支持, false: 不支持
@@ -109,15 +118,6 @@ namespace bm
          * @return JsonValuePtr
          */
         JsonValuePtr decode(TarsInputStream<BufferReader> &is, JsonField& f);
-    private:
-        /**
-         * @brief  解析测试用例文件
-         *
-         * @param file_pre 测试用例前缀
-         *
-         * @return 0成功, 其他失败
-         */
-        int parseCaseFile(const string& file_pre);
 
         /**
          * @brief  解析成员变量
@@ -129,6 +129,16 @@ namespace bm
          * @return Field结构
          */
         void parseField(JsonValueObjPtr ptr, vector<JsonField>& field, int elem_num = -1);
+    private:
+        /**
+         * @brief  解析测试用例
+         *
+         * @param in_param      用例参数
+         * @param in_value      用例内容
+         *
+         * @return 0成功, 其他失败
+         */
+        int parseCase(const string& in_param, const string& in_value);
 
         /**
          * @brief  生成取随机内容
@@ -150,12 +160,12 @@ namespace bm
          */
         string genRandomValue(const string& v, bool is_int = true);
     public:
-        int                     _timeOut;
+        int                     _timeout;
         string                  _servant;
         string                  _function;
-        JsonValueObjPtr         _paraJson;
-        vector<JsonField>       _paraField;
-        vector<JsonField>       _outField;
+        JsonValueObjPtr         _para_value;
+        vector<JsonField>       _para_field;
+        vector<JsonField>       _out_field;
     };
 };
 #endif

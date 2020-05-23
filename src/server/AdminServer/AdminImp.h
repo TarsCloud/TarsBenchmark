@@ -1,8 +1,8 @@
-﻿#ifndef _ProxyImp_H_
-#define _ProxyImp_H_
+﻿#ifndef _ADMIN_IMP_H_
+#define _ADMIN_IMP_H_
 
-#include "Proxy.h"
-
+#include "Admin.h"
+#include "proto_factory.h"
 
 using namespace bm;
 using namespace tars;
@@ -11,13 +11,13 @@ using namespace tars;
  *
  *
  */
-class ProxyImp : public Proxy
+class AdminImp : public Admin
 {
 public:
     /**
      *
      */
-    virtual ~ProxyImp() {}
+    virtual ~AdminImp() {}
 
     /**
      *
@@ -52,6 +52,20 @@ public:
      *
      */
     int test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCurrentPtr curr);
+
+private:
+    /**
+     * @brief  基本参数检查
+     * 
+     * @param req       请求结构体
+     * @param conf      任务配置
+     * 
+     * @return TC_Socket指针
+     */
+    int check(const BenchmarkUnit &req, TaskConf &conf, int timieout = 0);
+
+private:
+    ProtoFactory  _factory;
 };
 /////////////////////////////////////////////////////
 #endif

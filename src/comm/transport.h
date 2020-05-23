@@ -33,8 +33,8 @@ namespace bm
 
         virtual ~Transport()
         {
+            this->close();
             _factory.destroyObject();
-            close();
         }
 
                 /**

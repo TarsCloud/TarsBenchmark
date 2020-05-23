@@ -1,27 +1,27 @@
-﻿#include "ProxyServer.h"
-#include "ProxyImp.h"
+﻿#include "AdminServer.h"
+#include "AdminImp.h"
 
 using namespace std;
 
-ProxyServer g_app;
+AdminServer g_app;
 
 /////////////////////////////////////////////////////////////////
-void ProxyServer::initialize()
+void AdminServer::initialize()
 {
     //initialize application here:
     //...
-    addServant<ProxyImp>(ServerConfig::Application + "." + ServerConfig::ServerName + ".ProxyObj");
+    addServant<AdminImp>(ServerConfig::Application + "." + ServerConfig::ServerName + ".AdminObj");
 
     // 启动一个watch线程，防止压测线程长时间空跑
     _runflag = true;
     _next_scan_time = 0;
-    auto fw = std::bind(&ProxyServer::daemon, this);
+    auto fw = std::bind(&AdminServer::daemon, this);
     _watchdog.init(1);
     _watchdog.start();
     _watchdog.exec(fw);
 }
 /////////////////////////////////////////////////////////////////
-void ProxyServer::destroyApp()
+void AdminServer::destroyApp()
 {
     //destroy application here:
     //...
@@ -31,39 +31,8 @@ void ProxyServer::destroyApp()
     _watchdog.waitForAllDone();
 }
 
-inline ResultStat& operator+=(ResultStat& l, ResultStat& r)
-{
-    uint64_t total_request = l.total_request + r.total_request;
-    if (total_request > 0)
-    {
-        l.p90_time  = (l.p90_time*l.total_request + r.p90_time*r.total_request) / total_request;
-        l.p99_time  = (l.p99_time*l.total_request + r.p99_time*r.total_request) / total_request;
-        l.p999_time = (l.p999_time*l.total_request + r.p999_time*r.total_request) / total_request;
-    }
-
-    for (auto & it : r.ret_map)
-    {
-        l.ret_map[it.first] += it.second;
-    }
-
-    for (auto & it : r.cost_map)
-    {
-        l.cost_map[it.first] += it.second;
-    }
-
-    l.total_request += r.total_request;
-    l.succ_request  += r.succ_request;
-    l.fail_request  += r.fail_request;
-    l.total_time    += r.total_time;
-    l.send_bytes    += r.send_bytes;
-    l.recv_bytes    += r.recv_bytes;
-    l.max_time = std::max<double>(l.max_time, r.max_time);
-    l.min_time = std::min<double>(l.min_time, r.min_time);
-    return l;
-}
-
 /////////////////////////////////////////////////////////////////
-void ProxyServer::daemon()
+void AdminServer::daemon()
 {
     while (_runflag)
     {
@@ -174,7 +143,7 @@ void ProxyServer::daemon()
     FDLOG(__FUNCTION__) << "thread exit" << endl;
 }
 
-void ProxyServer::scanActiveNode(long cur_time, bool refresh)
+void AdminServer::scanActiveNode(long cur_time, bool refresh)
 {
     try
     {
@@ -182,6 +151,7 @@ void ProxyServer::scanActiveNode(long cur_time, bool refresh)
         {
             _next_scan_time = cur_time + 60;
 
+            // 拉取压测节点服务正在执行的任务
             map<string, NodePrx> nodeprx;
             map<string, NodeStat> nodestat;
             TC_Config &conf = Application::getConfig();
@@ -208,13 +178,13 @@ void ProxyServer::scanActiveNode(long cur_time, bool refresh)
         {
             for(auto ite = it.second.executors.begin(); ite != it.second.executors.end();)
             {
-                string main_key = ite->servant + "." + ite->rpcfunc;
+                string main_key = ite->proto + "." + ite->service;
                 if (_summary.task.find(main_key) == _summary.task.end())
                 {
                     // 关闭配置
                     TaskConf task;
-                    task.servant = ite->servant;
-                    task.rpcfunc = ite->rpcfunc;
+                    task.proto = ite->proto;
+                    task.service = ite->service;
                     shutdownNodeTask(it.first, task);
 
                     Lock lock(*this);
@@ -236,7 +206,7 @@ void ProxyServer::scanActiveNode(long cur_time, bool refresh)
 }
 
 ////////////////////////////////////////////////////////////////
-int ProxyServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
+int AdminServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
 {
     int ret_code = 0;
     int err_code = 0;
@@ -247,10 +217,10 @@ int ProxyServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
 
     if (_nodeprx.find(ipaddr) == _nodeprx.end())
     {
-        PROC_TRY_EXIT(ret_code, BM_PROXY_ERR_NOTFIND, err_code, 0, err_msg, "prx not find")
+        PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_NOTFIND, err_code, 0, err_msg, "prx not find")
     }
 
-    PROC_NE_EXIT(_nodeprx[ipaddr]->startup(task), 0, ret_code, BM_PROXY_ERR_STARTUP)
+    PROC_NE_EXIT(_nodeprx[ipaddr]->startup(task), 0, ret_code, BM_ADMIN_ERR_STARTUP)
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
 
     FDLOG(__FUNCTION__) << (TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << err_msg << "|" << ipaddr << "|" << logTars(task) << endl;
@@ -259,7 +229,7 @@ int ProxyServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
 }
 
 ////////////////////////////////////////////////////////////////
-int ProxyServer::shutdownNodeTask(const string& ipaddr, const TaskConf& task)
+int AdminServer::shutdownNodeTask(const string& ipaddr, const TaskConf& task)
 {
     int ret_code = 0;
     int err_code = 0;
@@ -270,11 +240,11 @@ int ProxyServer::shutdownNodeTask(const string& ipaddr, const TaskConf& task)
 
     if (_nodeprx.find(ipaddr) == _nodeprx.end())
     {
-        PROC_TRY_EXIT(ret_code, BM_PROXY_ERR_NOTFIND, err_code, 0, err_msg, "prx not find")
+        PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_NOTFIND, err_code, 0, err_msg, "prx not find")
     }
 
     QueryRsp rsp;
-    PROC_NE_EXIT(_nodeprx[ipaddr]->shutdown(task, rsp), 0, ret_code, BM_PROXY_ERR_SHUTDOWN)
+    PROC_NE_EXIT(_nodeprx[ipaddr]->shutdown(task, rsp), 0, ret_code, BM_ADMIN_ERR_SHUTDOWN)
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
 
     FDLOG(__FUNCTION__) << (TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << err_msg << "|" << ipaddr << "|" << logTars(task) << endl;
@@ -283,7 +253,7 @@ int ProxyServer::shutdownNodeTask(const string& ipaddr, const TaskConf& task)
 }
 
 ////////////////////////////////////////////////////////////////
-int ProxyServer::queryNodeTask(const string& ipaddr, const TaskConf& task, ResultStat& stat)
+int AdminServer::queryNodeTask(const string& ipaddr, const TaskConf& task, ResultStat& stat)
 {
     int ret_code = 0;
     int err_code = 0;
@@ -295,10 +265,10 @@ int ProxyServer::queryNodeTask(const string& ipaddr, const TaskConf& task, Resul
 
     if (_nodeprx.find(ipaddr) == _nodeprx.end())
     {
-        PROC_TRY_EXIT(ret_code, BM_PROXY_ERR_NOTFIND, err_code, 0, err_msg, "prx not find")
+        PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_NOTFIND, err_code, 0, err_msg, "prx not find")
     }
 
-    PROC_NE_EXIT(_nodeprx[ipaddr]->query(task, rsp), 0, ret_code, BM_PROXY_ERR_SHUTDOWN)
+    PROC_NE_EXIT(_nodeprx[ipaddr]->query(task, rsp), 0, ret_code, BM_ADMIN_ERR_SHUTDOWN)
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
     stat = rsp.stat;
 
@@ -308,7 +278,7 @@ int ProxyServer::queryNodeTask(const string& ipaddr, const TaskConf& task, Resul
 }
 
 ////////////////////////////////////////////////////////////////
-bool ProxyServer::getResult(const string &key, ResultStat& stat)
+bool AdminServer::getResult(const string &key, ResultStat& stat)
 {
     Lock lock(*this);
     auto task = _summary.task.find(key);
@@ -328,13 +298,13 @@ bool ProxyServer::getResult(const string &key, ResultStat& stat)
     return false;
 }
 
-void ProxyServer::getSummary(BenchmarkSummary& summary)
+void AdminServer::getSummary(BenchmarkSummary& summary)
 {
     Lock lock(*this);
     summary = _summary;
 }
 
-void ProxyServer::updateTask(const string &key, const TaskStat& task)
+void AdminServer::updateTask(const string &key, const TaskStat& task)
 {
     Lock lock(*this);
     _summary.task[key] = task;

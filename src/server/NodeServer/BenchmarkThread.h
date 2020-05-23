@@ -17,7 +17,7 @@
 #include "Node.h"
 #include "commdefs.h"
 #include "transport.h"
-#include "tars_protocol.h"
+#include "proto_factory.h"
 #include "util/tc_thread.h"
 #include "servant/Application.h"
 
@@ -79,9 +79,10 @@ protected:
     void do_task();
 
 private:
-    bool        _terminate;         // 线程结束标志
-    Monitor*    _monitor;           // 监控器
-    TaskConf    _taskconf;          // 线程安全考虑
+    bool            _terminate;         // 线程结束标志
+    Monitor*        _monitor;           // 监控器
+    TaskConf        _taskconf;          // 线程安全考虑
+    ProtoFactory    _factory;
 };
 
 #endif

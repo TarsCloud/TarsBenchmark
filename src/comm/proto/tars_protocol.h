@@ -55,6 +55,15 @@ namespace bm
         virtual int initialize(int argc, char** argv);
 
         /**
+         * @brief  初始化函数
+         *
+         * @param params  参数
+         *
+         * @return 0成功, 其他失败
+         */
+        virtual int initialize(const vector<string>& params);
+
+        /**
          * @brief  协议是否支持有序的
          *
          * @return true: 支持, false: 不支持
@@ -158,13 +167,14 @@ namespace bm
         string genRandomValue(const string& v, bool is_int = true);
 
         /**
-         * @brief  解析测试用例文件
+         * @brief  解析测试用例
          *
-         * @param sFileName 测试用例文件
+         * @param in_param      用例参数
+         * @param in_value      用例内容
          *
          * @return 0成功, 其他失败
          */
-         int parseCaseFile(const string& file_name);
+        int parseCase(const string& in_param, const string& in_value);
 
         /**
          * @brief  转义字符
@@ -185,11 +195,11 @@ namespace bm
          string unescapeStr(const string& src);
 
     public:
-        int             _timeOut;
+        int             _timeout;
         string          _servant;
         string          _function;
-        vector<string>  _paraVals;
-        vector<string>  _paraList;
+        vector<string>  _para_vals;
+        vector<string>  _para_list;
     };
 };
 #endif

@@ -27,6 +27,7 @@ BenchmarkThread::~BenchmarkThread()
         delete _monitor;
         _monitor = NULL;
     }
+    _factory.destroyObject();
 }
 
 void BenchmarkThread::terminate()
@@ -78,11 +79,12 @@ void BenchmarkThread::do_task()
     eloop.create(MAX_FD);
 
     // 协议初始化
-    tarsProtocol proto;
-    proto._servant  = taskconf.servant;
-    proto._function = taskconf.rpcfunc;
-    proto._paraList = taskconf.paralist;
-    proto._paraVals = taskconf.paravals;
+    Protocol* proto = _factory.get(taskconf.proto + "Protocol");
+    int ret = proto->initialize(taskconf.paralist);
+    if (ret != 0)
+    {
+        PROC_TRY_EXIT(ret_code, ret, err_code, ret, err_msg, "proto init fail")
+    }
 
     // 创建压测连接
     for (size_t i = 0; i < taskconf.endpoints.size(); i++)
@@ -93,10 +95,9 @@ void BenchmarkThread::do_task()
         {
             Transport* conn = ep.isTcp() ? (Transport*)(new TCPTransport(ep, &eloop))
                                          : (Transport*)(new UDPTransport(ep, &eloop));
-            conn->initialize(_monitor, &proto);
+            conn->initialize(_monitor, proto);
             conn_list.push_back(conn);
         }
-        proto._timeOut  = ep.getTimeout();
     }
 
     // 清理缓存区数据, 准备启动压测

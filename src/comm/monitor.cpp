@@ -78,7 +78,7 @@ namespace bm
 
     void Monitor::report(int retCode, int costTime)
     {
-        if (BM_SUCC == retCode || BM_UNEXPECT == retCode)
+        if (BM_SUCC == retCode)
         {
             tmpStat.succCount++;
         }

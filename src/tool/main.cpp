@@ -99,11 +99,12 @@ int initialize(int argc, char* argv[])
 
         ProtoFactory protoFactory;
         gProtoName = LICODE_GETSTR("-p", "http") + "Protocol";
-        if (protoFactory.get(gProtoName, argc, argv) == NULL)
+        if (protoFactory.get(gProtoName) == NULL)
         {
             licote_option_help("参数格式不正确: 协议不存在\n");
         }
 
+        protoFactory.get(gProtoName)->initialize(argc, argv);
         gInterval = gSpeed == 0 ? 0 : (1000000 * gConsNum) / gSpeed;
         memset(&gStatInf, 0, sizeof(IntfStat));
         Monitor::getInstance()->initialize();

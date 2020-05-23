@@ -23,7 +23,8 @@ namespace bm
 {
     void Transport::initialize(Monitor* monitor, const string& proto, int argc, char** argv)
     {
-        _proto   = _factory.get(proto, argc, argv);
+        _proto = _factory.get(proto);
+        _proto->initialize(argc, argv);
         _monitor = monitor;
     }
 

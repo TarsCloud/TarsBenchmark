@@ -15,18 +15,16 @@ module bm
 {
     enum BMErrCode
     {
-        BM_SUCC                 = 0,
-        BM_EXCEPTION            = -1,
-        BM_ERR_PARAM            = -2,
-
-        BM_PROXY_ERR_NOTFIND    = -10001,   // 未找到此链接
-        BM_PROXY_ERR_RUNNING    = -10002,   // 服务未运行
-        BM_PROXY_ERR_STARTUP    = -10003,   // 启动失败
-        BM_PROXY_ERR_SHUTDOWN   = -10004,   // 关闭失败
-        BM_PROXY_ERR_ENCODE     = -10005,   // 编码失败
-        BM_PROXY_ERR_DECODE     = -10006,   // 编码失败
-        BM_PROXY_ERR_SOCKET     = -10007,   // 网络失败
-        BM_PROXY_ERR_TASK       = -10008,   // 服务不在运行中
+        BM_SERVER_ERR_PARAM     = -10000,
+        BM_ADMIN_ERR_NOTFIND    = -10001,   // 未找到此链接
+        BM_ADMIN_ERR_RUNNING    = -10002,   // 服务未运行
+        BM_ADMIN_ERR_STARTUP    = -10003,   // 启动失败
+        BM_ADMIN_ERR_SHUTDOWN   = -10004,   // 关闭失败
+        BM_ADMIN_ERR_ENCODE     = -10005,   // 编码失败
+        BM_ADMIN_ERR_DECODE     = -10006,   // 编码失败
+        BM_ADMIN_ERR_SOCKET     = -10007,   // 网络失败
+        BM_ADMIN_ERR_TASK       = -10008,   // 服务不在运行中
+        BM_ADMIN_ERR_PROTO      = -10009,   // 未找到此协议
 
         BM_NODE_ERR_RUNNING     = -20001,   // 正在运行
         BM_NODE_ERR_RESOURCE    = -20002,   // 资源不足
@@ -66,11 +64,11 @@ module bm
     // 最小值形体结构
     struct ExecItem
     {
-        0 optional string           servant;
-        1 optional string           rpcfunc;
-        2 optional int              threads;  // 占用压测进程单元
-        3 optional int              links;    // 当前压测链接数
-        4 optional int              speed;    // 当前压测速率
+        0 optional string           proto;     // 压测协议名称
+        1 optional string           service;   // 压测服务的标记
+        2 optional int              threads;   // 占用压测进程单元
+        3 optional int              links;     // 当前压测链接数
+        4 optional int              speed;     // 当前压测速率
     };
 
     // capacity接口结构体
@@ -95,16 +93,15 @@ module bm
     // startup/shutdown接口结构体
     struct TaskConf
     {
-        0 optional string           servant;        // 压测服务的servant
-        1 optional string           rpcfunc;        // 压测服务的接口
+        0 optional string           proto;          // 压测协议名称
+        1 optional string           service;        // 压测服务的标记
         2 optional vector<string>   paralist;       // 压测的入参配置
-        3 optional vector<string>   paravals;       // 压测的入参值
-        4 optional vector<string>   endpoints;      // 压测目标服务器
-        5 optional int              links;          // 单个endpoint的链接数
-        6 optional int              speed;          // 单个endpoint的速率，最好是links的倍数
-        7 optional int              runflag;        // 是否正在运行(0, 表示停止，1: 正在压测)
+        3 optional vector<string>   endpoints;      // 压测目标服务器
+        4 optional int              links;          // 单个endpoint的链接数
+        5 optional int              speed;          // 单个endpoint的速率，最好是links的倍数
+        6 optional int              runflag;        // 是否正在运行(0, 表示停止，1: 正在压测)
     };
-    key[TaskConf, servant, rpcfunc];
+    key[TaskConf, proto, service];
 
 
     interface Node
@@ -133,5 +130,4 @@ module bm
          */
         int capacity(out NodeStat stats);
     };
-
 };
