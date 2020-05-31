@@ -35,7 +35,7 @@ module bm
         3 optional map<string, TaskStat>     task;          // 压测接口状态，key为proto.service
     };
 
-    // startup/shutdown接口结构体
+    // 压测接口请求结构
     struct BenchmarkUnit
     {
         0 optional string           owner;          // 压测启动人
@@ -44,6 +44,8 @@ module bm
         3 optional string           para_input;     // 压测的入参配置
         4 optional string           para_value;     // 压测的入参值
         5 optional vector<string>   paralist;       // 压测的入/出参配置
+                                                    // 如果proto=tars|json, paralist表示输出配置
+                                                    // 如果proto=http, paralist[0:url,1:header,2:cookie,3:postbody]
         6 optional vector<string>   endpoints;      // 压测目标服务器
         7 optional int              links;          // 单个endpoint的链接数
         8 optional int              speed;          // 单个endpoint的速率，最好是links的倍数

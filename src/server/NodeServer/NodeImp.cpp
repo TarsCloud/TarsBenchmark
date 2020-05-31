@@ -178,7 +178,7 @@ int NodeImp::query(const TaskConf& req, QueryRsp& rsp, TarsCurrentPtr curr)
     }
 
     IntfStat stat_final;
-    map<int, int> ret_final;
+    map<int, tars::Int64> ret_final;
     for(size_t i = 0; i < _thread_pool.size(); i++)
     {
         TaskConf tconf = _thread_pool[i]->getTaskConf();
@@ -193,7 +193,7 @@ int NodeImp::query(const TaskConf& req, QueryRsp& rsp, TarsCurrentPtr curr)
                     map<int, int> ret_val = str2map(string((char *)stat_list[ii].retCount));
                     for(auto &itm : ret_val)
                     {
-                        ret_final[itm.first] += itm.second;
+                        ret_final[itm.first] += tars::Int64(itm.second);
                     }
                     stat_final += stat_list[ii];
                 }

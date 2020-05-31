@@ -24,7 +24,7 @@ namespace bm
     {
         DECLARE_DYNCREATE(httpProtocol)
     public:
-        httpProtocol() {}
+        httpProtocol() { _random_flag = false; }
         virtual ~httpProtocol() {}
 
         /**

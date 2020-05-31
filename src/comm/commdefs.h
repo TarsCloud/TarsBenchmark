@@ -82,6 +82,20 @@ enum
     MAX_STEP_COST = 10,
 };
 
+const string PT_VOID        = "void";
+const string PT_BOOLEAN     = "bool";
+const string PT_BYTE        = "byte";
+const string PT_SHORT       = "short";
+const string PT_INT         = "int";
+const string PT_LONG        = "long";
+const string PT_FLOAT       = "float";
+const string PT_DOUBLE      = "double";
+const string PT_STRING      = "string";
+const string PT_VECTOR      = "vector";
+const string PT_MAP         = "map";
+const string PT_STRUCT      = "struct";
+const string PT_UNSIGNED    = "unsigned";
+
 /**
  * @brief  string转换map
  *
@@ -255,7 +269,6 @@ inline int64_t getProcNum(void)
 #define TBNOWMS TC_Common::now2ms()
 #define LICODE_GETINT(x, v) (licote_option_exist(x) ? TC_Common::strto<int>(licote_option_get(x)) : v)
 #define LICODE_GETSTR(x, v) (licote_option_exist(x) ? TC_Common::trim(licote_option_get(x)) : v)
-
 
 #define CAS(ptr, old, new)({ char ret; __asm__ __volatile__("lock; cmpxchgl %2,%0; setz %1": "+m"(*ptr), "=q"(ret): "r"(new),"a"(old): "memory"); ret;})
 #define WMB() __asm__ __volatile__("sfence":::"memory")

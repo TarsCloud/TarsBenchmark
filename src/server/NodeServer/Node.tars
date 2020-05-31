@@ -45,8 +45,8 @@ module bm
     struct ResultStat
     {
         0 optional  long                 time_stamp;
-        1 optional  map<int, int>        ret_map;
-        2 optional  map<int, int>        cost_map;
+        1 optional  map<int, long>       ret_map;
+        2 optional  map<int, long>       cost_map;
         3 optional  long                 total_request;
         4 optional  long                 succ_request;
         5 optional  long                 fail_request;

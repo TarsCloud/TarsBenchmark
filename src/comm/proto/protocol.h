@@ -44,7 +44,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int initialize(const vector<string>& params) = 0;
+        virtual int initialize(const vector<string>& params) { return 0; }
 
         /**
          * @brief  协议是否支持有序的
@@ -74,6 +74,65 @@ namespace bm
          */
         virtual int encode(char *buf, int& len, int& uniqId) = 0;
         virtual int decode(const char *buf, int len, int& uniqId) = 0;
+    protected:
+        /**
+         * @brief  生成取随机内容
+         *
+         * @param rmin  最小值
+         * @param rmax  最大值
+         *
+         * @return long 随机值
+         */
+        virtual long genRandomValue(const string& rmin, const string& rmax)
+        {
+            long max = TC_Common::strto<long>(rmax);
+            long min = TC_Common::strto<long>(rmin);
+            return (long)(rand() % (max - min + 1) + min);
+        }
+
+        /**
+         * @brief  生成取随机内容
+         *
+         * @param v     string内容
+         * @param is_int    是否整形数据
+         *
+         * @return string 随机值内容
+         */
+        virtual string genRandomValue(const string& v, bool is_int = true)
+        {
+            string::size_type l = v.find_first_of('[');
+            string::size_type r = v.find_last_of(']');
+            string::size_type m = v.find_first_of('-');
+            string::size_type n = v.find_first_of(',');
+            if (l != 0 || r != (v.size() - 1) || (m == string::npos && n == string::npos))
+            {
+                return v;
+            }
+
+            string nv = v.substr(l + 1, r - l);
+            if (m != string::npos && is_int)
+            {
+                vector<string> vs = TC_Common::sepstr<string>(nv, "-");
+                if (vs.size() == 2)
+                {
+                    _random_flag = true;
+                    return TC_Common::tostr(genRandomValue(vs.at(0), vs.at(1)));
+                }
+                throw runtime_error("invalid randval(-)");
+            }
+            else if (n != string::npos)
+            {
+                vector<string> vs = TC_Common::sepstr<string>(nv, ",");
+                if (vs.size() > 1)
+                {
+                    _random_flag = true;
+                    return vs[(size_t)rand() % vs.size()];
+                }
+            }
+            return nv;
+        }
+    protected:
+        bool _random_flag;
     };
 };
 #endif

@@ -14,6 +14,13 @@
 using namespace bm;
 using namespace tars;
 
+/**
+ * @brief 生成主key
+ * 
+ * @param l  tconf   任务配置
+ * 
+ * @return string
+ */
 inline string GetMainKey(const TaskConf& tconf)
 {
     ostringstream osk;
@@ -21,6 +28,12 @@ inline string GetMainKey(const TaskConf& tconf)
     return osk.str();
 }
 
+/**
+ * @brief 重载ResultStat结构+=符号
+ *
+ * @param l  左边的rs
+ * @param r  右边的rs
+ */
 inline ResultStat& operator+=(ResultStat& l, ResultStat& r)
 {
     uint64_t total_request = l.total_request + r.total_request;
@@ -96,8 +109,10 @@ public:
     /**
      * @brief 函数注释
      *
-     * @param
-     * @return int
+     * @param  key      主键
+     * @param  stat     状态
+     * 
+     * @return bool
      */
     bool getResult(const string &key, ResultStat& stat);
 

@@ -22,20 +22,6 @@
 
 namespace bm
 {
-    const string PT_VOID    = "void";
-    const string PT_BOOLEAN = "bool";
-    const string PT_BYTE    = "byte";
-    const string PT_SHORT   = "short";
-    const string PT_INT     = "int";
-    const string PT_LONG    = "long";
-    const string PT_FLOAT   = "float";
-    const string PT_DOUBLE  = "double";
-    const string PT_STRING  = "string";
-    const string PT_VECTOR  = "vector";
-    const string PT_MAP     = "map";
-    const string PT_STRUCT  = "struct";
-    const string PT_UNSIGNED = "unsigned";
-
     #define WRITENUM(st, vt, f, v) if(f.type.find(st) == 0)         \
     {                                                               \
         string s;                                                   \
@@ -362,10 +348,14 @@ namespace bm
         ostringstream oss;
         try
         {
-            TarsOutputStream<BufferWriter> os, os_;
-            for (auto& field : _para_field)
+            TarsOutputStream<BufferWriter> os;
+            if (_random_flag == true)
             {
-                encode(os, field, _para_value->value[field.name]);
+                _os.reset();
+                for (auto &field : _para_field)
+                {
+                    encode(_os, field, _para_value->value[field.name]);
+                }
             }
 
             RequestPacket req;
@@ -377,18 +367,18 @@ namespace bm
             req.sFuncName    = _function;
             req.context["AppName"] = "bmClient";
             req.status["AppName"] = "bmClient";
-            req.sBuffer = os.getByteBuffer();
-            req.writeTo(os_);
+            req.sBuffer = _os.getByteBuffer();
+            req.writeTo(os);
 
-            if ((size_t)len < (os_.getLength() + 4))
+            if ((size_t)len < (os.getLength() + 4))
             {
-                return os_.getLength() + 4;
+                return os.getLength() + 4;
             }
 
-            len = sizeof(Int32) + os_.getLength();
-            Int32 iHeaderLen = htonl(sizeof(Int32) + os_.getLength());
+            len = sizeof(Int32) + os.getLength();
+            Int32 iHeaderLen = htonl(sizeof(Int32) + os.getLength());
             memcpy(buf, &iHeaderLen, sizeof(Int32));
-            memcpy(buf + sizeof(Int32), os_.getBuffer(), os_.getLength());
+            memcpy(buf + sizeof(Int32), os.getBuffer(), os.getLength());
             return 0;
         }
         catch (exception& e)
@@ -433,57 +423,13 @@ namespace bm
         return BM_PACKET_DECODE;
     }
 
-    long jsonProtocol::genRandomValue(const string& range_min, const string& range_max)
-    {
-        long max = TC_Common::strto<long>(range_max);
-        long min = TC_Common::strto<long>(range_min);
-        return (long)(rand() % (max - min + 1) + min);
-    }
-
-    string jsonProtocol::genRandomValue(const string& v, bool isIntegal)
-    {
-        string::size_type l = v.find_first_of('[');
-        string::size_type r = v.find_last_of(']');
-        if (l == string::npos || r == string::npos)
-        {
-            return v;
-        }
-
-        string nv = v.substr(l + 1, r - l - 1);
-        string::size_type m = v.find_first_of('-');
-        string::size_type n = v.find_first_of(',');
-        if (m == string::npos && n == string::npos)
-        {
-            return nv;
-        }
-
-        if (m != string::npos && isIntegal)
-        {
-            vector<string> vs = TC_Common::sepstr<string>(nv, "-");
-            if (vs.size() == 2)
-            {
-                return TC_Common::tostr(genRandomValue(vs.at(0), vs.at(1)));
-            }
-            throw runtime_error("invalid randval(-)");
-        }
-        else if (n != string::npos)
-        {
-            vector<string> vs = TC_Common::sepstr<string>(nv, ",");
-            if (vs.size() > 1)
-            {
-                return vs[(size_t)rand() % vs.size()];
-            }
-        }
-        return nv;
-    }
-
     int jsonProtocol::input(const char *buf, size_t len)
     {
-        size_t iHeaderLen = ntohl(*(uint32_t *)(buf));
-        if ((size_t)len < sizeof(uint32_t) || iHeaderLen < sizeof(int) || len < iHeaderLen)
+        size_t head_len = ntohl(*(uint32_t *)(buf));
+        if ((size_t)len < sizeof(uint32_t) || head_len < sizeof(int) || len < head_len)
         {
             return 0;
         }
-        return (int)iHeaderLen;
+        return (int)head_len;
     }
 };
