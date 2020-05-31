@@ -109,10 +109,9 @@ namespace bm
             throw runtime_error("case parameter not match");
         }
 
-        TarsOutputStream<BufferWriter> os;
         for (size_t ii = 0; ii < _para_list.size(); ii++)
         {
-            encode(os, _para_list[ii], _para_vals[ii], ii + 1);
+            encode(_os, _para_list[ii], _para_vals[ii], ii + 1);
         }
         return 0;
     }

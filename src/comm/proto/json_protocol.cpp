@@ -116,6 +116,10 @@ namespace bm
     {
         parseField(JsonValueObjPtr::dynamicCast(TC_Json::getValue(in_param)), _para_field);
         _para_value = JsonValueObjPtr::dynamicCast(TC_Json::getValue(in_value));
+        for (auto &field : _para_field)
+        {
+            encode(_os, field, _para_value->value[field.name]);
+        }
         return 0;
     }
 
