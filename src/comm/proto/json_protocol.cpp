@@ -75,7 +75,7 @@ namespace bm
             {
                 licote_option_help("interface description file not exist\n");
             }
-            
+
             if (!TC_File::isFileExist(file_pre + ".case"))
             {
                 licote_option_help("interface json case file not exist\n");
@@ -103,6 +103,8 @@ namespace bm
         _timeout  = TC_Common::strto<int>(params[2]);
         try
         {
+            _os.reset();
+            _random_flag = false;
             parseCase(params[3], params[4]);
         }
         catch (exception& e)
@@ -187,22 +189,38 @@ namespace bm
         }
         else if(f.type.find(PT_VECTOR) == 0)
         {
+            JsonValueArrayPtr av = JsonValueArrayPtr::dynamicCast(v);
             if (PT_BYTE.compare(f.child[0].type) == 0)
             {
+                string sv;
                 TarsWriteToHead(os, TarsHeadeSimpleList, f.tag);
                 TarsWriteToHead(os, TarsHeadeChar, f.tag);
+                if (NULL != v.get() && v->getType() == eJsonTypeString)
+                {
+                    sv = TC_Common::str2bin(JsonValueStringPtr::dynamicCast(v)->value);
+                }
+                else if (av.get() != NULL)
+                {
+                    for (size_t i = 0; i < av->value.size(); i++)
+                    {
+                        Char ch = 0x20;
+                        JsonInput::readJson(ch, av->value[i], false);
+                        sv.append(1, ch);
+                    }
+                }
+
+                os.write(sv.length(), 0);
+                TarsWriteTypeBuf(os, sv.c_str(), sv.length());
             }
             else
             {
                 TarsWriteToHead(os, TarsHeadeList, f.tag);
-            }
-
-            JsonValueArrayPtr av = JsonValueArrayPtr::dynamicCast(v);
-            size_t arr_size = NULL == av.get() ? 0 : av->value.size();
-            os.write(arr_size, 0);
-            for (size_t i = 0; i < arr_size; ++i)
-            {
-                encode(os, f.child[0], av->value[i]);
+                size_t arr_size = NULL == av.get() ? 0 : av->value.size();
+                os.write(arr_size, 0);
+                for (size_t i = 0; i < arr_size; ++i)
+                {
+                    encode(os, f.child[0], av->value[i]);
+                }
             }
         }
         else if (f.type.find(PT_STRUCT) == 0)
@@ -248,13 +266,13 @@ namespace bm
         if (f.type.find(PT_STRING) == 0)
         {
             string tmp;
-            is.read(tmp, f.tag, true);
+            is.read(tmp, f.tag, false);
             return new JsonValueString(tmp);
         }
         else if (f.type.find(PT_BOOLEAN) == 0)
         {
             JsonValueBooleanPtr bptr = new JsonValueBoolean();
-            is.read(bptr->value, f.tag, true);
+            is.read(bptr->value, f.tag, false);
             return bptr;
         }
         else if (f.type.find(PT_VECTOR) == 0)
@@ -279,11 +297,11 @@ namespace bm
                     if (h.getType() == DataHead::eChar)
                     {
                         Int32 size;
+                        vector<Char> vb;
                         is.read(size, 0);
-                        for (int i = 0; i < size; ++i)
-                        {
-                            vp->value.push_back(decode(is, f.child[0]));
-                        }
+                        is.readBuf(vb, size);
+                        string sv = TC_Common::bin2str(&vb[0], vb.size());
+                        return new JsonValueString(sv);
                     }
                     else
                     {

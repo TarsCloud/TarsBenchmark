@@ -134,22 +134,22 @@ public:
     void getSummary(BenchmarkSummary& summary);
 
     /**
-     * @brief 函数注释
-     *
-     * @param  key      主键
-     * @param  stat     状态
-     *
-     * @return bool
-     */
-    bool getResult(const string &key, ResultStat& stat);
-
-    /**
      * @brief 扫描当前处在活动状态的node
      *
      * @param cur_time  当前时间，单位为秒
      * @param refresh   强刷标志
      */
     void scanActiveNode(long cur_time, bool refresh = false);
+
+    /**
+     * @brief 查询压测结果
+     *
+     * @param  key      主键
+     * @param  stat     状态
+     *
+     * @return int
+     */
+    int queryResult(const string &key, ResultStat& stat);
 
     /**
      * @brief 启动node上的任务

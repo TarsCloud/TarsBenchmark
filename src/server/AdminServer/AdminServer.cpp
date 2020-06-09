@@ -279,7 +279,7 @@ int AdminServer::queryNodeTask(const string& ipaddr, const TaskConf& task, Resul
 }
 
 ////////////////////////////////////////////////////////////////
-bool AdminServer::getResult(const string &key, ResultStat& stat)
+int AdminServer::queryResult(const string &key, ResultStat& stat)
 {
     Lock lock(*this);
     auto task = _summary.task.find(key);
@@ -291,14 +291,14 @@ bool AdminServer::getResult(const string &key, ResultStat& stat)
         stat.avg_speed = calcSpeed(stat);
         resetStat(result->second);
         task->second.fetch_time = TNOW;
-        return true;
+        return BM_SUCC;
     }
     else if (total_res != _summary.total_result.end())
     {
         stat = total_res->second;
-        return true;
+        return BM_ADMIN_ERR_RUNNING;
     }
-    return false;
+    return BM_ADMIN_ERR_NOTFIND;
 }
 
 void AdminServer::getSummary(BenchmarkSummary& summary)

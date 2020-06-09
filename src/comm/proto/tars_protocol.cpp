@@ -75,7 +75,7 @@ namespace bm
             string s = string(e.what()) + "\n";
             licote_option_help(s.c_str());
         }
-    
+
         return BM_SUCC;
     }
 
@@ -91,6 +91,8 @@ namespace bm
         _timeout  = TC_Common::strto<int>(params[2]);
         try
         {
+            _os.reset();
+            _random_flag = false;
             parseCase(params[3], params[4]);
         }
         catch (exception& e)

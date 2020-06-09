@@ -162,9 +162,10 @@ int AdminImp::query(const BenchmarkUnit& req, ResultStat& stat, TarsCurrentPtr c
     }
 
     string main_key = GetMainKey(tconf);
-    if (!g_app.getResult(main_key, stat))
+    ret = g_app.queryResult(main_key, stat);
+    if (ret != 0)
     {
-        PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_NOTFIND, err_code, 0, err_msg, "not find interface")
+        PROC_TRY_EXIT(ret_code, ret, err_code, ret, err_msg, "get result failed")
     }
 
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
@@ -312,6 +313,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
             tarsProtocol *p = (tarsProtocol *)proto;
             vector<string> vi = TC_Common::sepstr<string>(req.para_input, "|");
             vector<string> vo = TC_Common::sepstr<string>(req.paralist[0], "|");
+            rsp += TC_Common::tostr(ret_code) + "<br>";
             for (size_t i = 0; i < vo.size(); i++)
             {
                 rsp += p->decode(isf, vo[i], int(i+vi.size()+1), false) + "<br>";
@@ -327,8 +329,10 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
             {
                 out->value[field.name] = p->decode(isf, field);
             }
+            out->value["tarsret"] = new JsonValueNum(ret_code, true);
             rsp = TC_Json::writeValue(out);
         }
+        PROC_TRY_EXIT(err_code, ret_code, ret_code, 0, err_msg, "ok")
     }
 
     PROC_TRY_END(errmsg, ret_code, BM_ADMIN_ERR_DECODE, BM_ADMIN_ERR_DECODE)

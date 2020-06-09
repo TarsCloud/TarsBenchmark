@@ -1,0 +1,17 @@
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/AdminServer/CMakeFiles/AdminServer-release.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/AdminServer/CMakeFiles/AdminServer-tar.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/AdminServer/CMakeFiles/tars-AdminServer.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/NodeServer/CMakeFiles/NodeServer-upload.dir
+/data/home/linfengchen/github/TarsBenchmark/build/CMakeFiles/upload.dir
+/data/home/linfengchen/github/TarsBenchmark/build/CMakeFiles/release.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/tool/CMakeFiles/tb-tar.dir
+/data/home/linfengchen/github/TarsBenchmark/build/CMakeFiles/tar.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/NodeServer/CMakeFiles/NodeServer-release.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/tool/CMakeFiles/tb.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/AdminServer/CMakeFiles/AdminServer.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/NodeServer/CMakeFiles/NodeServer.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/comm/CMakeFiles/tb_comm.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/AdminServer/CMakeFiles/AdminServer-upload.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/tool/CMakeFiles/tb-upload.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/NodeServer/CMakeFiles/NodeServer-tar.dir
+/data/home/linfengchen/github/TarsBenchmark/build/src/server/NodeServer/CMakeFiles/tars-NodeServer.dir
