@@ -80,7 +80,7 @@ int AdminImp::startup(const BenchmarkUnit& req, TarsCurrentPtr curr)
     bool has_bad_endpoint = false;
     for (size_t i = 0; i < req.endpoints.size(); i++)
     {
-        try { 
+        try {
             ep.parse(req.endpoints[i]);
             if (ep.getPort() == 0 || ep.getPort() > 65535)
             {
@@ -213,8 +213,7 @@ int AdminImp::shutdown(const BenchmarkUnit& req, ResultStat& stat, TarsCurrentPt
     if (summary.total_result.find(main_key) != summary.total_result.end())
     {
         stat = summary.total_result[main_key];
-        int duration = TNOWMS/1000 - summary.task[main_key].start_time;
-        stat.avg_speed = duration <= 0 ? 0 : stat.total_request / duration;
+        stat.avg_speed = calcSpeed(stat, f_start/1000);
     }
 
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
@@ -324,7 +323,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
             JsonValueObjPtr out = new JsonValueObj;
             jsonProtocol *p = (jsonProtocol *)proto;
             p->parseField(JsonValueObjPtr::dynamicCast(TC_Json::getValue(req.paralist[0])), fields);
-            for(auto & field : fields) 
+            for(auto & field : fields)
             {
                 out->value[field.name] = p->decode(isf, field);
             }

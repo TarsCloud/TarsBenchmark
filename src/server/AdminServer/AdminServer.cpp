@@ -79,8 +79,8 @@ void AdminServer::daemon()
                     it->second.start_time = cur_time;
                     it->second.fetch_time = cur_time;
                     it->second.speed_quota = speed_quota;
-                    _summary.result[it->first].time_stamp = cur_time;
-                    _summary.total_result[it->first].time_stamp = cur_time;
+                    resetStat(_summary.result[it->first]);
+                    resetStat(_summary.total_result[it->first]);
                     break;
                 }
                 case TS_RUNNING:
@@ -118,8 +118,9 @@ void AdminServer::daemon()
                     }
 
                     Lock lock(*this);
-                    _summary.total_result.erase(it->first);
                     _summary.result.erase(it->first);
+                    auto& total_res = _summary.total_result[it->first];
+                    total_res.avg_speed = calcSpeed(total_res, cur_time);
                     it = _summary.task.erase(it);
                     continue;
                 }
@@ -283,16 +284,18 @@ bool AdminServer::getResult(const string &key, ResultStat& stat)
     Lock lock(*this);
     auto task = _summary.task.find(key);
     auto result = _summary.result.find(key);
+    auto total_res = _summary.total_result.find(key);
     if (task != _summary.task.end() && result != _summary.result.end())
     {
         stat = result->second;
-        int duration = TNOW - task->second.fetch_time;
-        stat.avg_speed = duration <= 0 ? 0 : stat.total_request / duration;
-        result->second.resetDefautlt();
-        result->second.ret_map.clear();
-        result->second.cost_map.clear();
-        result->second.time_stamp = TNOW;
+        stat.avg_speed = calcSpeed(stat);
+        resetStat(result->second);
         task->second.fetch_time = TNOW;
+        return true;
+    }
+    else if (total_res != _summary.total_result.end())
+    {
+        stat = total_res->second;
         return true;
     }
     return false;

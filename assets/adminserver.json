@@ -1,0 +1,22 @@
+{
+    "application": "benchmark",
+    "server_name": "AdminServer",
+    "node_name": "host_ip",
+    "server_type": "tars_cpp",
+    "template_name": "tars.benchmark",
+    "enable_set": false,
+    "set_name": "",
+    "set_area": "",
+    "set_group": "",
+    "adapters": [{
+        "obj_name": "AdminObj",
+        "bind_ip": "host_ip",
+        "port": "31820",
+        "port_type": "tcp",
+        "protocol": "tars",
+        "thread_num": 8,
+        "max_connections": 100000,
+        "queuecap": 50000,
+        "queuetimeout": 20000
+    }]
+}

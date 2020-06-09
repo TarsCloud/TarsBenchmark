@@ -120,45 +120,45 @@ int initialize(int argc, char* argv[])
 /**
 *  压测主程序run
 */
-int run(int seqNum, int argc, char* argv[])
+int run(int seqno, int argc, char* argv[])
 {
     // 事件初始化
-    TC_Epoller eLoop;
-    eLoop.create(MAX_FD);
+    TC_Epoller loop;
+    loop.create(MAX_FD);
 
     // 创建连接
-    vector<Transport*> vCons;
+    vector<Transport*> connections;
     for (size_t i = 0; i < gConsNum; i++)
     {
         for (size_t ii = 0; ii < gEps.size(); ii++)
         {
-            Transport* pConn = gEps[ii].isTcp() ? (Transport*)(new TCPTransport(gEps[ii], &eLoop))
-                                                : (Transport*)(new UDPTransport(gEps[ii], &eLoop));
-            pConn->initialize(Monitor::getInstance(), gProtoName, argc, argv);
-            vCons.push_back(pConn);
+            Transport* conn = gEps[ii].isTcp() ? (Transport*)(new TCPTransport(gEps[ii], &loop))
+                                               : (Transport*)(new UDPTransport(gEps[ii], &loop));
+            conn->initialize(Monitor::getInstance(), gProtoName, argc, argv);
+            connections.push_back(conn);
         }
     }
 
-    int64_t requestId = seqNum;
-    int64_t nextSendTime = 0;
+    int64_t req_no = seqno;
+    int64_t next_send_time = 0;
     while (gRunFlag)
     {
         try
         {
-            int64_t curSendTime = TC_Common::now2us();
-            if (curSendTime >= nextSendTime)
+            int64_t cur_time = TC_Common::now2us();
+            if (cur_time >= next_send_time)
             {
-                nextSendTime = curSendTime + gInterval;
-                for (size_t i = 0; i < vCons.size(); i++)
+                next_send_time = next_send_time + gInterval;
+                for (size_t i = 0; i < connections.size(); i++)
                 {
-                    requestId += gRunCores;
-                    vCons[i]->trySend(requestId);
-                    vCons[i]->checkTimeOut(curSendTime/1000);
+                    req_no += gRunCores;
+                    connections[i]->trySend(req_no);
+                    connections[i]->checkTimeOut(cur_time/1000);
                 }
             }
 
-            Transport::handle(&eLoop, 1);
-            Monitor::getInstance()->syncStat(curSendTime/1000);
+            Transport::handle(&loop, 1);
+            Monitor::getInstance()->syncStat(cur_time/1000);
         }
         catch (tars::TC_Exception& e)
         {
@@ -167,13 +167,13 @@ int run(int seqNum, int argc, char* argv[])
     }
 
     // 析构链接前收发一次
-    Transport::handle(&eLoop, 1000);
+    Transport::handle(&loop, 1000);
     Monitor::getInstance()->syncStat(0);
-    for (size_t i = 0; i < vCons.size(); i++)
+    for (size_t i = 0; i < connections.size(); i++)
     {
-        delete vCons[i];
+        delete connections[i];
     }
-    vCons.clear();
+    connections.clear();
     return 0;
 }
 
@@ -191,70 +191,70 @@ void procSignal(int signo)
 /**
 *  输出耗时统计
 */
-void printCost(const IntfStat& statInf)
+void printCost(const IntfStat& stat)
 {
-    double dTotalCount = 0.0;
-    double dMegerCount = 0.0;
+    double totol_count = 0.0;
+    double meger_count = 0.0;
     static int arrCost[MAX_STEP_COST] = {0, 10, 30, 50, 100, 500, 3000, 5000, 99999, 0};
     for (size_t i = 0; i < MAX_STEP_COST && arrCost[i + 1] != 0; i++)
     {
-        dTotalCount += statInf.costTimes[i];
+        totol_count += stat.costTimes[i];
     }
 
-    dTotalCount = max(1.0, dTotalCount);
+    totol_count = max(1.0, totol_count);
     for (size_t i = 0; i < MAX_STEP_COST && arrCost[i + 1] != 0; i++)
     {
-        dMegerCount += statInf.costTimes[i];
-        printf("[%5d - %5d ms] %7d\t%2.2f%%\t\t%2.2f%%\n", arrCost[i], arrCost[i+1], statInf.costTimes[i],
-            100 * (double)statInf.costTimes[i] / dTotalCount, 100 * dMegerCount / dTotalCount);
+        meger_count += stat.costTimes[i];
+        printf("[%5d - %5d ms] %7d\t%2.2f%%\t\t%2.2f%%\n", arrCost[i], arrCost[i+1], stat.costTimes[i],
+            100 * (double)stat.costTimes[i] / totol_count, 100 * meger_count / totol_count);
     }
 }
 
 /**
 *  输出压测周期结果
 */
-void printPeriod(int intvlTime)
+void printPeriod(int intvl_time)
 {
-    IntfStat statInf;
-    map<int, int> mRetFinal;
-    vector<IntfStat> vStatList;
-    if (Monitor::getInstance()->fetch(vStatList))
+    IntfStat stat;
+    map<int, int> ret_final;
+    vector<IntfStat> stat_list;
+    if (Monitor::getInstance()->fetch(stat_list))
     {
-        for (size_t ii = 0; ii < vStatList.size(); ii++)
+        for (size_t ii = 0; ii < stat_list.size(); ii++)
         {
-            map<int, int> mRet = str2map(string((char *)vStatList[ii].retCount));
-            for (map<int, int>::iterator itm = mRet.begin(); itm != mRet.end(); itm++)
+            map<int, int> ret_map = str2map(string((char *)stat_list[ii].retCount));
+            for (map<int, int>::iterator itm = ret_map.begin(); itm != ret_map.end(); itm++)
             {
-                mRetFinal[itm->first] += itm->second;
+                ret_final[itm->first] += itm->second;
             }
-            statInf += vStatList[ii];
+            stat += stat_list[ii];
         }
-        gStatInf += statInf;
+        gStatInf += stat;
     }
 
-    if (intvlTime > 0)
+    if (intvl_time > 0)
     {
-        double totalDecimal = std::max(1.00, (double)statInf.totalCount);
-        double failRate = min(statInf.failCount, statInf.totalCount) / totalDecimal;
+        double total_decimal = std::max(1.00, (double)stat.totalCount);
+        double fail_rate = min(stat.failCount, stat.totalCount) / total_decimal;
         printf("\n\n--------------------------------------------------------------------------------------------------------------------\n");
         printf("Time\t\t\tTotal\tSucc\tFail\tRate\tMax(ms)\tMin(ms)\tAvg(ms)\tP90(ms)\tP99(ms)\tP999(ms)\tTPS\n");
         printf("%s\t%-6d\t%-6d\t%-6d\t%0.2f%%\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t\t%d",
             TC_Common::now2str("%Y-%m-%d %H:%M:%S").c_str(),
-            statInf.totalCount, statInf.succCount, statInf.failCount, (1 - failRate) * 100,
-            statInf.maxTime, statInf.minTime, statInf.totalTime/totalDecimal,
-            statInf.p90Time, statInf.p99Time, statInf.p999Time,
-            statInf.totalCount/intvlTime);
+            stat.totalCount, stat.succCount, stat.failCount, (1 - fail_rate) * 100,
+            stat.maxTime, stat.minTime, stat.totalTime/total_decimal,
+            stat.p90Time, stat.p99Time, stat.p999Time,
+            stat.totalCount/intvl_time);
 
-        printf("\n\n\nCall Result: [%s]\n", map2str(mRetFinal).c_str());
+        printf("\n\n\nCall Result: [%s]\n", map2str(ret_final).c_str());
         printf("--------------------------------------------------------------------------------------------------------------------\n");
-        printCost(statInf);
+        printCost(stat);
     }
 }
 
 /**
 *  输出最终压测结果
 */
-void printFinal(int intvlTime)
+void printFinal(int intvl_time)
 {
     printPeriod(0);
     string sEndPoint = gEps[0].toString();
@@ -263,10 +263,10 @@ void printFinal(int intvlTime)
         sEndPoint.append("\n                        ").append(gEps[ii].toString());
     }
 
-    double totalDecimal = std::max(1.00, (double)gStatInf.totalCount);
-    double failRate = min((double)gStatInf.failCount, (double)gStatInf.totalCount) / totalDecimal;
+    double total_decimal = std::max(1.00, (double)gStatInf.totalCount);
+    double fail_rate = min((double)gStatInf.failCount, (double)gStatInf.totalCount) / total_decimal;
 
-    int realIntvlTime = intvlTime - LICODE_GETINT("-t", 3000) / 3000;
+    int real_intvl_time = intvl_time - LICODE_GETINT("-t", 3000) / 3000;
     printf("\n\n--------------------------------------------------------------------------------------------------------------------\n");
     printf("--------------------------------------------------------------------------------------------------------------------\n");
     printf("----------------------------------   Finish Pressure Test   --------------------------------------------------------\n");
@@ -280,15 +280,15 @@ void printFinal(int intvlTime)
     printf("Concurrency Connections:  %lu\n", gConsNum * gRunCores);
     printf("Connections per Procesor: %ld\n", gConsNum);
     printf("Success requests:         %d\n", gStatInf.succCount);
-    printf("Success rate:             %.2f%%\n", (1 - failRate) * 100);
+    printf("Success rate:             %.2f%%\n", (1 - fail_rate) * 100);
     printf("Failed requests:          %d\n", gStatInf.failCount);
     printf("Total requests:           %d\n", gStatInf.totalCount);
-    printf("Total duration:           %d[sec]\n", realIntvlTime);
-    printf("Transfer rate:            %.2f[Kbytes/sec]\n", (double)gStatInf.totalSendBytes/(realIntvlTime*800));
-    printf("Requests per second:      %d[#/sec](mean)\n", gStatInf.totalCount/realIntvlTime);
+    printf("Total duration:           %d[sec]\n", real_intvl_time);
+    printf("Transfer rate:            %.2f[Kbytes/sec]\n", (double)gStatInf.totalSendBytes/(real_intvl_time*800));
+    printf("Requests per second:      %d[#/sec](mean)\n", gStatInf.totalCount/real_intvl_time);
     printf("Request size(Avg):        %ld\n", (size_t)gStatInf.totalSendBytes/gStatInf.totalCount);
     printf("Response size(Avg):       %ld\n", (size_t)gStatInf.totalRecvBytes/gStatInf.totalCount);
-    printf("Latency time(Avg):        %2.2f[ms]\n", gStatInf.totalTime/totalDecimal);
+    printf("Latency time(Avg):        %2.2f[ms]\n", gStatInf.totalTime/total_decimal);
     printf("Latency time(P90):        %2.2f[ms]\n", gStatInf.p90Time);
     printf("Latency time(P99):        %2.2f[ms]\n", gStatInf.p99Time);
     printf("Latency time(P999):       %2.2f[ms]\n", gStatInf.p999Time);
@@ -302,7 +302,7 @@ void printFinal(int intvlTime)
 int main(int argc, char* argv[])
 {
     // 环境初始化
-    vector<int> vPids;
+    vector<int> pid_list;
     if (initialize(argc, argv) != 0)
     {
         return 0;
@@ -324,29 +324,28 @@ int main(int argc, char* argv[])
             signal(SIGPIPE, SIG_IGN);
             return run(ip, argc, argv);
         }
-        vPids.push_back(pid);
+        pid_list.push_back(pid);
     }
 
     // 主进程外显
     printPeriod(0);
-    int64_t tCurTime = TBNOWMS;
-    int iBenIntvl  = LICODE_GETINT("-I", 3600); // 默认1小时
-    int iViewIntvl = LICODE_GETINT("-i", 5);
-    while (iBenIntvl > 0 && gRunFlag)
+    int64_t cur_time = TBNOWMS;
+    int test_intvl = LICODE_GETINT("-I", 3600);   // 默认1小时
+    int view_intvl = LICODE_GETINT("-i", 5);
+    while (test_intvl-- > 0 && gRunFlag)
     {
-        sleep(1);
-        iBenIntvl -= 1;
-        if (abs(TBNOWMS - tCurTime) > iViewIntvl * 1000)
+        if (abs(TBNOWMS - cur_time) > view_intvl * 1000)
         {
-            tCurTime = TBNOWMS;
-            printPeriod(iViewIntvl);
+            cur_time = TBNOWMS;
+            printPeriod(view_intvl);
         }
+        sleep(1);
     }
 
     // 先杀死进程，然后打印统计
-    for (size_t ii = 0; ii < vPids.size(); ii++)
+    for (size_t ii = 0; ii < pid_list.size(); ii++)
     {
-        kill(vPids[ii], SIGUSR1);
+        kill(pid_list[ii], SIGUSR1);
     }
 
     int status;

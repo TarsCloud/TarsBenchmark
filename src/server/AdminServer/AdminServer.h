@@ -16,9 +16,9 @@ using namespace tars;
 
 /**
  * @brief 生成主key
- * 
+ *
  * @param l  tconf   任务配置
- * 
+ *
  * @return string
  */
 inline string GetMainKey(const TaskConf& tconf)
@@ -26,6 +26,33 @@ inline string GetMainKey(const TaskConf& tconf)
     ostringstream osk;
     osk << tconf.proto << "." << tconf.service;
     return osk.str();
+}
+
+/**
+ * @brief 重置ResultStat
+ *
+ * @param rs  目标结构
+ * @param cur_time  当前时间
+ */
+inline ResultStat& resetStat(ResultStat& rs, Int64 cur_time = TNOW)
+{
+    rs.resetDefautlt();
+    rs.ret_map.clear();
+    rs.cost_map.clear();
+    rs.time_stamp = cur_time;
+    return rs;
+}
+
+/**
+ * @brief 计算速率
+ *
+ * @param rs        目标结构
+ * @param cur_time  当前时间
+ */
+inline Int64 calcSpeed(ResultStat& rs, Int64 cur_time = TNOW)
+{
+    Int64 duration = cur_time - rs.time_stamp;
+    return duration <= 0 ? 0 : rs.total_request / duration;
 }
 
 /**
@@ -111,7 +138,7 @@ public:
      *
      * @param  key      主键
      * @param  stat     状态
-     * 
+     *
      * @return bool
      */
     bool getResult(const string &key, ResultStat& stat);

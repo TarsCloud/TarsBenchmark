@@ -1,0 +1,27 @@
+{
+    "template_name": "tars.benchmark",
+    "parents_name": "tars.default",
+    "profile": "<tars>\n
+    <application>\n
+        <client>\n
+        </client>\n
+        <server>\n
+        </server>\n
+    </application>\n
+</tars>\n
+<benchmark>\n
+    ##压测线程数量\n
+    totalThreads=6\n
+    ##单线程最大qps\n
+    maxtThreadSpeed=10000\n
+    ##共享内存队列配置\n
+    shmBase=202005010\n
+    shmSize=1048576\n
+    ##NODE的obj名称\n
+    nodeObj=benchmark.NodeServer.NodeObj\n
+  \n
+    ##测试开辟send/recv内存大小\n
+    sendSize=4194304\n
+    recvSize=8388608\n
+</benchmark>"
+}

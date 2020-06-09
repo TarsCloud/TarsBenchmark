@@ -254,7 +254,7 @@ namespace bm
             {
                 this->close();
                 _monitor->report(BM_SOCK_RECV_ERROR);
-                return BM_SOCK_CONN_ERROR;
+                return BM_SOCK_RECV_ERROR;
             }
 
             len = rcvLen <= 0 ? 0 : rcvLen;
