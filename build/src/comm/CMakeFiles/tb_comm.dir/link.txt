@@ -1,2 +1,0 @@
-/usr/bin/ar cq ../../lib/libtb_comm.a  CMakeFiles/tb_comm.dir/transport.cpp.o CMakeFiles/tb_comm.dir/monitor.cpp.o CMakeFiles/tb_comm.dir/proto/json_protocol.cpp.o CMakeFiles/tb_comm.dir/proto/http_protocol.cpp.o CMakeFiles/tb_comm.dir/proto/tars_protocol.cpp.o CMakeFiles/tb_comm.dir/licote/licote.c.o
-/usr/bin/ranlib ../../lib/libtb_comm.a
