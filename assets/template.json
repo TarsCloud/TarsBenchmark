@@ -13,7 +13,7 @@
     ##压测线程数量\n
     totalThreads=6\n
     ##单线程最大qps\n
-    maxtThreadSpeed=10000\n
+    maxtThreadSpeed=30000\n
     ##共享内存队列配置\n
     shmBase=202005010\n
     shmSize=1048576\n
