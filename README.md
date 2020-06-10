@@ -1,38 +1,39 @@
-# 简介
+[点我查看中文版](README.zh.md)
 
-**tb**(TarsBenchmark)是专门为tars服务量身订做的无码压测工具，具备以下特性：
+## Introduction
 
- - 网络高性能：8核机器TPS支持超过20W/S;
- - 通讯扩展性：网络层支持TCP/UDP两种协议方式;
- - 协议扩展性：应用层支持Http,Tars服务压测, 也保持对第三方协议开放;
- - 完善的实时统计与监控支持。提供周期内的请求数/TPS/耗时/成功率分布;
+**tb**(TarsBenchmark)It is a non-code benchmark tool specially tailored for tars service, with the following features:
 
-## 框架结构
+ - High performance: 8-core machine TPS supports more than 20W/s;
+ - Network compatibility: The network layer supports TCP and UDP protocol;
+ - Protocol scalability: It supports http/tars service benchmark, open to third-protocol agreements
+ - Perfect real-time monitor. Provide the number of TPS/Success Rate/Cost time within the cycle;
 
-tb工具采用多进程方式设计，主进程负责资源调度和外显，压测进程负责网络收发和统计，网络层可以灵活选择TCP or UDP; 采用协议代理工厂模式管理各类service协议，默认支持http/tars协议的压测，支持协议自动发现; 主进程和压测进程之间控制信息通过信号方式交互，数据信息通过无锁共享内存队列交互，以达到最低的资源消耗，主进程会周期地搜集各压测进程的网络统计信息，经过简单汇总之后输出到控制台。
+## Framework
 
-![tb系统结构](https://github.com/TarsCloud/TarsDocs/blob/master/assets/tb-platform.png)
+The tb is designed in a multi-process model. The main process is responsible for resource scheduling and display, and the benchmark process is responsible for network transmission and reception and statistics. The network layer can flexibly choose TCP or UDP; adopts a protocol factory to manage various service protocols, supports http/tars by default; the main process and the benchmark process exchange signals through control information, and the data interacts through the lock-free shared memory queue to achieve the lowest resource consumption. The main process periodically collects each The network statistics of the benchmark process are output to the console after a simple summary.
 
-## 使用说明
+![tb system](https://github.com/TarsCloud/TarsDocs_en/blob/master/assets/tb-platform.png)
 
-简单示意
+
+## Usage
+
+Sample
 ```text
 ./tb -c 600 -s 6000 -D 192.168.31.1 -P 10505 -p tars -S tars.DemoServer.DemoObj -M test -C test.txt
 ```
 参数说明
 ```text
   -h                   帮助信息
-  -c                   连接数量
-  -D                   压测服务器IP，多个IP用';'区隔
-  -P                   网络传输端口
-  -p                   接口通信协议(tars|http)
-  -t(可选)             单个请求超时时间，默认3秒
-  -T(可选)             网络层协议，默认tcp
-  -I(可选)             压测持续时间(单位秒)，默认1H
-  -i(可选)             控制台打印周期时间(单位秒)，默认10秒
-  -s(可选)             最大速率限制，为空或0表示不限速
-  -n(可选)             最大压测进程限制，默认跟CPU核心数
+  -c                   number of connections
+  -D                   target server address(ipv4)
+  -P                   target server port
+  -p                   service protocol(tars|http)
+  -t(optional)         overtime time，default 3 second
+  -T(optional)         network protocol，default tcp
+  -I(optional)         continue time(by second)，default 1h
+  -i(optional)         view interval(by second)，default 10s
+  -s(optional)         maximum tps limit per target server
+  -n(optional)         maximum process
 ```
-
-详细使用参考[tb工具编译说明](https://github.com/TarsCloud/TarsDocs/blob/master/benchmark/develop.md)
-
+See details in [develop.md](https://github.com/TarsCloud/TarsDocs_en/blob/master/benchmark/develop.md)
