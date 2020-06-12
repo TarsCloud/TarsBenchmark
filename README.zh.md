@@ -36,3 +36,20 @@ tb工具采用多进程方式设计，主进程负责资源调度和外显，压
 
 详细使用参考[tb工具编译说明](https://github.com/TarsCloud/TarsDocs/blob/master/benchmark/develop.md)
 
+## 一键安装
+
+采用最新版本的[TarsWeb](https://github.com/TarsCloud/TarsWeb), 就可以实现在线压测Tars服务，一键发布步骤如下:
+```shell
+./install.sh webhost token adminsip nodeip
+```
+
+参数说明
+```text
+webhost                  TarsWeb管理端的host或ip:port
+token                    TarsWeb管理端的token，可以通过管理端获取http://webhost:3001/auth.html#/token
+adminsip                 压测管理服务AdminServer部署的IP地址，AdminServer必须单点部署。
+nodeip                   压测节点服务NodeServer部署的IP地址，建议和AdminServer分开部署。
+```
+
+**AdminServer**建议和tarsregistry部署在一起, **NodeServer**部署成功之后可在管理端扩容，部署的机器越多，支持并行压测能力就越强。
+
