@@ -21,6 +21,13 @@
 #include "protocol.h"
 using namespace std;
 
+#if TARGET_PLATFORM_LINUX
+#include <sys/syscall.h>
+#define gettid() syscall(SYS_gettid)
+#elif TARGET_PLATFORM_IOS
+#include <sys/syscall.h>
+#endif
+
 namespace bm
 {
     class ProtoFactory
@@ -32,7 +39,8 @@ namespace bm
         Protocol* get(const string& name)
         {
             Protocol* cmd = NULL;
-            if (_protos.find(name) == _protos.end())
+            string nkey = TC_Common::tostr(gettid()) + name;
+            if (_protos.find(nkey) == _protos.end())
             {
                 TC_DYN_Object* obj = TC_DYN_CreateObject(name.c_str());
                 if(!obj)
@@ -44,10 +52,10 @@ namespace bm
                 {
                     throw runtime_error("null protocol:" + name);
                 }
-                _protos[name] = obj;
+                _protos[nkey] = obj;
             }
 
-            if ((cmd = dynamic_cast<Protocol*>(_protos[name])) == NULL)
+            if ((cmd = dynamic_cast<Protocol*>(_protos[nkey])) == NULL)
             {
                 throw runtime_error("null command:" + name);
             }
