@@ -36,7 +36,7 @@ tb工具采用多进程方式设计，主进程负责资源调度和外显，压
 
 详细使用参考[tb工具编译说明](https://github.com/TarsCloud/TarsDocs/blob/master/benchmark/develop.md)
 
-## 一键安装
+## <a id="QuickStart"></a>一键安装
 
 采用最新版本的[TarsWeb](https://github.com/TarsCloud/TarsWeb), 就可以实现在线压测Tars服务，一键发布步骤如下:
 ```shell
