@@ -55,13 +55,8 @@ LOG_INFO "===>install benchmark server >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 LOG_INFO "PARAMS:        "$*
 LOG_INFO "OS:            "$OSNAME
 LOG_INFO "TarsCpp:       "$TARS_CPP_PATH
-<<<<<<< HEAD
 LOG_INFO "WEBHOST:       "$TARS_WEB_HOST
 LOG_INFO "TOKEN:         "$TARS_WEB_TOKEN
-=======
-LOG_INFO "WebHost:       "$TARS_WEB_HOST
-LOG_INFO "Token:         "$TARS_WEB_TOKEN
->>>>>>> upstream/master
 LOG_INFO "===<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< print envirenment finish.\n";
 
 ################################################################################
