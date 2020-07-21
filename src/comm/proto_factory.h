@@ -18,15 +18,11 @@
 
 #include <map>
 #include <stdexcept>
+#include <sys/syscall.h>
 #include "protocol.h"
-using namespace std;
 
-#if TARGET_PLATFORM_LINUX
-#include <sys/syscall.h>
+using namespace std;
 #define gettid() syscall(SYS_gettid)
-#elif TARGET_PLATFORM_IOS
-#include <sys/syscall.h>
-#endif
 
 namespace bm
 {
