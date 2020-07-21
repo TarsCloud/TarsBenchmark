@@ -125,6 +125,7 @@ namespace bm
                 count = 0;
                 _workmode = MODEL_QUICK;
             }
+            last_rate = fail_rate;
         }
         else if (++count * 1000 > time_out)
         {
@@ -139,10 +140,10 @@ namespace bm
                 percent = 2000;
                 int64_t curr_cost = _cache_stat.totalTime * 1000 / decimal;
                 static int64_t init_cost = _cache_stat.totalTime * 100 / decimal;
-                static int64_t step_cost[][2] = {{10, 50}, {5, 20}, {2, 15}, {1, 10}};
+                static int64_t step_cost[][2] = {{100, 80}, {10, 50}, {5, 20}, {2, 15}};
                 for (size_t i = 0; i < sizeof(step_cost) / sizeof(step_cost[0]); i++)
                 {
-                    if (step_cost[i][0] * init_cost < time_out)
+                    if (step_cost[i][0] * init_cost < 100 * time_out)
                     {
                         if (step_cost[i][1] * init_cost < curr_cost)
                         {
@@ -153,10 +154,9 @@ namespace bm
                     }
                 }
             }
+            last_rate = fail_rate;
             _set_speed = _set_speed * percent / 1000;
         }
-
-        last_rate = fail_rate;
     }
 
     bool Monitor::syncStat(int64_t cur_time, int64_t time_out)
