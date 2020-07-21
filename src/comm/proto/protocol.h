@@ -28,62 +28,63 @@ namespace bm
         virtual ~Protocol() {}
 
         /**
-         * @brief  ³õÊ¼»¯º¯Êı
+         * @brief  åˆå§‹åŒ–å‡½æ•°
          *
-         * @param argc  ²ÎÊı
-         * @param argv  ²ÎÊıÄÚÈİ
+         * @param argc  å‚æ•°
+         * @param argv  å‚æ•°å†…å®¹
          *
-         * @return 0³É¹¦, ÆäËûÊ§°Ü
+         * @return 0æˆåŠŸ, å…¶ä»–å¤±è´¥
          */
-        virtual int initialize(int argc, char** argv) = 0;
+        virtual int initialize(int argc, char **argv) = 0;
 
         /**
-         * @brief  ³õÊ¼»¯º¯Êı
+         * @brief  åˆå§‹åŒ–å‡½æ•°
          *
-         * @param params  ²ÎÊı
+         * @param params  å‚æ•°
          *
-         * @return 0³É¹¦, ÆäËûÊ§°Ü
+         * @return 0æˆåŠŸ, å…¶ä»–å¤±è´¥
          */
-        virtual int initialize(const vector<string>& params) { return 0; }
+        virtual int initialize(const vector<string> &params) { return 0; }
 
         /**
-         * @brief  Ğ­ÒéÊÇ·ñÖ§³ÖÓĞĞòµÄ
+         * @brief  åè®®æ˜¯å¦æ”¯æŒæœ‰åºçš„
          *
-         * @return true: Ö§³Ö; false: ²»Ö§³Ö
+         * @return true: æ”¯æŒ; false: ä¸æ”¯æŒ
          */
         virtual int isSupportSeq() { return false; }
 
         /**
-         * @brief  ÅĞ¶ÏÊÕ°üÊÇ·ñÍêÕû
+         * @brief  åˆ¤æ–­æ”¶åŒ…æ˜¯å¦å®Œæ•´
          *
-         * @param buf  Êı¾İ°üÖ¸Õë
-         * @param len  ÍøÂçÊı¾İ°ü³¤¶È
+         * @param buf  æ•°æ®åŒ…æŒ‡é’ˆ
+         * @param len  ç½‘ç»œæ•°æ®åŒ…é•¿åº¦
          *
-         * @return int =0±¨ÎÄ²»ÍêÕû; >0:Êµ¼Ê±¨ÎÄ³¤¶È; <0:³ö´í
+         * @return int =0æŠ¥æ–‡ä¸å®Œæ•´; >0:å®é™…æŠ¥æ–‡é•¿åº¦; <0:å‡ºé”™
          */
         virtual int input(const char *buf, size_t len) = 0;
 
         /**
-         * ½âÎö/±àÂëĞ­Òé, »ñÈ¡ÍøÂçÊı¾İ°üµÄÊµÀı
+         * è§£æ/ç¼–ç åè®®, è·å–ç½‘ç»œæ•°æ®åŒ…çš„å®ä¾‹
          *
-         * @param buf  Êı¾İ°üÖ¸Õë
-         * @param len  ÍøÂçÊı¾İ°ü³¤¶È
-         * @param uniqId  È«¾ÖÎ¨Ò»ID
+         * @param buf  æ•°æ®åŒ…æŒ‡é’ˆ
+         * @param len  ç½‘ç»œæ•°æ®åŒ…é•¿åº¦
+         * @param uniq_no  å…¨å±€å”¯ä¸€ID
          *
-         * @return 0³É¹¦, ÆäËûÊ§°Ü
+         * @return 0æˆåŠŸ, å…¶ä»–å¤±è´¥
          */
-        virtual int encode(char *buf, int& len, int& uniqId) = 0;
-        virtual int decode(const char *buf, int len, int& uniqId) = 0;
+        virtual int encode(char *buf, int &len, int &uniq_no) = 0;
+        virtual int decode(const char *buf, int len, int &uniq_no) = 0;
+
     protected:
         /**
-         * @brief  Éú³ÉÈ¡Ëæ»úÄÚÈİ
+         * @brief  ç”Ÿæˆå–éšæœºå†…å®¹
          *
-         * @param rmin  ×îĞ¡Öµ
-         * @param rmax  ×î´óÖµ
+         * @param rmin  æœ€å°å€¼
+         * @param rmax  æœ€å¤§å€¼
          *
-         * @return long Ëæ»úÖµ
+         * @return long éšæœºå€¼
          */
-        virtual long genRandomValue(const string& rmin, const string& rmax)
+        virtual long genRandomValue(const string &rmin, const string &rmax)
         {
             long max = TC_Common::strto<long>(rmax);
             long min = TC_Common::strto<long>(rmin);
@@ -91,14 +92,14 @@ namespace bm
         }
 
         /**
-         * @brief  Éú³ÉÈ¡Ëæ»úÄÚÈİ
+         * @brief  ç”Ÿæˆå–éšæœºå†…å®¹
          *
-         * @param v     stringÄÚÈİ
-         * @param is_int    ÊÇ·ñÕûĞÎÊı¾İ
+         * @param v     stringå†…å®¹
+         * @param is_int    æ˜¯å¦æ•´å½¢æ•°æ®
          *
-         * @return string Ëæ»úÖµÄÚÈİ
+         * @return string éšæœºå€¼å†…å®¹
          */
-        virtual string genRandomValue(const string& v, bool is_int = true)
+        virtual string genRandomValue(const string &v, bool is_int = true)
         {
             string::size_type l = v.find_first_of('[');
             string::size_type r = v.find_last_of(']');
@@ -131,8 +132,9 @@ namespace bm
             }
             return nv;
         }
+
     protected:
         bool _random_flag;
     };
-};
+}; // namespace bm
 #endif

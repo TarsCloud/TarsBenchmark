@@ -31,15 +31,16 @@ namespace bm
     struct JsonField
     {
     public:
-        int     tag;                // tag
-        bool    usigned;            // 是否非符号型
-        string  type;               // 类型
-        string  name;               // 变量名
-        string  defval;             // 默认值
-        vector<JsonField> child;    // 子对象
+        int tag;                 // tag
+        bool usigned;            // 是否非符号型
+        string type;             // 类型
+        string name;             // 变量名
+        string defval;           // 默认值
+        vector<JsonField> child; // 子对象
     };
 
-    inline bool compField(const JsonField& l, const JsonField& r)
+    // 重新排序
+    inline bool compField(const JsonField &l, const JsonField &r)
     {
         return (l.tag < r.tag);
     }
@@ -58,7 +59,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int initialize(int argc, char** argv);
+        virtual int initialize(int argc, char **argv);
 
         /**
          * @brief  初始化函数
@@ -67,7 +68,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int initialize(const vector<string>& params);
+        virtual int initialize(const vector<string> &params);
 
         /**
          * @brief  协议是否支持有序的
@@ -91,12 +92,12 @@ namespace bm
          *
          * @param buf  数据包指针
          * @param len  数据包长度
-         * @param uniqId  全局唯一ID
+         * @param uniq_no  全局唯一ID
          *
          * @return 0成功, 其他失败
          */
-        virtual int encode(char *buf, int& len, int& uniqId);
-        virtual int decode(const char *buf, int len, int& uniqId);
+        virtual int encode(char *buf, int &len, int &uniq_no);
+        virtual int decode(const char *buf, int len, int &uniq_no);
 
         /**
          * @brief  TARS协议编码
@@ -107,7 +108,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        int encode(TarsOutputStream<BufferWriter> &os, JsonField& f, JsonValuePtr v);
+        int encode(TarsOutputStream<BufferWriter> &os, JsonField &f, JsonValuePtr v);
 
         /**
          * @brief  TARS协议解码
@@ -117,7 +118,7 @@ namespace bm
          *
          * @return JsonValuePtr
          */
-        JsonValuePtr decode(TarsInputStream<BufferReader> &is, JsonField& f);
+        JsonValuePtr decode(TarsInputStream<BufferReader> &is, JsonField &f);
 
         /**
          * @brief  解析成员变量
@@ -128,8 +129,8 @@ namespace bm
          *
          * @return Field结构
          */
-        void parseField(JsonValueObjPtr ptr, vector<JsonField>& field, int elem_num = -1);
-        
+        void parseField(JsonValueObjPtr ptr, vector<JsonField> &field, int elem_num = -1);
+
     private:
         /**
          * @brief  解析测试用例
@@ -139,14 +140,15 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        int parseCase(const string& in_param, const string& in_value);
+        int parseCase(const string &in_param, const string &in_value);
+
     public:
-        int                     _timeout;       // 超时时间
-        string                  _servant;       // servant名称
-        string                  _function;      // rpc函数
-        JsonValueObjPtr         _para_value;    // 输入参数
-        vector<JsonField>       _para_field;    // 参数配置
+        int _timeout;                  // 超时时间
+        string _servant;               // servant名称
+        string _function;              // rpc函数
+        JsonValueObjPtr _para_value;   // 输入参数
+        vector<JsonField> _para_field; // 参数配置
         TarsOutputStream<BufferWriter> _os;
     };
-};
+}; // namespace bm
 #endif

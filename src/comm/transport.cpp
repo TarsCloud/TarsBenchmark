@@ -21,18 +21,19 @@ using namespace tars;
 #define CONNECT_TIMEOUT_MS 3000
 namespace bm
 {
-    void Transport::initialize(Monitor* monitor, const string& proto, int argc, char** argv)
+    void Transport::initialize(Monitor *monitor, const string &proto, int argc, char **argv)
     {
         _proto = _factory.get(proto);
         _proto->initialize(argc, argv);
         _monitor = monitor;
     }
 
-    void Transport::initialize(Monitor* monitor, Protocol* protocol)
+    void Transport::initialize(Monitor *monitor, Protocol *protocol)
     {
-        _proto   = protocol;
+        _proto = protocol;
         _monitor = monitor;
     }
+
     int Transport::handleWrite()
     {
         if (checkSocket() < 0)
@@ -41,20 +42,20 @@ namespace bm
         }
 
         // 发送上次剩余数据
-        while(_sendBuffer.size() > 0)
+        while (_send_buff.size() > 0)
         {
-            int sndLen = this->send(_sendBuffer.c_str(), _sendBuffer.size());
-            if (sndLen < 0)
+            int snd_len = this->send(_send_buff.c_str(), _send_buff.size());
+            if (snd_len < 0)
             {
                 _monitor->report(BM_SOCK_SEND_ERROR);
                 return BM_SOCK_SEND_ERROR;
             }
-            else if(sndLen == 0 && errno == EAGAIN)
+            else if (snd_len == 0 && errno == EAGAIN)
             {
                 break; // 缓冲区数据太多，先处理一下回包
             }
 
-            _sendBuffer.erase(_sendBuffer.begin(), _sendBuffer.begin() + sndLen);
+            _send_buff.erase(_send_buff.begin(), _send_buff.begin() + snd_len);
         }
         return BM_SUCC;
     }
@@ -67,12 +68,12 @@ namespace bm
             return BM_SOCK_INVALID;
         }
 
-        size_t rcvLen = MAX_RECVBUF_SIZE;
+        size_t rcv_len = MAX_RECVBUF_SIZE;
         char buff[MAX_RECVBUF_SIZE] = {0};
-        while (this->recv(buff, rcvLen) == BM_SUCC && rcvLen > 0)
+        while (this->recv(buff, rcv_len) == BM_SUCC && rcv_len > 0)
         {
-            _recvBuffer.append(buff, rcvLen);
-            _monitor->reportRecv(TBNOWMS, (int)rcvLen);
+            _recv_buff.append(buff, rcv_len);
+            _monitor->reportRecv(TBNOWMS, (int)rcv_len);
         }
 
         handleProcess();
@@ -89,44 +90,44 @@ namespace bm
 
     int Transport::handleProcess()
     {
-        int iRecvLen = 0;
-        int64_t tCurTime = TBNOWMS;
-        while ((iRecvLen = _proto->input(_recvBuffer.c_str(), _recvBuffer.length())) > 0)
+        int rcv_len = 0;
+        int64_t cur_time = TBNOWMS;
+        while ((rcv_len = _proto->input(_recv_buff.c_str(), _recv_buff.length())) > 0)
         {
-            int reqIdx = -1;
-            int ret = _proto->decode(_recvBuffer.c_str(), iRecvLen, reqIdx);
-            auto it = _proto->isSupportSeq() ? _sendQueue.find(reqIdx) : _sendQueue.begin();
-            if (it != _sendQueue.end())
+            int seq_no = -1;
+            int ret = _proto->decode(_recv_buff.c_str(), rcv_len, seq_no);
+            auto it = _proto->isSupportSeq() ? _send_queue.find(seq_no) : _send_queue.begin();
+            if (it != _send_queue.end())
             {
-                _monitor->report(ret, (tCurTime - it->second));
-                _sendQueue.erase(it);
+                _monitor->report(ret, (cur_time - it->second));
+                _send_queue.erase(it);
             }
 
-            _recvBuffer.erase(_recvBuffer.begin(), _recvBuffer.begin() + iRecvLen);
+            _recv_buff.erase(_recv_buff.begin(), _recv_buff.begin() + rcv_len);
         }
 
-        checkTimeOut(tCurTime);
+        checkTimeOut(cur_time);
         return BM_SUCC;
     }
 
-    bool Transport::checkTimeOut(int64_t tCurTime)
+    bool Transport::checkTimeOut(int64_t cur_time)
     {
         if (checkSocket() < 0)
         {
             return false;
         }
 
-        if (_connStatus == eConnecting && _conTimeOut < tCurTime)
+        if (_conn_state == eConnecting && _con_timeout < cur_time)
         {
             this->close();
             return false;
         }
 
-        for(auto it = _sendQueue.begin(); it != _sendQueue.end(); )
+        for (auto it = _send_queue.begin(); it != _send_queue.end();)
         {
-            if ((tCurTime - it->second) > _ep.getTimeout())
+            if ((cur_time - it->second) > _ep.getTimeout())
             {
-                _sendQueue.erase(it++);
+                _send_queue.erase(it++);
                 _monitor->report(BM_SOCK_RECV_TIMEOUT, _ep.getTimeout());
             }
             else
@@ -137,7 +138,7 @@ namespace bm
         return true;
     }
 
-    int Transport::trySend(int uniqId)
+    int Transport::trySend(int uniq_no)
     {
         if (this->checkSocket() < 0)
         {
@@ -151,26 +152,26 @@ namespace bm
             return BM_SOCK_CONN_ERROR;
         }
 
-        int64_t tCurTime = TBNOWMS;
-        if (_sendQueue.size() && !_proto->isSupportSeq())
+        int64_t cur_time = TBNOWMS;
+        if (_send_queue.size() && !_proto->isSupportSeq())
         {
             return BM_SEQUENCE;
         }
 
-        int reqIdx = uniqId;
-        int bufLen = MAX_SENDBUF_SIZE;
+        int seq_no = uniq_no;
+        int buflen = MAX_SENDBUF_SIZE;
         static char buf[MAX_SENDBUF_SIZE];
-        int iRet = _proto->encode(buf, bufLen, reqIdx);
-        if (iRet != 0)
+        int retCode = _proto->encode(buf, buflen, seq_no);
+        if (retCode != 0)
         {
-            _monitor->report(iRet);
+            _monitor->report(retCode);
             return BM_PACKET_ENCODE;
         }
 
         // 启动一次发送
-        _monitor->reportSend(tCurTime, bufLen);
-        _sendBuffer.append(buf, bufLen);
-        _sendQueue[reqIdx] = tCurTime;
+        _monitor->reportSend(cur_time, buflen);
+        _send_buff.append(buf, buflen);
+        _send_queue[seq_no] = cur_time;
         handleWrite();
         return 0;
     }
@@ -179,20 +180,20 @@ namespace bm
     {
         TC_ClientSocket::close();
 
-        _sendQueue.clear();
-        _sendBuffer.clear();
-        _recvBuffer.clear();
-        _connStatus = eUnconnected;
-        _loop->del(getfd(), (uint64_t)this, EPOLLIN|EPOLLOUT);
+        _send_queue.clear();
+        _send_buff.clear();
+        _recv_buff.clear();
+        _conn_state = eUnconnected;
+        _loop->del(getfd(), (uint64_t)this, EPOLLIN | EPOLLOUT);
     }
 
-    void Transport::handle(TC_Epoller* loop, int time)
+    void Transport::handle(TC_Epoller *loop, int wait)
     {
-        int num = loop->wait(time);
+        int num = loop->wait(wait);
         for (int i = 0; i < num; ++i)
         {
-            const epoll_event& ev = loop->get(i);
-            Transport *conn = (Transport*)loop->getU64(ev);
+            const epoll_event &ev = loop->get(i);
+            Transport *conn = (Transport *)loop->getU64(ev);
             if (conn != NULL)
             {
                 // 强制读一下
@@ -213,15 +214,15 @@ namespace bm
 
     int UDPTransport::checkSocket()
     {
-        if(!getSocket()->isValid())
+        if (!getSocket()->isValid())
         {
             try
             {
-    #if TARGET_PLATFORM_LINUX || TARGET_PLATFORM_IOS
+#if TARGET_PLATFORM_LINUX || TARGET_PLATFORM_IOS
                 getSocket()->createSocket(SOCK_DGRAM, AF_INET);
-    #else
+#else
                 getSocket()->createSocket(SOCK_DGRAM, AF_INET);
-    #endif
+#endif
             }
             catch (TC_Exception &ex)
             {
@@ -230,21 +231,21 @@ namespace bm
             }
 
             //设置非阻塞模式
-            _connStatus = eConnected;
+            _conn_state = eConnected;
             getSocket()->setblock(false);
-            _loop->add(getfd(), (uint64_t)this, EPOLLIN|EPOLLOUT);
+            _loop->add(getfd(), (uint64_t)this, EPOLLIN | EPOLLOUT);
         }
         return BM_SUCC;
     }
 
     bool TCPTransport::checkConnect()
     {
-        if (_connStatus == eConnected)
+        if (_conn_state == eConnected)
         {
             return true;
         }
 #if TARGET_PLATFORM_IOS
-        #include <netinet/tcp_fsm.h>
+#include <netinet/tcp_fsm.h>
         struct tcp_connection_info info;
         int len = sizeof(info);
         int ret = ::getsockopt(getfd(), IPPROTO_TCP, TCP_CONNECTION_INFO, &info, (socklen_t *)&len);
@@ -256,7 +257,7 @@ namespace bm
         if (ret == 0 && info.tcpi_state == TCP_ESTABLISHED)
 #endif
         {
-            _connStatus = eConnected;
+            _conn_state = eConnected;
             return true;
         }
         return false;
@@ -264,15 +265,15 @@ namespace bm
 
     int TCPTransport::checkSocket()
     {
-        if(!getSocket()->isValid())
+        if (!getSocket()->isValid())
         {
             try
             {
-    #if TARGET_PLATFORM_LINUX || TARGET_PLATFORM_IOS
+#if TARGET_PLATFORM_LINUX || TARGET_PLATFORM_IOS
                 getSocket()->createSocket(SOCK_STREAM, AF_INET);
-    #else
+#else
                 getSocket()->createSocket(SOCK_STREAM, AF_INET);
-    #endif
+#endif
                 getSocket()->setblock(false);
                 getSocket()->setNoCloseWait();
                 int ret = getSocket()->connectNoThrow(_ep.getHost(), _ep.getPort());
@@ -283,11 +284,11 @@ namespace bm
                 }
 
                 //设置非阻塞模式
-                _connStatus = eConnecting;
-                _conTimeOut = _ep.getTimeout() + TBNOWMS;
+                _conn_state = eConnecting;
+                _con_timeout = _ep.getTimeout() + TBNOWMS;
                 _loop->add(getfd(), (uint64_t)this, EPOLLOUT | EPOLLIN);
             }
-            catch(TC_Exception &ex)
+            catch (TC_Exception &ex)
             {
                 getSocket()->close();
                 return BM_SOCK_ERROR;
@@ -295,4 +296,4 @@ namespace bm
         }
         return BM_SUCC;
     }
-};
+}; // namespace bm

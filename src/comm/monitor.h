@@ -22,22 +22,23 @@ namespace bm
 #pragma pack(1)
     typedef struct tagIntfStat
     {
-        int8_t      staFlag;
-        int64_t     staIndex;
-        double      minTime;
-        double      maxTime;
-        double      p90Time;
-        double      p99Time;
-        double      p999Time;
-        double      totalTime;
-        int32_t     costTimes[10];
-        int32_t     succCount;
-        int32_t     failCount;
-        int32_t     totalCount;
-        size_t      totalSendBytes;
-        size_t      totalRecvBytes;
-        int8_t      retCount[1024];
-        int8_t      endFlag;
+        int8_t staFlag;
+        int64_t execKey;
+        int64_t staIndex;
+        double minTime;
+        double maxTime;
+        double p90Time;
+        double p99Time;
+        double p999Time;
+        double totalTime;
+        size_t costTimes[10];
+        size_t succCount;
+        size_t failCount;
+        size_t totalCount;
+        size_t totalSendBytes;
+        size_t totalRecvBytes;
+        int8_t retCount[1024];
+        int8_t endFlag;
 
         tagIntfStat()
         {
@@ -52,7 +53,7 @@ namespace bm
             minTime = 1000.00;
         }
 
-        inline tagIntfStat& operator+=(const tagIntfStat& src)
+        inline tagIntfStat &operator+=(const tagIntfStat &src)
         {
             for (size_t i = 0; i < 10; i++)
             {
@@ -62,15 +63,15 @@ namespace bm
             int32_t totalCnt = totalCount + src.totalCount;
             if ((totalCount + src.totalCount) > 0)
             {
-                p90Time  = (p90Time*totalCount + src.p90Time*src.totalCount) / totalCnt;
-                p99Time  = (p99Time*totalCount + src.p99Time*src.totalCount) / totalCnt;
-                p999Time = (p999Time*totalCount + src.p999Time*src.totalCount) / totalCnt;
+                p90Time = (p90Time * totalCount + src.p90Time * src.totalCount) / totalCnt;
+                p99Time = (p99Time * totalCount + src.p99Time * src.totalCount) / totalCnt;
+                p999Time = (p999Time * totalCount + src.p999Time * src.totalCount) / totalCnt;
             }
 
-            totalTime  += src.totalTime;
+            totalTime += src.totalTime;
             totalCount += src.totalCount;
-            failCount  += src.failCount;
-            succCount  += src.succCount;
+            failCount += src.failCount;
+            succCount += src.succCount;
             totalSendBytes += src.totalSendBytes;
             totalRecvBytes += src.totalRecvBytes;
             maxTime = std::max<double>(src.maxTime, maxTime);
@@ -82,26 +83,25 @@ namespace bm
 
     typedef struct tagStatCache
     {
-        volatile uint32_t   itemSize;
-        volatile uint32_t   headIdx;
-        volatile uint32_t   tailIdx;
-        IntfStat     itemList[0];
+        volatile uint32_t max_cnt;
+        volatile uint32_t head;
+        volatile uint32_t tail;
+        IntfStat item_list[0];
     } StatCache;
 #pragma pack()
-
     class Monitor
     {
     public:
-        Monitor() {};
-        virtual ~Monitor() {};
+        Monitor() : _workmode(MODEL_FIXED){};
+        virtual ~Monitor(){};
 
         /**
          * @brief  实例化
          *
          */
-        static Monitor* getInstance()
+        static Monitor *getInstance()
         {
-            static Monitor* m = NULL;
+            static Monitor *m = NULL;
             if (m == NULL)
             {
                 m = new Monitor;
@@ -113,7 +113,7 @@ namespace bm
          * @brief  初始化
          *
          */
-        int initialize(int iShmKey = 0x19453959, int iShmSize = 1024 * 1024);
+        int initialize(int shm_key = 0x19453959, int shm_size = 1024 * 1024);
 
         /**
          * @brief  清除数据
@@ -124,30 +124,33 @@ namespace bm
         /**
          * @brief  接口上报
          *
-         * @param retCode   返回码
-         * @param costTime  消耗的时间
-         * @param sndTime   上报的时间点
+         * @param ret_code   返回码
+         * @param cost_time  消耗的时间
+         * @param snd_time   上报的时间点
          */
-        void report(int retCode);
-        void report(int retCode, int costTime);
-        void reportSend(int64_t sndTime, int sndBytes);
-        void reportRecv(int64_t rcvTime, int rcvBytes);
+        void report(int ret_code);
+        void report(int ret_code, int cost_time);
+        void reportSend(int64_t snd_time, int snd_bytes);
+        void reportRecv(int64_t rcv_time, int rcv_bytes);
 
         /**
          * @brief  状态同步
          *
-         * @param @param rTime     上报的时间点
+         * @param cur_time      当前时间
+         * @param time_out      超时时间
+         *
+         * @return bool  是否出现大量超时
          */
-        void syncStat(int64_t rTime);
+        bool syncStat(int64_t cur_time, int64_t time_out = 0);
 
         /**
          * @brief  获取上报的数据
          *
-         * @param itemList  返回的数据
+         * @param item_list  返回的数据
          *
          * @return bool
          */
-         bool fetch(vector<IntfStat>& itemList);
+        bool fetch(vector<IntfStat> &item_list);
 
         /**
          * @brief  计算千分比
@@ -156,11 +159,32 @@ namespace bm
          */
         double calcPercent(size_t percent);
 
+        /**
+         * @brief  计算下一次请求时间
+         *
+         * @param intval     时间间隔
+         * @param cons       连接数
+         *
+         * @return size_t 时间间隔
+         */
+        size_t calcInterval(size_t intval, size_t cons);
+
     private:
-        char*           pData;
-        IntfStat        tmpStat;
-        map<int, int>   retCount;
-        vector<int>     queueCost;
+        /**
+         * @brief  自动适配速率
+         *
+         * @param cur_time      当前时间
+         * @param time_out    超时时间
+         */
+        void adapteSpeed(int64_t cur_time, int64_t time_out);
+
+    private:
+        int _workmode;
+        char *_data_base;
+        size_t _set_speed;
+        IntfStat _cache_stat;
+        vector<int> _queue_cost;
+        map<int, int> _count_ret;
     };
-};
+}; // namespace bm
 #endif

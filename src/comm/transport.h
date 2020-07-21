@@ -25,7 +25,7 @@ namespace bm
     class Transport : TC_ClientSocket
     {
     public:
-        Transport(const TC_Endpoint& ep, TC_Epoller* loop): _ep(ep), _loop(loop), _monitor(NULL)
+        Transport(const TC_Endpoint &ep, TC_Epoller *loop) : _ep(ep), _loop(loop), _monitor(NULL)
         {
             this->close();
             this->init(ep.getHost(), ep.getPort(), ep.getTimeout());
@@ -37,9 +37,9 @@ namespace bm
             _factory.destroyObject();
         }
 
-                /**
+        /**
          * @brief  初始化函数
-         * 
+         *
          * @param monitor   监控指针
          * @param protocol  协议类指针
          *
@@ -48,7 +48,7 @@ namespace bm
 
         /**
          * @brief  初始化函数
-         * 
+         *
          * @param monitor   监控指针
          * @param proto     协议名称
          * @param argc      参数个数
@@ -90,16 +90,16 @@ namespace bm
         /**
          * @brief  检查是否已经超时
          *
-         * @param tCurTime 当前时间
+         * @param cur_time 当前时间
          *
          * @return bool
          */
-        virtual bool checkTimeOut(int64_t tCurTime);
+        virtual bool checkTimeOut(int64_t cur_time);
 
         /**
          * @brief  尝试发送
          *
-         * @param uniqId 全局唯一ID
+         * @param uniqId  全局唯一ID
          *
          * @return int
          */
@@ -108,10 +108,11 @@ namespace bm
         /**
          * @brief  处理poll事件
          *
-         * @param loop   事件管理器指针
-         * @param time   最长等待时间
+         * @param loop         事件管理器指针
+         * @param wait         最长等待时间
          */
-        static void handle(TC_Epoller* loop, int time);
+        static void handle(TC_Epoller *loop, int wait);
+
     protected:
         /**
          * @brief  获取socket
@@ -126,24 +127,25 @@ namespace bm
          * @return int 句柄ID
          */
         virtual int getfd() { return this->getSocket()->getfd(); }
-    protected:
-        TC_Endpoint             _ep;
-        TC_Epoller*             _loop;
-        Protocol*               _proto;
-        Monitor*                _monitor;
-        ProtoFactory            _factory;
 
-        string                  _sendBuffer;
-        string                  _recvBuffer;
-        int64_t                 _conTimeOut;
-        ConnectStatus           _connStatus;
-        unordered_map<int, int64_t> _sendQueue;
+    protected:
+        TC_Endpoint _ep;
+        TC_Epoller *_loop;
+        Protocol *_proto;
+        Monitor *_monitor;
+        ProtoFactory _factory;
+
+        string _send_buff;
+        string _recv_buff;
+        int64_t _con_timeout;
+        ConnectStatus _conn_state;
+        unordered_map<int, int64_t> _send_queue;
     };
 
     class TCPTransport : public Transport
     {
     public:
-        TCPTransport(const TC_Endpoint& ep, TC_Epoller* loop): Transport(ep, loop) {}
+        TCPTransport(const TC_Endpoint &ep, TC_Epoller *loop) : Transport(ep, loop) {}
         /**
          * @brief  检查Socket操作
          *
@@ -163,8 +165,10 @@ namespace bm
          */
         virtual int send(const char *buf, size_t len)
         {
-            if (getfd() == -1) return BM_SOCK_INVALID;
-            if (eConnected != _connStatus) return BM_SOCK_CONN_ERROR;
+            if (getfd() == -1)
+                return BM_SOCK_INVALID;
+            if (eConnected != _conn_state)
+                return BM_SOCK_CONN_ERROR;
 
             int ret = getSocket()->send(buf, len);
             if (ret < 0 && errno != EAGAIN)
@@ -183,14 +187,12 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        int recv(char *buf, size_t& len)
+        int recv(char *buf, size_t &len)
         {
             if (getfd() == -1)
-            {
                 return BM_SOCK_INVALID;
-            }
 
-            int rcvLen = this->getSocket()->recv((void*)buf, len, 0);
+            int rcvLen = this->getSocket()->recv((void *)buf, len, 0);
             if (rcvLen < 0 && errno != EAGAIN)
             {
                 close();
@@ -206,7 +208,7 @@ namespace bm
     class UDPTransport : public Transport
     {
     public:
-        UDPTransport(const TC_Endpoint& ep, TC_Epoller* loop) : Transport(ep, loop) {}
+        UDPTransport(const TC_Endpoint &ep, TC_Epoller *loop) : Transport(ep, loop) {}
         /**
          * @brief  检查Socket操作
          *
@@ -224,7 +226,10 @@ namespace bm
          */
         int send(const char *buf, size_t len)
         {
-            if (getfd() < 0) return BM_SOCK_INVALID;
+            if (getfd() < 0)
+            {
+                return BM_SOCK_INVALID;
+            }
 
             int ret = this->getSocket()->sendto(buf, len, _ep.getHost(), _ep.getPort(), 0);
             if (ret < 0 && errno != EAGAIN)
@@ -243,9 +248,10 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        int recv(char *buf, size_t& len)
+        int recv(char *buf, size_t &len)
         {
-            if (getfd() < 0) return BM_SOCK_INVALID;
+            if (getfd() < 0)
+                return BM_SOCK_INVALID;
 
             string tmpIp;
             uint16_t tmpPort;
@@ -261,5 +267,5 @@ namespace bm
             return BM_SUCC;
         }
     };
-};
+}; // namespace bm
 #endif

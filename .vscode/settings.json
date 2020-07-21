@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.cpp": "cpp",
+        "*.tcc": "cpp",
+        "*.cc": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "tuple": "cpp",
+        "array": "cpp",
+        "functional": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "iostream": "cpp"
+    }
+}

@@ -21,17 +21,17 @@ namespace bm
 {
     IMPLEMENT_DYNCREATE(tarsProtocol, tarsProtocol)
 
-    int tarsProtocol::initialize(int argc, char** argv)
+    int tarsProtocol::initialize(int argc, char **argv)
     {
         // 支持命令
-        licote_option_add("-S", NULL,  "tars servant");
-        licote_option_add("-M", NULL,  "tars single interface name");
-        licote_option_add("-C", NULL,  "tars single interface case");
+        licote_option_add("-S", NULL, "tars servant");
+        licote_option_add("-M", NULL, "tars single interface name");
+        licote_option_add("-C", NULL, "tars single interface case");
         licote_option_init(argc, argv);
 
-        _servant  = LICODE_GETSTR("-S", "");
+        _servant = LICODE_GETSTR("-S", "");
         _function = LICODE_GETSTR("-M", "");
-        _timeout  = LICODE_GETINT("-t", 3000);
+        _timeout = LICODE_GETINT("-t", 3000);
 
         ifstream ifs(licote_option_get("-C"));
         if (!ifs.is_open())
@@ -70,7 +70,7 @@ namespace bm
         {
             parseCase(s_param, s_value);
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             string s = string(e.what()) + "\n";
             licote_option_help(s.c_str());
@@ -79,34 +79,34 @@ namespace bm
         return BM_SUCC;
     }
 
-    int tarsProtocol::initialize(const vector<string>& params)
+    int tarsProtocol::initialize(const vector<string> &params)
     {
         if (params.size() != 5)
         {
             return BM_INIT_PARAM;
         }
 
-        _servant  = TC_Common::trim(params[0]);
+        _servant = TC_Common::trim(params[0]);
         _function = TC_Common::trim(params[1]);
-        _timeout  = TC_Common::strto<int>(params[2]);
+        _timeout = TC_Common::strto<int>(params[2]);
         try
         {
             _os.reset();
             _random_flag = false;
             parseCase(params[3], params[4]);
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             return BM_PACKET_ERROR;
         }
         return BM_SUCC;
     }
 
-    int tarsProtocol::parseCase(const string& in_param, const string& in_value)
+    int tarsProtocol::parseCase(const string &in_param, const string &in_value)
     {
         _para_list = TC_Common::sepstr<string>(in_param, "|");
         _para_vals = TC_Common::sepstr<string>(escapeStr(in_value), "\n");
-        if (_para_vals.size() !=  _para_list.size())
+        if (_para_vals.size() != _para_list.size())
         {
             throw runtime_error("case parameter not match");
         }
@@ -118,7 +118,7 @@ namespace bm
         return 0;
     }
 
-    string tarsProtocol::getType(const string& type)
+    string tarsProtocol::getType(const string &type)
     {
         string::size_type l = type.find_first_of('<');
         string::size_type r = type.find_last_of('>');
@@ -129,13 +129,13 @@ namespace bm
         return TC_Common::trim(type.substr(l + 1, r - l - 1));
     }
 
-    string tarsProtocol::getMapKey(const string& type)
+    string tarsProtocol::getMapKey(const string &type)
     {
         int j = 0, p = 0;
         string s = getType(type);
         for (int i = 0; i < (int)s.size(); ++i)
         {
-            if(s.at(i) == '<')
+            if (s.at(i) == '<')
             {
                 ++j;
             }
@@ -157,7 +157,7 @@ namespace bm
         return TC_Common::trim(s.substr(0, p));
     }
 
-    Field tarsProtocol::getField(const string& type, int tag, bool require)
+    Field tarsProtocol::getField(const string &type, int tag, bool require)
     {
         int p = 0;
         Field field;
@@ -179,7 +179,7 @@ namespace bm
         }
 
         short_type = TC_Common::trim(type.substr(0, p));
-        vector<string> attr =TC_Common::sepstr<string>(short_type, " ");
+        vector<string> attr = TC_Common::sepstr<string>(short_type, " ");
         if (attr.size() == 3)
         {
             int attr_tag = TC_Common::strto<int>(attr[0]);
@@ -196,7 +196,7 @@ namespace bm
         return field;
     }
 
-    string tarsProtocol::getMapValue(const string& type)
+    string tarsProtocol::getMapValue(const string &type)
     {
         int j = 0;
         int p = 0;
@@ -226,7 +226,7 @@ namespace bm
         return TC_Common::trim(s.substr(p + 1, s.size() - p - 1));
     };
 
-    vector<string> tarsProtocol::getArray(const string& v)
+    vector<string> tarsProtocol::getArray(const string &v)
     {
         int pos = 0;
         int j = 0;
@@ -288,10 +288,10 @@ namespace bm
         return vs;
     }
 
-    int tarsProtocol::encode(TarsOutputStream<BufferWriter> &os, const string& stype, const string& sval, int tag, bool usigned)
+    int tarsProtocol::encode(TarsOutputStream<BufferWriter> &os, const string &stype, const string &sval, int tag, bool usigned)
     {
         string type = TC_Common::trim(stype);
-        string val  = TC_Common::trim(sval);
+        string val = TC_Common::trim(sval);
         if (type.find(PT_VOID) == 0)
         {
             return 0;
@@ -362,7 +362,7 @@ namespace bm
             {
                 TarsWriteToHead(os, TarsHeadeSimpleList, tag);
                 TarsWriteToHead(os, TarsHeadeChar, tag);
-                os.write(vs.size(),0);
+                os.write(vs.size(), 0);
                 for (int i = 0; i < (int)vs.size(); ++i)
                 {
                     encode(os, sub_type, vs.at(i), 0, false);
@@ -433,7 +433,7 @@ namespace bm
                 {
                     if (j == 1)
                     {
-                        s1 =  TC_Common::trim(val.substr(pos + 1, i - pos - 1));
+                        s1 = TC_Common::trim(val.substr(pos + 1, i - pos - 1));
                         pos = i;
                     }
                 }
@@ -468,7 +468,7 @@ namespace bm
             os.write(mp.size(), 0);
 
             map<string, string>::const_iterator it = mp.begin();
-            string left_type  = getMapKey(type);
+            string left_type = getMapKey(type);
             string right_type = getMapValue(type);
             while (it != mp.end())
             {
@@ -484,7 +484,7 @@ namespace bm
         return 0;
     }
 
-    string tarsProtocol::decode(TarsInputStream<BufferReader> &is, const string& sType, int tag, bool require, bool usigned)
+    string tarsProtocol::decode(TarsInputStream<BufferReader> &is, const string &sType, int tag, bool require, bool usigned)
     {
         string type = TC_Common::trim(sType);
         string s("");
@@ -675,7 +675,7 @@ namespace bm
         return s;
     }
 
-    int tarsProtocol::encode(char *buf, int& len, int& uniqId)
+    int tarsProtocol::encode(char *buf, int &len, int &uniq_no)
     {
         ostringstream oss;
         try
@@ -696,12 +696,12 @@ namespace bm
             }
 
             RequestPacket req;
-            req.iRequestId   = uniqId;
-            req.iVersion     = 1;
-            req.cPacketType  = 0;
-            req.iTimeout     = _timeout;
+            req.iRequestId = uniq_no;
+            req.iVersion = 1;
+            req.cPacketType = 0;
+            req.iTimeout = _timeout;
             req.sServantName = _servant;
-            req.sFuncName    = _function;
+            req.sFuncName = _function;
             req.context["AppName"] = "bmClient";
             req.status["AppName"] = "bmClient";
             req.sBuffer = _os.getByteBuffer();
@@ -718,7 +718,7 @@ namespace bm
             memcpy(buf + sizeof(Int32), os.getBuffer(), os.getLength());
             return 0;
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             oss << "std exception:" << e.what() << endl;
         }
@@ -732,7 +732,7 @@ namespace bm
         return BM_PACKET_ENCODE;
     }
 
-    int tarsProtocol::decode(const char *buf, int len, int& uniqId)
+    int tarsProtocol::decode(const char *buf, int len, int &uniq_no)
     {
         ostringstream oss;
         try
@@ -743,10 +743,10 @@ namespace bm
             ResponsePacket rsp;
             rsp.readFrom(is);
 
-            uniqId = rsp.iRequestId;
+            uniq_no = rsp.iRequestId;
             return rsp.iRet;
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             oss << "std::exception: " << e.what();
         }
@@ -760,7 +760,7 @@ namespace bm
         return BM_PACKET_DECODE;
     }
 
-    string tarsProtocol::escapeStr(const string& src)
+    string tarsProtocol::escapeStr(const string &src)
     {
         string dst = src;
         dst = TC_Common::replace(dst, "\\,", LABEL_ASCII_2C);
@@ -769,7 +769,7 @@ namespace bm
         return dst;
     }
 
-    string tarsProtocol::unescapeStr(const string& src)
+    string tarsProtocol::unescapeStr(const string &src)
     {
         string dst = src;
         dst = TC_Common::replace(dst, LABEL_ASCII_2C, ",");
@@ -787,4 +787,4 @@ namespace bm
         }
         return (int)head_len;
     }
-};
+}; // namespace bm

@@ -35,7 +35,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int initialize(int argc, char** argv);
+        virtual int initialize(int argc, char **argv);
 
         /**
          * @brief  初始化函数
@@ -44,7 +44,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int initialize(const vector<string>& params);
+        virtual int initialize(const vector<string> &params);
 
         /**
          * @brief  判断收包是否完整
@@ -65,7 +65,7 @@ namespace bm
          *
          * @return 0成功, <0: 失败 >0: 需要的buffer长度
          */
-        virtual int encode(char *buf, int& len, int& uniqId);
+        virtual int encode(char *buf, int &len, int &uniqId);
 
         /**
          * @brief  HTTP协议解包
@@ -76,7 +76,8 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int decode(const char *buf, int len, int& uniqId);
+        virtual int decode(const char *buf, int len, int &uniqId);
+
     private:
         /**
          * @brief  HTTP协议填充
@@ -84,14 +85,14 @@ namespace bm
          * @param url       目标URL
          * @param header    http header
          * @param cookie    http cookie
-         * @param body      POST内容    
+         * @param body      POST内容
          *
          * @return 0成功, 其他失败
          */
-        virtual int fill_http_body(const string& url, const string& header, const string& cookie, const string& body);
+        virtual int fill_http_body(const string &url, const string &header, const string &cookie, const string &body);
 
     private:
-        string  _reqBuff;
+        string _req_buff;
     };
-};
+}; // namespace bm
 #endif

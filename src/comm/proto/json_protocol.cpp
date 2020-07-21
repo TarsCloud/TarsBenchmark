@@ -22,52 +22,54 @@
 
 namespace bm
 {
-    #define WRITENUM(st, vt, f, v) if(f.type.find(st) == 0)         \
-    {                                                               \
-        string s;                                                   \
-        vt val = TC_Common::strto<vt>(f.defval);                    \
-        try                                                         \
-        {                                                           \
-            JsonInput::readJson(s, v);                              \
-            val = TC_Common::strto<vt>(genRandomValue(s));          \
-        }                                                           \
-        catch (TC_Exception& e)                                     \
-        {                                                           \
-            JsonInput::readJson(val, v, false);                     \
-        }                                                           \
-        os.write(val, f.tag);                                       \
-        return 0;                                                   \
+#define WRITENUM(st, vt, f, v)                             \
+    if (f.type.find(st) == 0)                              \
+    {                                                      \
+        string s;                                          \
+        vt val = TC_Common::strto<vt>(f.defval);           \
+        try                                                \
+        {                                                  \
+            JsonInput::readJson(s, v);                     \
+            val = TC_Common::strto<vt>(genRandomValue(s)); \
+        }                                                  \
+        catch (TC_Exception & e)                           \
+        {                                                  \
+            JsonInput::readJson(val, v, false);            \
+        }                                                  \
+        os.write(val, f.tag);                              \
+        return 0;                                          \
     }
 
-    #define READNUM(st, vt, vt2, f, fv) if(f.type.find(st) == 0)    \
-    {                                                               \
-        if (f.usigned)                                              \
-        {                                                           \
-            vt2 tmp = 0;                                            \
-            is.read(tmp, f.tag, false);                             \
-            return new JsonValueNum(tmp, fv);                       \
-        }                                                           \
-        else                                                        \
-        {                                                           \
-            vt tmp = 0;                                             \
-            is.read(tmp, f.tag, false);                             \
-            return new JsonValueNum(tmp, fv);                       \
-        }                                                           \
+#define READNUM(st, vt, vt2, f, fv)           \
+    if (f.type.find(st) == 0)                 \
+    {                                         \
+        if (f.usigned)                        \
+        {                                     \
+            vt2 tmp = 0;                      \
+            is.read(tmp, f.tag, false);       \
+            return new JsonValueNum(tmp, fv); \
+        }                                     \
+        else                                  \
+        {                                     \
+            vt tmp = 0;                       \
+            is.read(tmp, f.tag, false);       \
+            return new JsonValueNum(tmp, fv); \
+        }                                     \
     }
 
     IMPLEMENT_DYNCREATE(jsonProtocol, jsonProtocol)
 
-    int jsonProtocol::initialize(int argc, char** argv)
+    int jsonProtocol::initialize(int argc, char **argv)
     {
         // 支持命令
-        licote_option_add("-S", NULL,  "tars servant");
-        licote_option_add("-M", NULL,  "tars single interface name");
-        licote_option_add("-C", "o",  "tars single interface case");
+        licote_option_add("-S", NULL, "tars servant");
+        licote_option_add("-M", NULL, "tars single interface name");
+        licote_option_add("-C", "o", "tars single interface case");
         licote_option_init(argc, argv);
 
         _function = LICODE_GETSTR("-M", "");
-        _servant  = LICODE_GETSTR("-S", "");
-        _timeout  = LICODE_GETINT("-t", 3000);
+        _servant = LICODE_GETSTR("-S", "");
+        _timeout = LICODE_GETINT("-t", 3000);
         try
         {
             string file_pre = LICODE_GETSTR("-C", _function);
@@ -83,7 +85,7 @@ namespace bm
 
             parseCase(TC_File::load2str(file_pre + ".desc"), TC_File::load2str(file_pre + ".case"));
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             string s = string("case datatype not match:") + e.what() + "\n";
             licote_option_help(s.c_str());
@@ -91,30 +93,30 @@ namespace bm
         return BM_SUCC;
     }
 
-    int jsonProtocol::initialize(const vector<string>& params)
+    int jsonProtocol::initialize(const vector<string> &params)
     {
         if (params.size() != 5)
         {
             return BM_INIT_PARAM;
         }
 
-        _servant  = TC_Common::trim(params[0]);
+        _servant = TC_Common::trim(params[0]);
         _function = TC_Common::trim(params[1]);
-        _timeout  = TC_Common::strto<int>(params[2]);
+        _timeout = TC_Common::strto<int>(params[2]);
         try
         {
             _os.reset();
             _random_flag = false;
             parseCase(params[3], params[4]);
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             return BM_PACKET_ERROR;
         }
         return BM_SUCC;
     }
 
-    int jsonProtocol::parseCase(const string& in_param, const string& in_value)
+    int jsonProtocol::parseCase(const string &in_param, const string &in_value)
     {
         parseField(JsonValueObjPtr::dynamicCast(TC_Json::getValue(in_param)), _para_field);
         _para_value = JsonValueObjPtr::dynamicCast(TC_Json::getValue(in_value));
@@ -125,7 +127,7 @@ namespace bm
         return 0;
     }
 
-    void jsonProtocol::parseField(JsonValueObjPtr ptr,  vector<JsonField>& field, int elem_num)
+    void jsonProtocol::parseField(JsonValueObjPtr ptr, vector<JsonField> &field, int elem_num)
     {
         if (elem_num == -1 && ptr.get() == NULL)
         {
@@ -133,16 +135,21 @@ namespace bm
         }
 
         field.clear();
-        for(auto& op : ptr->value)
+        for (auto &op : ptr->value)
         {
             vector<string> attr = TC_Common::sepstr<string>(op.first, "_");
             if (attr.size() >= 3)
             {
                 JsonField f;
+                size_t idx = attr.size() - (attr.back() == "u" ? 2 : 1);
                 f.tag = TC_Common::strto<int>(attr[0]);
+                f.type = TC_Common::trim(attr[idx]);    
                 f.name = TC_Common::trim(attr[1]);
-                f.type = TC_Common::trim(attr[2]);
-                f.usigned = attr.size() > 3;
+                f.usigned = attr.back() == "u";
+                for (size_t i = 2; i < idx; i++)
+                {
+                    f.name.append("_").append(attr[i]);
+                }
                 if (f.type == PT_STRUCT)
                 {
                     parseField(JsonValueObjPtr::dynamicCast(op.second), f.child);
@@ -171,23 +178,23 @@ namespace bm
         sort(field.begin(), field.end(), compField);
     }
 
-    int jsonProtocol::encode(TarsOutputStream<BufferWriter> &os, JsonField& f, JsonValuePtr v)
+    int jsonProtocol::encode(TarsOutputStream<BufferWriter> &os, JsonField &f, JsonValuePtr v)
     {
-        WRITENUM(PT_BYTE,    Short,  f,  v);
-        WRITENUM(PT_SHORT,   Int32,  f,  v);
-        WRITENUM(PT_INT,     Int64,  f,  v);
-        WRITENUM(PT_LONG,    Int64,  f,  v);
-        WRITENUM(PT_FLOAT,   Float,  f,  v);
-        WRITENUM(PT_DOUBLE,  Double, f,  v);
-        WRITENUM(PT_BOOLEAN, Bool,   f,  v);
+        WRITENUM(PT_BYTE, Short, f, v);
+        WRITENUM(PT_SHORT, Int32, f, v);
+        WRITENUM(PT_INT, Int64, f, v);
+        WRITENUM(PT_LONG, Int64, f, v);
+        WRITENUM(PT_FLOAT, Float, f, v);
+        WRITENUM(PT_DOUBLE, Double, f, v);
+        WRITENUM(PT_BOOLEAN, Bool, f, v);
 
-        if(f.type.find(PT_STRING) == 0)
+        if (f.type.find(PT_STRING) == 0)
         {
             string s(f.defval);
             JsonInput::readJson(s, v, false);
             os.write(genRandomValue(s), f.tag);
         }
-        else if(f.type.find(PT_VECTOR) == 0)
+        else if (f.type.find(PT_VECTOR) == 0)
         {
             JsonValueArrayPtr av = JsonValueArrayPtr::dynamicCast(v);
             if (PT_BYTE.compare(f.child[0].type) == 0)
@@ -240,7 +247,7 @@ namespace bm
             if (ov.get() != NULL)
             {
                 os.write(ov->value.size(), 0);
-                for(auto & elem : ov->value)
+                for (auto &elem : ov->value)
                 {
                     encode(os, f.child[0], new JsonValueString(elem.first));
                     encode(os, f.child[1], elem.second);
@@ -254,14 +261,14 @@ namespace bm
         return 0;
     }
 
-    JsonValuePtr jsonProtocol::decode(TarsInputStream<BufferReader> &is, JsonField& f)
+    JsonValuePtr jsonProtocol::decode(TarsInputStream<BufferReader> &is, JsonField &f)
     {
-        READNUM(PT_BYTE,    Char,   Short,  f, true);
-        READNUM(PT_SHORT,   Short,  Int32,  f, true);
-        READNUM(PT_INT,     Int32,  Int64,  f, true);
-        READNUM(PT_LONG,    Int64,  Int64,  f, true);
-        READNUM(PT_FLOAT,   Float,  Float,  f, false);
-        READNUM(PT_DOUBLE,  Double, Double, f, false);
+        READNUM(PT_BYTE, Char, Short, f, true);
+        READNUM(PT_SHORT, Short, Int32, f, true);
+        READNUM(PT_INT, Int32, Int64, f, true);
+        READNUM(PT_LONG, Int64, Int64, f, true);
+        READNUM(PT_FLOAT, Float, Float, f, false);
+        READNUM(PT_DOUBLE, Double, Double, f, false);
 
         if (f.type.find(PT_STRING) == 0)
         {
@@ -365,7 +372,7 @@ namespace bm
         return NULL;
     }
 
-    int jsonProtocol::encode(char *buf, int& len, int& uniqId)
+    int jsonProtocol::encode(char *buf, int &len, int &uniq_no)
     {
         ostringstream oss;
         try
@@ -381,12 +388,12 @@ namespace bm
             }
 
             RequestPacket req;
-            req.iRequestId   = uniqId;
-            req.iVersion     = 1;
-            req.cPacketType  = 0;
-            req.iTimeout     = _timeout;
+            req.iRequestId = uniq_no;
+            req.iVersion = 1;
+            req.cPacketType = 0;
+            req.iTimeout = _timeout;
             req.sServantName = _servant;
-            req.sFuncName    = _function;
+            req.sFuncName = _function;
             req.context["AppName"] = "bmClient";
             req.status["AppName"] = "bmClient";
             req.sBuffer = _os.getByteBuffer();
@@ -403,7 +410,7 @@ namespace bm
             memcpy(buf + sizeof(Int32), os.getBuffer(), os.getLength());
             return 0;
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             oss << "std exception:" << e.what() << endl;
         }
@@ -417,7 +424,7 @@ namespace bm
         return BM_PACKET_ENCODE;
     }
 
-    int jsonProtocol::decode(const char *buf, int len, int& uniqId)
+    int jsonProtocol::decode(const char *buf, int len, int &uniq_no)
     {
         ostringstream oss;
         try
@@ -428,10 +435,10 @@ namespace bm
             ResponsePacket rsp;
             rsp.readFrom(is);
 
-            uniqId = rsp.iRequestId;
+            uniq_no = rsp.iRequestId;
             return rsp.iRet;
         }
-        catch (exception& e)
+        catch (exception &e)
         {
             oss << "std::exception: " << e.what();
         }
@@ -454,4 +461,4 @@ namespace bm
         }
         return (int)head_len;
     }
-};
+}; // namespace bm

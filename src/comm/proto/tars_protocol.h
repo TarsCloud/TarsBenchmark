@@ -34,9 +34,9 @@ namespace bm
         string type;
     };
 
-    #define LABEL_ASCII_2C string({0x2,0x1f,0x3})   // 替换,
-    #define LABEL_ASCII_3C string({0x2,0x1c,0x3})   // 替换<
-    #define LABEL_ASCII_3E string({0x2,0x1e,0x3})   // 替换>
+#define LABEL_ASCII_2C string({0x2, 0x1f, 0x3}) // 替换,
+#define LABEL_ASCII_3C string({0x2, 0x1c, 0x3}) // 替换<
+#define LABEL_ASCII_3E string({0x2, 0x1e, 0x3}) // 替换>
 
     class tarsProtocol : public Protocol
     {
@@ -52,7 +52,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int initialize(int argc, char** argv);
+        virtual int initialize(int argc, char **argv);
 
         /**
          * @brief  初始化函数
@@ -61,7 +61,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        virtual int initialize(const vector<string>& params);
+        virtual int initialize(const vector<string> &params);
 
         /**
          * @brief  协议是否支持有序的
@@ -85,12 +85,12 @@ namespace bm
          *
          * @param buf  数据包指针
          * @param len  数据包长度
-         * @param uniqId  全局唯一ID
+         * @param uniq_no  全局唯一ID
          *
          * @return 0成功, 其他失败
          */
-        virtual int encode(char *buf, int& len, int& uniqId);
-        virtual int decode(const char *buf, int len, int& uniqId);
+        virtual int encode(char *buf, int &len, int &uniq_no);
+        virtual int decode(const char *buf, int len, int &uniq_no);
 
         /**
          * @brief  TARS协议编解码
@@ -103,8 +103,8 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        int encode(TarsOutputStream<BufferWriter> &os, const string& type, const string& val, int tag, bool usigned = false);
-        string decode(TarsInputStream<BufferReader> &is, const string& type, int tag, bool require, bool usigned  = false);
+        int encode(TarsOutputStream<BufferWriter> &os, const string &type, const string &val, int tag, bool usigned = false);
+        string decode(TarsInputStream<BufferReader> &is, const string &type, int tag, bool require, bool usigned = false);
 
     private:
         /**
@@ -114,7 +114,7 @@ namespace bm
          *
          * @return  string
          */
-        string getType(const string& type);
+        string getType(const string &type);
 
         /**
          * @brief  解析成员变量
@@ -125,7 +125,7 @@ namespace bm
          *
          * @return Field结构
          */
-        Field getField(const string& type, int tag, bool require);
+        Field getField(const string &type, int tag, bool require);
 
         /**
          * @brief  解析列表成员
@@ -134,7 +134,7 @@ namespace bm
          *
          * @return vector<string>
          */
-        vector<string> getArray(const string& val);
+        vector<string> getArray(const string &val);
 
         /**
          * @brief  获得map的key/value
@@ -143,8 +143,8 @@ namespace bm
          *
          * @return  string
          */
-        string getMapKey(const string& type);
-        string getMapValue(const string& type);
+        string getMapKey(const string &type);
+        string getMapValue(const string &type);
 
         /**
          * @brief  解析测试用例
@@ -154,7 +154,7 @@ namespace bm
          *
          * @return 0成功, 其他失败
          */
-        int parseCase(const string& in_param, const string& in_value);
+        int parseCase(const string &in_param, const string &in_value);
 
         /**
          * @brief  转义字符
@@ -163,7 +163,7 @@ namespace bm
          *
          * @return 目标串
          */
-         string escapeStr(const string& src);
+        string escapeStr(const string &src);
 
         /**
          * @brief  反转义字符
@@ -172,15 +172,15 @@ namespace bm
          *
          * @return 目标串
          */
-         string unescapeStr(const string& src);
+        string unescapeStr(const string &src);
 
     public:
-        int             _timeout;       // 超时时间
-        string          _servant;       // servant名称
-        string          _function;      // rpc函数
-        vector<string>  _para_vals;     // 输入参数
-        vector<string>  _para_list;     // 参数配置  
+        int _timeout;              // 超时时间
+        string _servant;           // servant名称
+        string _function;          // rpc函数
+        vector<string> _para_vals; // 输入参数
+        vector<string> _para_list; // 参数配置
         TarsOutputStream<BufferWriter> _os;
     };
-};
+}; // namespace bm
 #endif
