@@ -54,3 +54,6 @@ adminsip                 The IP address of the AdminServer deployment, it must b
 nodeip                   The IP address of the NodeServer deployment, it should be separated from the AdminServer
 ```
 **AdminServer** is recommended to deploy together with tarsregistry, **NodeServer** is recommended to expand the capacity on the management side. The more machines deployed, the stronger the ability to support parallel benchmark.
+
+### Demo
+[demo](assets/demo_en.gif)
