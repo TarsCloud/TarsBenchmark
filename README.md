@@ -56,4 +56,4 @@ nodeip                   The IP address of the NodeServer deployment, it should 
 **AdminServer** is recommended to deploy together with tarsregistry, **NodeServer** is recommended to expand the capacity on the management side. The more machines deployed, the stronger the ability to support parallel benchmark.
 
 ### Demo
-[demo](assets/demo_en.gif)
+![demo](assets/demo_en.gif)

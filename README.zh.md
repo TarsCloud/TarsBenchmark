@@ -68,5 +68,5 @@ nodeip                   压测节点服务NodeServer部署的IP地址，建议�
 **AdminServer**建议和tarsregistry部署在一起, **NodeServer**部署成功之后可在管理端扩容，部署的机器越多，支持并行压测能力就越强。
 
 ### 使用Demo
-[demo](assets/demo_cn.gif)
+![demo](assets/demo_cn.gif)
 
