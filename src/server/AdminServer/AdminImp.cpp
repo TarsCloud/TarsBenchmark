@@ -176,7 +176,7 @@ int AdminImp::query(const BenchmarkUnit& req, ResultStat& stat, TarsCurrentPtr c
     }
     else
     {
-        TLOGDEBUG((TNOWMS - f_start) << "|" << "|req:" << logTars(req) << "|" << logTars(stat) << "|" << curr->getIp() << endl << endl);
+        TLOGDEBUG((TNOWMS - f_start) << "|req:" << logTars(req) << "|" << logTars(stat) << "|" << curr->getIp() << endl << endl);
     }
     return ret_code;
 }
@@ -339,7 +339,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
     DELETE_POINT(sendbuf)
     DELETE_POINT(recvbuf)
 
-    FDLOG(__FUNCTION__) << (TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << errmsg << "|" << "|req:" << logTars(req) << "|out:" << rsp << "|" << curr->getIp() << endl;
+    FDLOG(__FUNCTION__) << (TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << errmsg << "|req:" << logTars(req) << "|out:" << rsp << "|" << curr->getIp() << endl;
 
     return ret_code;
 }

@@ -190,7 +190,7 @@ int NodeImp::query(const TaskConf& req, QueryRsp& rsp, TarsCurrentPtr curr)
             {
                 for (size_t ii = 0; ii < stat_list.size(); ii++)
                 {
-                    map<int, int> ret_val = str2map(string((char *)stat_list[ii].retCount));
+                    map<int, int> ret_val = str2map(string((char *)stat_list[ii].buff_rets));
                     for(auto &itm : ret_val)
                     {
                         ret_final[itm.first] += tars::Int64(itm.second);
@@ -204,20 +204,20 @@ int NodeImp::query(const TaskConf& req, QueryRsp& rsp, TarsCurrentPtr curr)
     rsp.ipaddr = ServerConfig::LocalIp;
     // rsp.stat.time_stamp    = TNOW;
     rsp.stat.ret_map       = ret_final;
-    rsp.stat.total_request = stat_final.totalCount;
-    rsp.stat.succ_request  = stat_final.succCount;
-    rsp.stat.fail_request  = stat_final.failCount;
-    rsp.stat.max_time   = stat_final.maxTime;
-    rsp.stat.min_time   = stat_final.minTime;
-    rsp.stat.total_time = stat_final.totalTime;
-    rsp.stat.p999_time  = stat_final.p999Time;
-    rsp.stat.p99_time   = stat_final.p99Time;
-    rsp.stat.p90_time   = stat_final.p90Time;
-    rsp.stat.send_bytes = stat_final.totalSendBytes;
-    rsp.stat.recv_bytes = stat_final.totalRecvBytes;
+    rsp.stat.total_request = stat_final.total_num;
+    rsp.stat.succ_request  = stat_final.succ_num;
+    rsp.stat.fail_request  = stat_final.fail_num;
+    rsp.stat.max_time   = stat_final.max_time;
+    rsp.stat.min_time   = stat_final.min_time;
+    rsp.stat.total_time = stat_final.total_time;
+    rsp.stat.p999_time  = stat_final.p999_time;
+    rsp.stat.p99_time   = stat_final.p99_time;
+    rsp.stat.p90_time   = stat_final.p90_time;
+    rsp.stat.send_bytes = stat_final.send_bytes;
+    rsp.stat.recv_bytes = stat_final.recv_bytes;
     for (size_t i = 0; i < MAX_STEP_COST; i++)
     {
-        rsp.stat.cost_map[i] = stat_final.costTimes[i];
+        rsp.stat.cost_map[i] = stat_final.cost_times[i];
     }
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
 

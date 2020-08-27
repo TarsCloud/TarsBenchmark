@@ -22,23 +22,23 @@ namespace bm
 #pragma pack(1)
     typedef struct tagIntfStat
     {
-        int8_t staFlag;
-        int64_t execKey;
-        int64_t staIndex;
-        double minTime;
-        double maxTime;
-        double p90Time;
-        double p99Time;
-        double p999Time;
-        double totalTime;
-        size_t costTimes[10];
-        size_t succCount;
-        size_t failCount;
-        size_t totalCount;
-        size_t totalSendBytes;
-        size_t totalRecvBytes;
-        int8_t retCount[1024];
-        int8_t endFlag;
+        int8_t staflag;
+        int64_t exec_key;
+        int64_t sta_time;
+        double min_time;
+        double max_time;
+        double p90_time;
+        double p99_time;
+        double p999_time;
+        double total_time;
+        size_t cost_times[10];
+        size_t succ_num;
+        size_t fail_num;
+        size_t total_num;
+        size_t send_bytes;
+        size_t recv_bytes;
+        int8_t buff_rets[1024];
+        int8_t endflag;
 
         tagIntfStat()
         {
@@ -48,34 +48,34 @@ namespace bm
         void clear()
         {
             memset(this, 0, sizeof(struct tagIntfStat));
-            staFlag = STA_FLAG;
-            endFlag = END_FLAG;
-            minTime = 1000.00;
+            staflag = STA_FLAG;
+            endflag = END_FLAG;
+            min_time = 1000.00;
         }
 
         inline tagIntfStat &operator+=(const tagIntfStat &src)
         {
             for (size_t i = 0; i < 10; i++)
             {
-                costTimes[i] += src.costTimes[i];
+                cost_times[i] += src.cost_times[i];
             }
 
-            int32_t totalCnt = totalCount + src.totalCount;
-            if ((totalCount + src.totalCount) > 0)
+            int32_t total_cnt = total_num + src.total_num;
+            if ((total_num + src.total_num) > 0)
             {
-                p90Time = (p90Time * totalCount + src.p90Time * src.totalCount) / totalCnt;
-                p99Time = (p99Time * totalCount + src.p99Time * src.totalCount) / totalCnt;
-                p999Time = (p999Time * totalCount + src.p999Time * src.totalCount) / totalCnt;
+                p90_time = (p90_time * total_num + src.p90_time * src.total_num) / total_cnt;
+                p99_time = (p99_time * total_num + src.p99_time * src.total_num) / total_cnt;
+                p999_time = (p999_time * total_num + src.p999_time * src.total_num) / total_cnt;
             }
 
-            totalTime += src.totalTime;
-            totalCount += src.totalCount;
-            failCount += src.failCount;
-            succCount += src.succCount;
-            totalSendBytes += src.totalSendBytes;
-            totalRecvBytes += src.totalRecvBytes;
-            maxTime = std::max<double>(src.maxTime, maxTime);
-            minTime = std::min<double>(src.minTime, minTime);
+            total_time += src.total_time;
+            total_num += src.total_num;
+            fail_num += src.fail_num;
+            succ_num += src.succ_num;
+            send_bytes += src.send_bytes;
+            recv_bytes += src.recv_bytes;
+            max_time = std::max<double>(src.max_time, max_time);
+            min_time = std::min<double>(src.min_time, min_time);
             return *this;
         }
 

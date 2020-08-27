@@ -198,15 +198,15 @@ void printCost(const IntfStat &stat)
     static int arrCost[MAX_STEP_COST] = {0, 10, 30, 50, 100, 500, 3000, 5000, 99999, 0};
     for (size_t i = 0; i < MAX_STEP_COST && arrCost[i + 1] != 0; i++)
     {
-        total_count += stat.costTimes[i];
+        total_count += stat.cost_times[i];
     }
 
     total_count = max(1.0, total_count);
     for (size_t i = 0; i < MAX_STEP_COST && arrCost[i + 1] != 0; i++)
     {
-        meger_count += stat.costTimes[i];
-        printf("[%5d - %5d ms] %7ld\t%2.2f%%\t\t%2.2f%%\n", arrCost[i], arrCost[i + 1], stat.costTimes[i],
-               100 * (double)stat.costTimes[i] / total_count, 100 * meger_count / total_count);
+        meger_count += stat.cost_times[i];
+        printf("[%5d - %5d ms] %7ld\t%2.2f%%\t\t%2.2f%%\n", arrCost[i], arrCost[i + 1], stat.cost_times[i],
+               100 * (double)stat.cost_times[i] / total_count, 100 * meger_count / total_count);
     }
 }
 
@@ -223,17 +223,17 @@ int64_t printPeriod(int intvl_time)
     {
         for (size_t ii = 0; ii < stat_list.size(); ii++)
         {
-            map<int, int> ret_map = str2map(string((char *)stat_list[ii].retCount));
+            map<int, int> ret_map = str2map(string((char *)stat_list[ii].buff_rets));
             for (map<int, int>::iterator itm = ret_map.begin(); itm != ret_map.end(); itm++)
             {
                 ret_final[itm->first] += itm->second;
             }
 
-            if (stat_list[ii].execKey != 0)
+            if (stat_list[ii].exec_key != 0)
             {
-                // 统计周期是1s，所以速率近似为(succCount+failCount), 最后一个周期以最大为准
-                int64_t exec_key = stat_list[ii].execKey;
-                int64_t exec_requests = stat_list[ii].succCount + stat_list[ii].failCount;
+                // 统计周期是1s，所以速率近似为(succ_num+fail_num), 最后一个周期以最大为准
+                int64_t exec_key = stat_list[ii].exec_key;
+                int64_t exec_requests = stat_list[ii].succ_num + stat_list[ii].fail_num;
                 exec_speed[exec_key] = std::max(exec_requests, exec_speed[exec_key]);
             }
             stat += stat_list[ii];
@@ -243,16 +243,16 @@ int64_t printPeriod(int intvl_time)
 
     if (intvl_time > 0)
     {
-        size_t total_requests = stat.succCount + stat.failCount;
+        size_t total_requests = stat.succ_num + stat.fail_num;
         double total_decimal = std::max(1.00, (double)total_requests);
-        double fail_rate = min((double)stat.failCount, total_decimal) / total_decimal;
+        double fail_rate = min((double)stat.fail_num, total_decimal) / total_decimal;
         printf("\n\n--------------------------------------------------------------------------------------------------------------------\n");
         printf("Time\t\t\tTotal\tSucc\tFail\tRate\tMax(ms)\tMin(ms)\tAvg(ms)\tP90(ms)\tP99(ms)\tP999(ms)\tTPS\n");
         printf("%s\t%-6ld\t%-6ld\t%-6ld\t%0.2f%%\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t%0.2f\t\t%ld",
                TC_Common::now2str("%Y-%m-%d %H:%M:%S").c_str(),
-               stat.totalCount, stat.succCount, stat.failCount, (1 - fail_rate) * 100,
-               stat.maxTime, stat.minTime, stat.totalTime / total_decimal,
-               stat.p90Time, stat.p99Time, stat.p999Time,
+               stat.total_num, stat.succ_num, stat.fail_num, (1 - fail_rate) * 100,
+               stat.max_time, stat.min_time, stat.total_time / total_decimal,
+               stat.p90_time, stat.p99_time, stat.p999_time,
                total_requests / intvl_time);
 
         printf("\n\n\nCode Details: [%s]\n", map2str(ret_final).c_str());
@@ -280,9 +280,9 @@ void printFinal(int intvl_time)
         endpoints.append("\n                        ").append(g_endpoints[ii].toString());
     }
 
-    size_t total_requests = g_intf_stat.succCount + g_intf_stat.failCount;
+    size_t total_requests = g_intf_stat.succ_num + g_intf_stat.fail_num;
     double total_decimal = std::max(1.00, (double)total_requests);
-    double fail_rate = min((double)g_intf_stat.failCount, total_decimal) / total_decimal;
+    double fail_rate = min((double)g_intf_stat.fail_num, total_decimal) / total_decimal;
 
     int real_intvl_time = intvl_time - LICODE_GETINT("-t", 3000) / 3000;
     printf("\n\n--------------------------------------------------------------------------------------------------------------------\n");
@@ -297,20 +297,20 @@ void printFinal(int intvl_time)
     printf("Concurrency Procesor:     %ld\n", g_run_cores);
     printf("Concurrency Connections:  %lu\n", g_cons_num * g_run_cores);
     printf("Connections per Procesor: %ld\n", g_cons_num);
-    printf("Success requests:         %ld\n", g_intf_stat.succCount);
+    printf("Success requests:         %ld\n", g_intf_stat.succ_num);
     printf("Success rate:             %.2f%%\n", (1 - fail_rate) * 100);
-    printf("Failed requests:          %ld\n", g_intf_stat.failCount);
-    printf("Total requests:           %ld\n", g_intf_stat.totalCount);
+    printf("Failed requests:          %ld\n", g_intf_stat.fail_num);
+    printf("Total requests:           %ld\n", g_intf_stat.total_num);
     printf("Total duration:           %d[sec]\n", real_intvl_time);
-    printf("Transfer rate:            %.2f[Kbytes/sec]\n", (double)g_intf_stat.totalSendBytes / (real_intvl_time * 800));
+    printf("Transfer rate:            %.2f[Kbytes/sec]\n", (double)g_intf_stat.send_bytes / (real_intvl_time * 800));
     printf("Requests per second:      %ld[#/sec](mean)\n", total_requests / real_intvl_time);
     if (g_interval == 0) printf("Requests per second:      %ld[#/sec](adaptive)\n", final_speed);
-    printf("Request size(Avg):        %ld\n", (size_t)(g_intf_stat.totalSendBytes / total_decimal));
-    printf("Response size(Avg):       %ld\n", (size_t)(g_intf_stat.totalRecvBytes / total_decimal));
-    printf("Latency time(Avg):        %2.2f[ms]\n", g_intf_stat.totalTime / total_decimal);
-    printf("Latency time(P90):        %2.2f[ms]\n", g_intf_stat.p90Time);
-    printf("Latency time(P99):        %2.2f[ms]\n", g_intf_stat.p99Time);
-    printf("Latency time(P999):       %2.2f[ms]\n", g_intf_stat.p999Time);
+    printf("Request size(Avg):        %ld\n", (size_t)(g_intf_stat.send_bytes / total_decimal));
+    printf("Response size(Avg):       %ld\n", (size_t)(g_intf_stat.recv_bytes / total_decimal));
+    printf("Latency time(Avg):        %2.2f[ms]\n", g_intf_stat.total_time / total_decimal);
+    printf("Latency time(P90):        %2.2f[ms]\n", g_intf_stat.p90_time);
+    printf("Latency time(P99):        %2.2f[ms]\n", g_intf_stat.p99_time);
+    printf("Latency time(P999):       %2.2f[ms]\n", g_intf_stat.p999_time);
     printf("\n\n");
 
     printf("Percentage of the requests served within a certain time\n");

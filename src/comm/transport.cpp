@@ -72,8 +72,9 @@ namespace bm
         char buff[MAX_RECVBUF_SIZE] = {0};
         while (this->recv(buff, rcv_len) == BM_SUCC && rcv_len > 0)
         {
-            _recv_buff.append(buff, rcv_len);
             _monitor->reportRecv(TBNOWMS, (int)rcv_len);
+            _recv_buff.append(buff, rcv_len);
+            rcv_len = MAX_RECVBUF_SIZE;
         }
 
         handleProcess();
