@@ -24,7 +24,7 @@ void NodeImp::initialize()
         for (int i = 0; i < _total_threads; i++)
         {
             BenchmarkThread *thread = new BenchmarkThread;
-            thread->init(shm_base + 1, shm_size);
+            thread->init(shm_base + i, shm_size);
             _thread_pool.push_back(thread);
         }
     }

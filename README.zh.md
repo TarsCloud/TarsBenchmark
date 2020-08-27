@@ -14,7 +14,7 @@
 └── src
     ├── comm               #公共目录，压测主要功能
     │   ├── licote         #处理shell命令行
-    │   └── proto          #适配各路协议，支持http/tars/tarsjon
+    │   └── proto          #适配各路协议，支持http/tars/tarjson
     ├── server             #压测服务目录
     │   ├── AdminServer    #压测管理服务, 处理WEBCGI的指令，管理下游NodeServer，定期搜集Node状态
     │   └── NodeServer     #压测执行服务, 接收Admin指令，启动线程执行压测并收集压测过程数据
