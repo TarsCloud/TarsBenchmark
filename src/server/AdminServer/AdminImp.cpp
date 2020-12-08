@@ -258,7 +258,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
     proto->initialize(tconf.paralist);
 
     int seq = 1;
-    TC_Config &conf = Application::getConfig();
+    TC_Config &conf = getApplication()->getConfig();
     int sendlen = TC_Common::strto<int>(conf.get("/benchmark<sendSize>", "4194304"));
     size_t recvlen = TC_Common::strto<int>(conf.get("/benchmark<recvSize>", "8388608"));
     sendbuf = new char[sendlen];
