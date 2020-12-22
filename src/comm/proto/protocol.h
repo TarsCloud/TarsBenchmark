@@ -110,7 +110,7 @@ namespace bm
                 return v;
             }
 
-            string nv = v.substr(l + 1, r - l);
+            string nv = v.substr(l + 1, r - 1);
             if (m != string::npos && is_int)
             {
                 vector<string> vs = TC_Common::sepstr<string>(nv, "-");
