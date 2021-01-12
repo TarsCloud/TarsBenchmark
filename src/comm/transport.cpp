@@ -85,14 +85,14 @@ namespace bm
     {
         close();
         checkSocket();
-        _monitor->report(BM_SOCK_ERROR);
         return BM_SUCC;
     }
 
     int Transport::handleProcess()
     {
-        int rcv_len = 0;
         int64_t cur_time = TBNOWMS;
+        checkTimeOut(cur_time);
+        int rcv_len = 0;
         while ((rcv_len = _proto->input(_recv_buff.c_str(), _recv_buff.length())) > 0)
         {
             int seq_no = -1;
@@ -106,8 +106,6 @@ namespace bm
 
             _recv_buff.erase(_recv_buff.begin(), _recv_buff.begin() + rcv_len);
         }
-
-        checkTimeOut(cur_time);
         return BM_SUCC;
     }
 
@@ -149,7 +147,6 @@ namespace bm
 
         if (!this->checkConnect())
         {
-            _monitor->report(BM_SOCK_CONN_ERROR);
             return BM_SOCK_CONN_ERROR;
         }
 
@@ -162,10 +159,10 @@ namespace bm
         int seq_no = uniq_no;
         int buflen = MAX_SENDBUF_SIZE;
         static __thread char buf[MAX_SENDBUF_SIZE];
-        int retCode = _proto->encode(buf, buflen, seq_no);
-        if (retCode != 0)
+        int ret = _proto->encode(buf, buflen, seq_no);
+        if (ret != 0)
         {
-            _monitor->report(retCode);
+            _monitor->report(ret);
             return BM_PACKET_ENCODE;
         }
 
@@ -179,12 +176,19 @@ namespace bm
 
     void Transport::close()
     {
-        TC_ClientSocket::close();
+        int error = 0;
+        socklen_t errlen = sizeof(error);
+        getsockopt(getfd(), SOL_SOCKET, SO_ERROR, reinterpret_cast<void *>(&error), &errlen);
+        for (size_t i = 0; i < _send_queue.size(); i++)
+        {
+            _monitor->report(BM_SOCKET_ERR_BASE - error, 0);
+        }
 
-        _send_queue.clear();
         _send_buff.clear();
         _recv_buff.clear();
+        _send_queue.clear();
         _conn_state = eUnconnected;
+        TC_ClientSocket::close();
         _loop->del(getfd(), (uint64_t)this, EPOLLIN | EPOLLOUT);
     }
 

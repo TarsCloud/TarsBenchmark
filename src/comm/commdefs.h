@@ -62,6 +62,8 @@ enum ErrorCode
     BM_SHM_ERR_INIT       = -3002,
     BM_SHM_ERR_CLEAR      = -3003,
 
+    BM_SOCKET_ERR_BASE    = -4000,
+
     BM_SERVER_ERR_PARAM   = -10000,
     BM_ADMIN_ERR_NOTFIND  = -10001,  // 未找到此链接
     BM_ADMIN_ERR_RUNNING  = -10002,  // 服务接口未运行压测

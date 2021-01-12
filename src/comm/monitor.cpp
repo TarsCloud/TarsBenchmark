@@ -111,7 +111,7 @@ namespace bm
         int64_t fail_rate = _cache_stat.fail_num * 1000 / decimal;
         static int64_t last_rate = 1000;
         static int count = 0;
-        if (fail_rate > RATE_FAIL_LEVEL)
+        if (fail_rate >= RATE_FAIL_LEVEL)
         {
             _set_speed = _set_speed * (_workmode == MODEL_QUICK ? 500 : 995) / 1000 + 10; // 最低到10
             if (last_rate < RATE_FAIL_LEVEL && _workmode == MODEL_QUICK)
@@ -119,8 +119,8 @@ namespace bm
                 _workmode = MODEL_SLOW;
             }
 
-            // 上一个错误率高于20%并持续10个周期，转换状态
-            if (last_rate > RATE_ERROR_LEVEL && (++count * 100 > time_out))
+            // 上一个错误率高于20%并持续2个timout周期，进入快速调速状态
+            if (last_rate > RATE_ERROR_LEVEL && (++count * 500 > time_out))
             {
                 count = 0;
                 _workmode = MODEL_QUICK;
@@ -140,7 +140,8 @@ namespace bm
                 percent = 2000;
                 int64_t curr_cost = _cache_stat.total_time * 1000 / decimal;
                 static int64_t init_cost = _cache_stat.total_time * 100 / decimal;
-                static int64_t step_cost[][2] = {{100, 80}, {10, 50}, {5, 20}, {2, 15}};
+                // 阶梯超时配置1/100,1/10,1/5,1/2阶梯
+                static int64_t step_cost[][2] = {{100, 50}, {10, 30}, {5, 20}, {2, 15}};
                 for (size_t i = 0; i < sizeof(step_cost) / sizeof(step_cost[0]); i++)
                 {
                     if (step_cost[i][0] * init_cost < 100 * time_out)
@@ -255,7 +256,8 @@ namespace bm
         }
 
         // 改变工作模式
+        const size_t min_speed = 1;
         _workmode = _workmode == 0 ? MODEL_QUICK : _workmode;
-        return (1000000 * cons) / _set_speed;
+        return (1000000 * cons) / std::max(_set_speed, min_speed);
     }
 }; // namespace bm

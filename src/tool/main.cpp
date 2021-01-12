@@ -124,6 +124,7 @@ int run(int seqno, int argc, char *argv[])
     // 事件初始化
     TC_Epoller loop;
     loop.create(MAX_FD);
+    Monitor::getInstance()->initialize();
 
     // 创建连接
     vector<Transport *> connections;
