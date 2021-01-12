@@ -16,7 +16,7 @@ void NodeImp::initialize()
             throw TC_Exception("imp thread must equal one");
         }
 
-        TC_Config &conf = Application::getConfig();
+        TC_Config &conf = getApplication()->getConfig();
         _total_threads = TC_Common::strto<int>(conf.get("/benchmark<totalThreads>", TC_Common::tostr(getProcNum())));
         _max_speed_per_thread = TC_Common::strto<int>(conf.get("/benchmark<maxThreadSpeed>", "25000"));
         int shm_base = TC_Common::strto<int>(conf.get("/benchmark<shmBase>", "202005010"));
