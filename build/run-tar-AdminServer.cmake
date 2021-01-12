@@ -1,0 +1,7 @@
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo mkdir -p /data/home/linfengchen/github/TarsBenchmark/build/tmp/AdminServer)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo rm -rf /data/home/linfengchen/github/TarsBenchmark/build/tmp/AdminServer)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E make_directory /data/home/linfengchen/github/TarsBenchmark/build/tmp/AdminServer)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo copy bin/AdminServer /data/home/linfengchen/github/TarsBenchmark/build/tmp/AdminServer/)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E copy bin/AdminServer /data/home/linfengchen/github/TarsBenchmark/build/tmp/AdminServer/)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E chdir /data/home/linfengchen/github/TarsBenchmark/build/tmp/ tar czfv AdminServer.tgz AdminServer/)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E copy_if_different /data/home/linfengchen/github/TarsBenchmark/build/tmp/AdminServer.tgz /data/home/linfengchen/github/TarsBenchmark/build/AdminServer.tgz)

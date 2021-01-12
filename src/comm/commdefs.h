@@ -37,48 +37,48 @@ using namespace tars;
 enum ErrorCode
 {
     BM_SUCC = 0,
-    BM_SEQUENCE = 1,
-    BM_EXCEPTION = -1,
-    BM_INIT_PARAM = -101,
-    BM_ERROR_URL = -102,
+    BM_SEQUENCE           = 1,
+    BM_EXCEPTION          = -1,
+    BM_INIT_PARAM         = -101,
+    BM_ERROR_URL          = -102,
 
-    BM_PACKET_ERROR = -1000,
-    BM_PACKET_ENCODE = -1001,
-    BM_PACKET_DECODE = -1002,
-    BM_PACKET_PARAM = -1003,
-    BM_PACKET_OVERFLOW = -1004,
+    BM_PACKET_ERROR       = -1000,
+    BM_PACKET_ENCODE      = -1001,
+    BM_PACKET_DECODE      = -1002,
+    BM_PACKET_PARAM       = -1003,
+    BM_PACKET_OVERFLOW    = -1004,
 
-    BM_SOCK_ERROR = -2000,
-    BM_SOCK_INVALID = -2001,
-    BM_SOCK_NCONNECTED = -2002,
-    BM_SOCK_CONN_ERROR = -2003,
-    BM_SOCK_CONN_TIMEOUT = -2004,
-    BM_SOCK_SEND_ERROR = -2005,
-    BM_SOCK_RECV_ERROR = -2006,
-    BM_SOCK_RECV_TIMEOUT = -2007,
+    BM_SOCK_ERROR         = -2000,
+    BM_SOCK_INVALID       = -2001,
+    BM_SOCK_NCONNECTED    = -2002,
+    BM_SOCK_CONN_ERROR    = -2003,
+    BM_SOCK_CONN_TIMEOUT  = -2004,
+    BM_SOCK_SEND_ERROR    = -2005,
+    BM_SOCK_RECV_ERROR    = -2006,
+    BM_SOCK_RECV_TIMEOUT  = -2007,
 
-    BM_SHM_ERR_GET = -3000,
-    BM_SHM_ERR_ATTACH = -3001,
-    BM_SHM_ERR_INIT = -3002,
-    BM_SHM_ERR_CLEAR = -3003,
+    BM_SHM_ERR_GET        = -3000,
+    BM_SHM_ERR_ATTACH     = -3001,
+    BM_SHM_ERR_INIT       = -3002,
+    BM_SHM_ERR_CLEAR      = -3003,
 
-    BM_SERVER_ERR_PARAM = -10000,
-    BM_ADMIN_ERR_NOTFIND = -10001,  // 未找到此链接
-    BM_ADMIN_ERR_RUNNING = -10002,  // 服务接口未运行压测
-    BM_ADMIN_ERR_STARTUP = -10003,  // 启动失败
-    BM_ADMIN_ERR_SHUTDOWN = -10004, // 关闭失败
-    BM_ADMIN_ERR_ENCODE = -10005,   // 编码失败
-    BM_ADMIN_ERR_DECODE = -10006,   // 编码失败
-    BM_ADMIN_ERR_SOCKET = -10007,   // 网络失败
-    BM_ADMIN_ERR_TASK = -10008,     // 服务接口正在运行中
-    BM_ADMIN_ERR_PROTO = -10009,    // 未找到此协议
+    BM_SERVER_ERR_PARAM   = -10000,
+    BM_ADMIN_ERR_NOTFIND  = -10001,  // 未找到此链接
+    BM_ADMIN_ERR_RUNNING  = -10002,  // 服务接口未运行压测
+    BM_ADMIN_ERR_STARTUP  = -10003,  // 启动失败
+    BM_ADMIN_ERR_SHUTDOWN = -10004,  // 关闭失败
+    BM_ADMIN_ERR_ENCODE   = -10005,  // 编码失败
+    BM_ADMIN_ERR_DECODE   = -10006,  // 编码失败
+    BM_ADMIN_ERR_SOCKET   = -10007,  // 网络失败
+    BM_ADMIN_ERR_TASK     = -10008,  // 服务接口正在运行中
+    BM_ADMIN_ERR_PROTO    = -10009,  // 未找到此协议
 
-    BM_NODE_ERR_RUNNING = -20001,    // 正在运行
-    BM_NODE_ERR_RESOURCE = -20002,   // 资源不足
-    BM_NODE_ERR_CASEMATCH = -20003,  // 用例参数和内容不匹配
+    BM_NODE_ERR_RUNNING    = -20001, // 正在运行
+    BM_NODE_ERR_RESOURCE   = -20002, // 资源不足
+    BM_NODE_ERR_CASEMATCH  = -20003, // 用例参数和内容不匹配
     BM_NODE_ERR_CONNECTION = -20004, // 链接数设置不合理(整数倍，且不要超过500倍)
-    BM_NODE_ERR_ENDPOINT = -20005,   // 目标服务器配置不正确
-    BM_NODE_ERR_RPCCALL = -20006,    // 目标服务器调用失败
+    BM_NODE_ERR_ENDPOINT   = -20005, // 目标服务器配置不正确
+    BM_NODE_ERR_RPCCALL    = -20006, // 目标服务器调用失败
 };
 
 enum ConnectStatus

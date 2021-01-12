@@ -271,7 +271,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
 
     if (ep.isTcp())
     {
-        TC_TCPClient client(ep.getHost(), ep.getPort(), ep.getTimeout());
+        TC_UDPClient client(ep.getHost(), ep.getPort(), ep.getTimeout());
         ret = client.sendRecv(sendbuf, (size_t)sendlen, recvbuf, recvlen);
     }
     else
@@ -285,56 +285,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
         PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_SOCKET, err_code, ret, errmsg, "socket sendrecv fail")
     }
 
-    TarsInputStream<BufferReader> is, isf;
-    is.setBuffer(recvbuf + 4, recvlen - 4);
-
-    ResponsePacket res;
-    res.readFrom(is);
-    isf.setBuffer(res.sBuffer);
-    ret_code = res.iRet;
-    if (ret_code == 0)
-    {
-        size_t n = 0;
-        uint8_t head_type, head_tag;
-        TarsPeekFromHead(isf, head_type, head_tag, n);
-        if (head_tag == 0 && head_type < 32)
-        {
-            isf.read(ret_code, head_tag, true);
-        }
-
-        if (req.paralist.size() == 0)
-        {
-            PROC_TRY_EXIT(ret_code, ret_code, err_code, ret, err_msg, "has no output")
-        }
-
-        // 对应答包进行解码输出
-        if (req.proto == "tars" && req.paralist.size() > 0)
-        {
-            tarsProtocol *p = (tarsProtocol *)proto;
-            vector<string> vi = TC_Common::sepstr<string>(req.para_input, "|");
-            vector<string> vo = TC_Common::sepstr<string>(req.paralist[0], "|");
-            rsp += TC_Common::tostr(ret_code) + "<br>";
-            for (size_t i = 0; i < vo.size(); i++)
-            {
-                rsp += p->decode(isf, vo[i], int(i+vi.size()+1), false) + "<br>";
-            }
-        }
-        else
-        {
-            vector<JsonField> fields;
-            JsonValueObjPtr out = new JsonValueObj;
-            jsonProtocol *p = (jsonProtocol *)proto;
-            p->parseField(JsonValueObjPtr::dynamicCast(TC_Json::getValue(req.paralist[0])), fields);
-            for(auto & field : fields)
-            {
-                out->value[field.name] = p->decode(isf, field);
-            }
-            out->value["tarsret"] = new JsonValueNum(ret_code, true);
-            rsp = TC_Json::writeValue(out);
-        }
-        PROC_TRY_EXIT(err_code, ret_code, ret_code, 0, err_msg, "ok")
-    }
-
+    err_code = proto->decode(recvbuf, recvlen, seq, &rsp);
     PROC_TRY_END(errmsg, ret_code, BM_ADMIN_ERR_DECODE, BM_ADMIN_ERR_DECODE)
     DELETE_POINT(sendbuf)
     DELETE_POINT(recvbuf)

@@ -1,0 +1,7 @@
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo mkdir -p /data/home/linfengchen/github/TarsBenchmark/build/tmp/tb)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo rm -rf /data/home/linfengchen/github/TarsBenchmark/build/tmp/tb)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E make_directory /data/home/linfengchen/github/TarsBenchmark/build/tmp/tb)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo copy bin/tb /data/home/linfengchen/github/TarsBenchmark/build/tmp/tb/)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E copy bin/tb /data/home/linfengchen/github/TarsBenchmark/build/tmp/tb/)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E chdir /data/home/linfengchen/github/TarsBenchmark/build/tmp/ tar czfv tb.tgz tb/)
+EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E copy_if_different /data/home/linfengchen/github/TarsBenchmark/build/tmp/tb.tgz /data/home/linfengchen/github/TarsBenchmark/build/tb.tgz)

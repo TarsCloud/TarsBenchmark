@@ -95,7 +95,7 @@ namespace bm
 
     int jsonProtocol::initialize(const vector<string> &params)
     {
-        if (params.size() != 5)
+        if (params.size() != 5 && params.size() != 6)
         {
             return BM_INIT_PARAM;
         }
@@ -108,6 +108,10 @@ namespace bm
             _os.reset();
             _random_flag = false;
             parseCase(params[3], params[4]);
+            if (params.size() > 5)
+            {
+                parseField(JsonValueObjPtr::dynamicCast(TC_Json::getValue(params[5])), _resp_field);
+            }
         }
         catch (exception &e)
         {
@@ -143,7 +147,7 @@ namespace bm
                 JsonField f;
                 size_t idx = attr.size() - (attr.back() == "u" ? 2 : 1);
                 f.tag = TC_Common::strto<int>(attr[0]);
-                f.type = TC_Common::trim(attr[idx]);    
+                f.type = TC_Common::trim(attr[idx]);
                 f.name = TC_Common::trim(attr[1]);
                 f.usigned = attr.back() == "u";
                 for (size_t i = 2; i < idx; i++)
@@ -424,16 +428,29 @@ namespace bm
         return BM_PACKET_ENCODE;
     }
 
-    int jsonProtocol::decode(const char *buf, int len, int &uniq_no)
+    int jsonProtocol::decode(const char *buf, int len, int &uniq_no, string* out)
     {
         ostringstream oss;
         try
         {
-            TarsInputStream<BufferReader> is;
+            TarsInputStream<BufferReader> is, isf;
             is.setBuffer(buf + 4, len - 4);
 
             ResponsePacket rsp;
             rsp.readFrom(is);
+
+            if (out != NULL)
+            {
+                isf.setBuffer(rsp.sBuffer);
+                JsonValueObjPtr jout = new JsonValueObj;
+                jout->value["tarsret"] = new JsonValueNum(decodeReturn(isf), true);
+                for (auto &field : _resp_field)
+                {
+                    jout->value[field.name] = decode(isf, field);
+                }
+
+                *out = TC_Json::writeValue(jout);
+            }
 
             uniq_no = rsp.iRequestId;
             return rsp.iRet;

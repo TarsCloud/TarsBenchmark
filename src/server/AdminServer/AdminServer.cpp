@@ -45,27 +45,30 @@ void AdminServer::daemon()
         PROC_TRY_BEGIN
 
         // 扫描机器列表
+        BenchmarkSummary tmp_summary;
         scanActiveNode(cur_time);
+        getSummary(tmp_summary);
 
         // 扫描任务列表
-        for (auto it = _summary.task.begin(); it != _summary.task.end(); )
+        for (auto it = tmp_summary.task.begin(); it != tmp_summary.task.end(); it++)
         {
             switch (it->second.state)
             {
                 case TS_IDLE:
                 {
+                    // 此处可以做IP地域调度
                     map<string, int> speed_quota;
                     TaskConf tconf = it->second.conf;
                     Int32 left_speed  = tconf.speed * tconf.endpoints.size();
                     Int32 totol_speed = tconf.speed * tconf.endpoints.size();
-                    for(auto itt = _summary.nodes.begin(); itt != _summary.nodes.end() && left_speed > 0; itt++)
+                    for(auto itt = tmp_summary.nodes.begin(); itt != tmp_summary.nodes.end() && left_speed > 0; itt++)
                     {
                         Int32 cost_speed = std::min(itt->second.left_speed, left_speed);
                         tconf.links = it->second.conf.links * cost_speed / totol_speed;
                         tconf.speed = cost_speed / tconf.endpoints.size();
                         if (tconf.speed > 0 && tconf.links > 0)
                         {
-                            _next_scan_time = cur_time + 3;
+                            _next_scan_time = cur_time;
                             startupNodeTask(itt->first, tconf);
 
                             left_speed -= cost_speed;
@@ -75,12 +78,12 @@ void AdminServer::daemon()
                     }
 
                     Lock lock(*this);
-                    it->second.state = TS_RUNNING;
-                    it->second.start_time = cur_time;
-                    it->second.fetch_time = cur_time;
-                    it->second.speed_quota = speed_quota;
                     resetStat(_summary.result[it->first]);
                     resetStat(_summary.total_result[it->first]);
+                    _summary.task[it->first].state = TS_RUNNING;
+                    _summary.task[it->first].start_time = cur_time;
+                    _summary.task[it->first].fetch_time = cur_time;
+                    _summary.task[it->first].speed_quota = speed_quota;
                     break;
                 }
                 case TS_RUNNING:
@@ -104,14 +107,14 @@ void AdminServer::daemon()
                     if (left_time < 0)
                     {
                         Lock lock(*this);
-                        it->second.state = TS_FINISHED;
+                        _summary.task[it->first].state = TS_FINISHED;
                     }
                     break;
                 }
                 default:
                 {
                     // 执行关闭逻辑
-                    _next_scan_time = cur_time + 3;
+                    _next_scan_time = cur_time;
                     for (auto & item : it->second.speed_quota)
                     {
                         shutdownNodeTask(item.first, it->second.conf);
@@ -121,11 +124,9 @@ void AdminServer::daemon()
                     _summary.result.erase(it->first);
                     auto& total_res = _summary.total_result[it->first];
                     total_res.avg_speed = calcSpeed(total_res, cur_time);
-                    it = _summary.task.erase(it);
-                    continue;
+                    break;
                 }
             }
-            it++;
         }
 
         PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
@@ -212,6 +213,7 @@ int AdminServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
     int ret_code = 0;
     int err_code = 0;
     string err_msg("");
+    TaskConf ntask = task;
 
     Int64 f_start = TNOWMS;
     PROC_TRY_BEGIN
@@ -221,7 +223,17 @@ int AdminServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
         PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_NOTFIND, err_code, 0, err_msg, "prx not find")
     }
 
-    PROC_NE_EXIT(_nodeprx[ipaddr]->startup(task), 0, ret_code, BM_ADMIN_ERR_STARTUP)
+    // 取整近似
+    for (Int32 link = task.links; link > 0; link--)
+    {
+        if ((ntask.speed % link) == 0)
+        {
+            ntask.links = link;
+            break;
+        }
+    }
+
+    PROC_NE_EXIT(_nodeprx[ipaddr]->startup(ntask), 0, ret_code, BM_ADMIN_ERR_STARTUP)
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
 
     FDLOG(__FUNCTION__) << (TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << err_msg << "|" << ipaddr << "|" << logTars(task) << endl;

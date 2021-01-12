@@ -97,7 +97,7 @@ namespace bm
          * @return 0成功, 其他失败
          */
         virtual int encode(char *buf, int &len, int &uniq_no);
-        virtual int decode(const char *buf, int len, int &uniq_no);
+        virtual int decode(const char *buf, int len, int &uniq_no, string *out = NULL);
 
         /**
          * @brief  TARS协议编码
@@ -143,11 +143,12 @@ namespace bm
         int parseCase(const string &in_param, const string &in_value);
 
     public:
-        int _timeout;                  // 超时时间
-        string _servant;               // servant名称
-        string _function;              // rpc函数
-        JsonValueObjPtr _para_value;   // 输入参数
-        vector<JsonField> _para_field; // 参数配置
+        int _timeout;                   // 超时时间
+        string _servant;                // servant名称
+        string _function;               // rpc函数
+        JsonValueObjPtr _para_value;    // 输入参数
+        vector<JsonField> _para_field;  // 入参配置
+        vector<JsonField> _resp_field;  // 出参配置
         TarsOutputStream<BufferWriter> _os;
     };
 }; // namespace bm

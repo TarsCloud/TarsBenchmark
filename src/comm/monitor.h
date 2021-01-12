@@ -16,6 +16,7 @@
 #ifndef _MONITOR_H_
 #define _MONITOR_H_
 #include "commdefs.h"
+#include "proto_factory.h"
 
 namespace bm
 {
@@ -89,7 +90,7 @@ namespace bm
         IntfStat item_list[0];
     } StatCache;
 #pragma pack()
-    class Monitor
+    class Monitor: public TC_ThreadLock
     {
     public:
         Monitor() : _workmode(MODEL_FIXED){};
@@ -101,12 +102,15 @@ namespace bm
          */
         static Monitor *getInstance()
         {
-            static Monitor *m = NULL;
-            if (m == NULL)
+            static TC_ThreadLock mutex;
+            int64_t threadid = gettid();
+            static unordered_map<int64_t, Monitor *> m;
+            if (m.find(threadid) == m.end())
             {
-                m = new Monitor;
+                Lock lock(mutex);
+                m[threadid] = new Monitor;
             }
-            return m;
+            return m[threadid];
         }
 
         /**

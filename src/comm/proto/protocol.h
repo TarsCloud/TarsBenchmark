@@ -16,6 +16,11 @@
 #ifndef _PROTOCOL_INCLUDE_
 #define _PROTOCOL_INCLUDE_
 
+#include <string>
+#include <vector>
+#include <tup/Tars.h>
+#include <tup/TarsJson.h>
+#include <tup/RequestF.h>
 #include "util/tc_dyn_object.h"
 
 using namespace tars;
@@ -73,7 +78,7 @@ namespace bm
          * @return 0成功, 其他失败
          */
         virtual int encode(char *buf, int &len, int &uniq_no) = 0;
-        virtual int decode(const char *buf, int len, int &uniq_no) = 0;
+        virtual int decode(const char *buf, int len, int &uniq_no, string* out = NULL) = 0;
 
     protected:
         /**
@@ -133,6 +138,25 @@ namespace bm
             return nv;
         }
 
+        /**
+         * @brief  解析Tars接口返回码
+         *
+         * @param isf     输入二进制
+         *
+         * @return 返回码
+         */
+        int decodeReturn(TarsInputStream<BufferReader> &isf)
+        {
+            size_t n = 0;
+            int retcode = 0;
+            uint8_t head_type, head_tag;
+            TarsPeekFromHead(isf, head_type, head_tag, n);
+            if (head_tag == 0 && head_type < 32)
+            {
+                isf.read(retcode, head_tag, true);
+            }
+            return retcode;
+        }
     protected:
         bool _random_flag;
     };

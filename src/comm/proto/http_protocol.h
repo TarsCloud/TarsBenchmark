@@ -61,22 +61,22 @@ namespace bm
          *
          * @param buf  数据包指针
          * @param len  数据包长度
-         * @param uniqId  全局唯一ID
+         * @param uniq_no  全局唯一ID
          *
          * @return 0成功, <0: 失败 >0: 需要的buffer长度
          */
-        virtual int encode(char *buf, int &len, int &uniqId);
+        virtual int encode(char *buf, int &len, int &uniq_no);
 
         /**
          * @brief  HTTP协议解包
          *
          * @param buf  数据包指针
          * @param len  数据包长度
-         * @param uniqId  全局唯一ID
+         * @param uniq_no  全局唯一ID
          *
          * @return 0成功, 其他失败
          */
-        virtual int decode(const char *buf, int len, int &uniqId);
+        virtual int decode(const char *buf, int len, int &uniq_no, string *out = NULL);
 
     private:
         /**

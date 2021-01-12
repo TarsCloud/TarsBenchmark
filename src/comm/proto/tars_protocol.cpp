@@ -732,17 +732,26 @@ namespace bm
         return BM_PACKET_ENCODE;
     }
 
-    int tarsProtocol::decode(const char *buf, int len, int &uniq_no)
+    int tarsProtocol::decode(const char *buf, int len, int &uniq_no, string* out)
     {
         ostringstream oss;
         try
         {
-            TarsInputStream<BufferReader> is;
+            TarsInputStream<BufferReader> is, isf;
             is.setBuffer(buf + 4, len - 4);
 
             ResponsePacket rsp;
             rsp.readFrom(is);
-
+            if (out != NULL)
+            {
+                isf.setBuffer(rsp.sBuffer);
+                out->append(TC_Common::tostr(decodeReturn(isf)) + "<br>");
+                for (size_t i = 0; i < _resp_list.size(); i++)
+                {
+                    int tag = _para_list.size() + i + 1;
+                    out->append(decode(isf, _resp_list[i], tag, false) + "<br>");
+                }
+            }
             uniq_no = rsp.iRequestId;
             return rsp.iRet;
         }

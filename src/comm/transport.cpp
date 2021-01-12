@@ -161,7 +161,7 @@ namespace bm
 
         int seq_no = uniq_no;
         int buflen = MAX_SENDBUF_SIZE;
-        static char buf[MAX_SENDBUF_SIZE];
+        static __thread char buf[MAX_SENDBUF_SIZE];
         int retCode = _proto->encode(buf, buflen, seq_no);
         if (retCode != 0)
         {

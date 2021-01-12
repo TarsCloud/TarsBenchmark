@@ -72,9 +72,9 @@ void BenchmarkThread::do_task()
         PROC_TRY_EXIT(ret_code, taskconf.runflag, err_code, connections, err_msg, "task not conf")
     }
 
-    /*******************************/
-    /* 先执行一段初始化代码，然后干活 */
-    /*******************************/
+    /*****************************************/
+    /* 先执行一段初始化代码，然后执行压测用例 */
+    /*****************************************/
     TC_Epoller eloop;
     eloop.create(MAX_FD);
 

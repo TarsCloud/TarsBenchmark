@@ -135,7 +135,7 @@ namespace bm
         return BM_PACKET_ENCODE;
     }
 
-    int httpProtocol::decode(const char *buf, int len, int &uniq_no)
+    int httpProtocol::decode(const char *buf, int len, int &uniq_no, string *out)
     {
         ostringstream oss;
         try
@@ -150,6 +150,11 @@ namespace bm
             {
                 uniq_no = -1;
                 return 0;
+            }
+
+            if (out != NULL)
+            {
+                *out = http_rsp.getContent();
             }
 
             uniq_no = 1;

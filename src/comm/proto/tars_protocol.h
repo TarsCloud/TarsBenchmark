@@ -16,10 +16,7 @@
 #ifndef _TARS_PROTOCOL_H_
 #define _TARS_PROTOCOL_H_
 
-#include <string>
-#include <vector>
-#include <tup/Tars.h>
-#include <tup/RequestF.h>
+
 #include "protocol.h"
 
 using namespace std;
@@ -90,7 +87,7 @@ namespace bm
          * @return 0成功, 其他失败
          */
         virtual int encode(char *buf, int &len, int &uniq_no);
-        virtual int decode(const char *buf, int len, int &uniq_no);
+        virtual int decode(const char *buf, int len, int &uniq_no, string *out = NULL);
 
         /**
          * @brief  TARS协议编解码
@@ -175,11 +172,12 @@ namespace bm
         string unescapeStr(const string &src);
 
     public:
-        int _timeout;              // 超时时间
-        string _servant;           // servant名称
-        string _function;          // rpc函数
-        vector<string> _para_vals; // 输入参数
-        vector<string> _para_list; // 参数配置
+        int _timeout;               // 超时时间
+        string _servant;            // servant名称
+        string _function;           // rpc函数
+        vector<string> _para_vals;  // 输入参数
+        vector<string> _para_list;  // 参数配置
+        vector<string> _resp_list;  // 输出配置
         TarsOutputStream<BufferWriter> _os;
     };
 }; // namespace bm
