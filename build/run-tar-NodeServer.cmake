@@ -1,7 +1,0 @@
-EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo mkdir -p /data/home/linfengchen/github/TarsBenchmark/build/tmp/NodeServer)
-EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo rm -rf /data/home/linfengchen/github/TarsBenchmark/build/tmp/NodeServer)
-EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E make_directory /data/home/linfengchen/github/TarsBenchmark/build/tmp/NodeServer)
-EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E echo copy bin/NodeServer /data/home/linfengchen/github/TarsBenchmark/build/tmp/NodeServer/)
-EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E copy bin/NodeServer /data/home/linfengchen/github/TarsBenchmark/build/tmp/NodeServer/)
-EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E chdir /data/home/linfengchen/github/TarsBenchmark/build/tmp/ tar czfv NodeServer.tgz NodeServer/)
-EXECUTE_PROCESS(COMMAND /usr/local/bin/cmake -E copy_if_different /data/home/linfengchen/github/TarsBenchmark/build/tmp/NodeServer.tgz /data/home/linfengchen/github/TarsBenchmark/build/NodeServer.tgz)
