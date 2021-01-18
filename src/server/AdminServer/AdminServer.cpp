@@ -121,6 +121,7 @@ void AdminServer::daemon()
                     }
 
                     Lock lock(*this);
+                    _summary.task.erase(it->first);
                     _summary.result.erase(it->first);
                     auto& total_res = _summary.total_result[it->first];
                     total_res.avg_speed = calcSpeed(total_res, cur_time);

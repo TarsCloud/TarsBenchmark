@@ -271,12 +271,12 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
 
     if (ep.isTcp())
     {
-        TC_UDPClient client(ep.getHost(), ep.getPort(), ep.getTimeout());
+        TC_TCPClient client(ep.getHost(), ep.getPort(), ep.getTimeout());
         ret = client.sendRecv(sendbuf, (size_t)sendlen, recvbuf, recvlen);
     }
     else
     {
-        TC_TCPClient client(ep.getHost(), ep.getPort(), ep.getTimeout());
+        TC_UDPClient client(ep.getHost(), ep.getPort(), ep.getTimeout());
         ret = client.sendRecv(sendbuf, (size_t)sendlen, recvbuf, recvlen);
     }
 

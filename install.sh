@@ -2,8 +2,8 @@
 
 TARS_WEB_HOST=$1
 TARS_WEB_TOKEN=$2
-NODE_SERVER_IP=$3
-ADMIN_SERVER_IP=$4
+ADMIN_SERVER_IP=$3
+NODE_SERVER_IP=$4
 WORKDIR=$(cd $(dirname $0); pwd)
 
 if [ $# -eq 4 ]; then
