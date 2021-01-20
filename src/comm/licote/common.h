@@ -33,7 +33,7 @@
 #ifdef __DEBUG__
 	#define ASSERT(exp)			do{	\
 		if (!(exp)){				\
-			LOG_DEBUG("assert ("#exp") failed!");\
+			LC_LOG_DEBUG("assert ("#exp") failed!");\
 		}							\
 		assert(exp);				\
 	}while(0)
@@ -96,7 +96,7 @@
 #ifndef __DEBUG__
 #define LICOTE_SHOW				printf
 #else
-#define LICOTE_SHOW				LOG_DEBUG
+#define LICOTE_SHOW				LC_LOG_DEBUG
 #endif
 
 
@@ -104,16 +104,16 @@
 * 日志调试 API
 ***************************************************************/
 /* 提示信息 */
-#define LOG_INFO(fmt...)		\
+#define LC_LOG_INFO(fmt...)		\
 	__log_debug(__FILE__, __FUNCTION__, __LINE__, fmt)
 /* 调试信息 */
-#define	LOG_DEBUG(fmt...)		\
+#define	LC_LOG_DEBUG(fmt...)		\
 	__log_debug(__FILE__, __FUNCTION__, __LINE__, fmt)
 /* 错误信息 */
-#define	LOG_ERROR(fmt...)		\
+#define	LC_LOG_ERROR(fmt...)		\
 	__log_error(__FILE__, __FUNCTION__, __LINE__, fmt)
 /* 条件打印 */
-#define EXP_DEBUG(exp, fmt...)	do{	\
+#define LC_EXP_DEBUG(exp, fmt...)	do{	\
 	if(exp){					\
 		LICOTE_SHOW(fmt);		\
 		fflush(stdout);			\

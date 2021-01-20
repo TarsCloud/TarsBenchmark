@@ -272,7 +272,7 @@ licote_option_init(int argc, char* argv[])
 {
 	/* 检查参数合法性 */
 	if (!argv){
-		LOG_ERROR("invalid parameter,argv=null!");
+		LC_LOG_ERROR("invalid parameter,argv=null!");
 		return -1;
 	}
 	/* 获取程序的名称 */
@@ -318,12 +318,12 @@ licote_option_add(const char* opt,
 {
 	/* 参数检测: opt,flags可能为空 */
 	if(!info){
-		LOG_ERROR("Invalid param, opt=null or info=null!");
+		LC_LOG_ERROR("Invalid param, opt=null or info=null!");
 		return;
 	}
 
 	if (g_LicoteC.count >= LICOTE_MAX_OPTIONS){
-		LOG_ERROR("options reach the limit: %d, real: %d", LICOTE_MAX_OPTIONS, g_LicoteC.count);
+		LC_LOG_ERROR("options reach the limit: %d, real: %d", LICOTE_MAX_OPTIONS, g_LicoteC.count);
 		return;
 	}
 
@@ -362,7 +362,7 @@ licote_option_add(const char* opt,
 			popt->lopt = opt;
 			goto INSERT_HASH;
 		default:
-			LOG_ERROR("LICOTE_SET_PWD must be call after LICOTE_OPTION_DECL.");
+			LC_LOG_ERROR("LICOTE_SET_PWD must be call after LICOTE_OPTION_DECL.");
 			goto REGISTER_FAIL;
 		}
 	}
@@ -371,11 +371,11 @@ licote_option_add(const char* opt,
 	len = opt ? strlen(opt) : 0;
 	if (len < 2 || (opt[0] != LINUX && opt[0] != WINDOWS) ||
 		(len == 2 && opt[1] == '-')){	//不允许--, /- 这的选项存在
-		LOG_ERROR("Invalid opt: %s, opt[0] must be '-','/'", opt);
+		LC_LOG_ERROR("Invalid opt: %s, opt[0] must be '-','/'", opt);
 		goto REGISTER_FAIL;
 	}
 	if (len  > 2 && opt[0] == LINUX && opt[1] != '-'){
-		LOG_ERROR("The short option did't meet the rule of licote:%s", opt);
+		LC_LOG_ERROR("The short option did't meet the rule of licote:%s", opt);
 		goto REGISTER_FAIL;
 	}
 
@@ -384,7 +384,7 @@ licote_option_add(const char* opt,
 		g_LicoteC.style = opt[0];
 	}
 	if (opt[0] != g_LicoteC.style){
-		LOG_ERROR("register option %s failed: can't mix %s with %s!", opt,
+		LC_LOG_ERROR("register option %s failed: can't mix %s with %s!", opt,
 					g_LicoteC.style == LINUX ? "Linux" : "Windows",
 					g_LicoteC.style != LINUX ? "Linux" : "Windows");
 		goto REGISTER_FAIL;
@@ -423,14 +423,14 @@ licote_option_hook(const char* patt, licote_hook_t hook)
 {
 	static char buf[TMP_BUF_LEN128] = {0};
 	if (!hook){ /* 允许patt为空,表示匹配最后一个选项 */
-		LOG_ERROR("invalid param, hook=null");
+		LC_LOG_ERROR("invalid param, hook=null");
 		return;
 	}
 
 	int ret = 0;
 	LicoteOption* node = (LicoteOption*)malloc(sizeof(LicoteOption));
 	if (!node){
-		LOG_ERROR("register option failed: malloc failed.");
+		LC_LOG_ERROR("register option failed: malloc failed.");
 		return;
 	}
 	memset(node, 0, sizeof(LicoteOption));
@@ -444,7 +444,7 @@ licote_option_hook(const char* patt, licote_hook_t hook)
 	if (node->info){
 		node->value = malloc(sizeof(regex_t));
 		if (!node->value){
-			LOG_ERROR("register option %s failed:malloc failed.", patt);
+			LC_LOG_ERROR("register option %s failed:malloc failed.", patt);
 			goto REGISTER_FAIL;
 		}
 		/* 编译正则表达式 */
@@ -461,7 +461,7 @@ licote_option_hook(const char* patt, licote_hook_t hook)
 REGISTER_FAIL:
 	if (ret != 0){
 		regerror(ret, node->value, buf, sizeof(buf));
-		LOG_ERROR("%s: '%s'\n", buf, node->info);
+		LC_LOG_ERROR("%s: '%s'\n", buf, node->info);
 	}
 	FREE_EMPTY(node);
 	FREE_EMPTY(node->value);
@@ -472,13 +472,13 @@ licote_option_alias(const char* ori,
 					const char* ali)
 {
 	if (!ori || !ali){
-		LOG_ERROR("error:alias %s as %s failed!", ori, ali);
+		LC_LOG_ERROR("error:alias %s as %s failed!", ori, ali);
 		return;
 	}
 
 	LicoteOption* popt = __licote_hash_get(ori);
 	if (!popt){
-		LOG_ERROR("error:alias %s as %s failed: %s not exist!", ori, ali, ori);
+		LC_LOG_ERROR("error:alias %s as %s failed: %s not exist!", ori, ali, ori);
 		return;
 	}
 
@@ -530,7 +530,7 @@ void
 licote_option_help(const char* fmt,...)
 {
 	if (!g_LicoteC.argc || !g_LicoteC.argv){
-		LOG_ERROR("Please don't call %s before licote_option_init.",
+		LC_LOG_ERROR("Please don't call %s before licote_option_init.",
 					__FUNCTION__);
 		exit(0);
 	}
@@ -803,7 +803,7 @@ __licote_parse_depend(LicoteOption* node,
 	static char buf[TMP_BUF_LEN64] = {0};
 
 	if (flags[0] != '>'){
-		LOG_ERROR("Invalid depend option flags:%s", flags);
+		LC_LOG_ERROR("Invalid depend option flags:%s", flags);
 		return;
 	}
 	strncpy(buf, flags + 1, sizeof(buf) - 1);
@@ -900,7 +900,7 @@ __licote_hash_insert(uint32_t key, LicoteOption* popt)
 
 	HashNode* node = (HashNode*)malloc(sizeof(HashNode));
 	if (!node){
-		LOG_ERROR("malloc failed:%s", strerror(errno));
+		LC_LOG_ERROR("malloc failed:%s", strerror(errno));
 		return -1;
 	}
 	node->data = popt;
@@ -917,14 +917,14 @@ __licote_list_insert(LicoteOption* node,
 
 	LicoteOption* father = __licote_hash_get(depend);
 	if (!father){
-		LOG_ERROR("The option '%s' depend by '%s' is not declare!",
+		LC_LOG_ERROR("The option '%s' depend by '%s' is not declare!",
 					depend, opt);
 		return -1;
 	}
 
 	ListNode* ln = (ListNode*)malloc(sizeof(ListNode));
 	if (!ln){
-		LOG_ERROR("malloc failed:%s", strerror(errno));
+		LC_LOG_ERROR("malloc failed:%s", strerror(errno));
 		return -1;
 	}
 
