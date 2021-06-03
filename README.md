@@ -48,7 +48,7 @@ The online benchmark service can be implemented with the latest version of [Tars
 
 Description:
 ```text
-webhost                  Host or ip:port on the TarsWeb management side
+webhost                  TarsWeb management side, for example: http://webhost
 token                    Which can obtain the http://webhost/auth.html#/token through the management side
 adminsip                 The IP address of the AdminServer deployment, it must be deployed at a single point
 nodeip                   The IP address of the NodeServer deployment, it should be separated from the AdminServer

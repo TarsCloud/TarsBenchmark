@@ -71,15 +71,15 @@ function build_webconf()
     cd $WORKDIR
 
     LOG_INFO "===>install benchmark template:\n";
-    curl -s -X POST -H "Content-Type: application/json" http://${TARS_WEB_HOST}/api/add_profile_template?ticket=${TARS_WEB_TOKEN} -d@assets/template.json|echo
+    curl -s -X POST -H "Content-Type: application/json" ${TARS_WEB_HOST}/api/add_profile_template?ticket=${TARS_WEB_TOKEN} -d@assets/template.json|echo
 
     LOG_INFO "===>install nodeserver:\n";
     sed -i "s/host_ip/$NODE_SERVER_IP/g" assets/nodeserver.json
-    curl -s -X POST -H "Content-Type: application/json" http://${TARS_WEB_HOST}/api/deploy_server?ticket=${TARS_WEB_TOKEN} -d@assets/nodeserver.json|echo
+    curl -s -X POST -H "Content-Type: application/json" ${TARS_WEB_HOST}/api/deploy_server?ticket=${TARS_WEB_TOKEN} -d@assets/nodeserver.json|echo
 
     LOG_INFO "===>install adminserver:\n";
     sed -i "s/host_ip/$ADMIN_SERVER_IP/g" assets/adminserver.json
-    curl -s -X POST -H "Content-Type: application/json" http://${TARS_WEB_HOST}/api/deploy_server?ticket=${TARS_WEB_TOKEN} -d@assets/adminserver.json|echo
+    curl -s -X POST -H "Content-Type: application/json" ${TARS_WEB_HOST}/api/deploy_server?ticket=${TARS_WEB_TOKEN} -d@assets/adminserver.json|echo
 }
 
 function upload_server()
@@ -87,10 +87,10 @@ function upload_server()
     cd $WORKDIR/build
 
     LOG_INFO "===>upload adminserver:\n"
-    curl -s http://${TARS_WEB_HOST}/api/upload_and_publish?ticket=${TARS_WEB_TOKEN} -Fsuse=@AdminServer.tgz -Fapplication=benchmark -Fmodule_name=AdminServer -Fcomment=auto-upload|echo
+    curl -s ${TARS_WEB_HOST}/api/upload_and_publish?ticket=${TARS_WEB_TOKEN} -Fsuse=@AdminServer.tgz -Fapplication=benchmark -Fmodule_name=AdminServer -Fcomment=auto-upload|echo
 
     LOG_INFO "===>upload nodeserver:\n"
-    curl -s http://${TARS_WEB_HOST}/api/upload_and_publish?ticket=${TARS_WEB_TOKEN} -Fsuse=@NodeServer.tgz -Fapplication=benchmark -Fmodule_name=NodeServer -Fcomment=auto-upload
+    curl -s ${TARS_WEB_HOST}/api/upload_and_publish?ticket=${TARS_WEB_TOKEN} -Fsuse=@NodeServer.tgz -Fapplication=benchmark -Fmodule_name=NodeServer -Fcomment=auto-upload
 }
 
 build_server

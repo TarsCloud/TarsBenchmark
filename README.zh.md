@@ -59,7 +59,7 @@ tb工具采用多进程方式设计，主进程负责资源调度和外显，压
 
 参数说明
 ```text
-webhost                  TarsWeb管理端的host或ip:port
+webhost                  TarsWeb管理端的url, 例如: http://webhost:3000 (注意不要少了http地址)
 token                    TarsWeb管理端的token，可以通过管理端获取http://webhost:3000/auth.html#/token
 adminsip                 压测管理服务AdminServer部署的IP地址，AdminServer必须单点部署。
 nodeip                   压测节点服务NodeServer部署的IP地址，建议和AdminServer分开部署。
