@@ -333,8 +333,36 @@ inline int64_t getProcNum(void)
 #define LICODE_GETINT(x, v) (licote_option_exist(x) ? TC_Common::strto<int>(licote_option_get(x)) : v)
 #define LICODE_GETSTR(x, v) (licote_option_exist(x) ? TC_Common::trim(licote_option_get(x)) : v)
 
-#define CAS(ptr, old, new) ({ char ret; __asm__ __volatile__("lock; cmpxchgl %2,%0; setz %1": "+m"(*ptr), "=q"(ret): "r"(new),"a"(old): "memory"); ret; })
-#define WMB() __asm__ __volatile__("sfence" ::: "memory")
-#define RMB() __asm__ __volatile__("lfence" ::: "memory")
+// #define CAS(ptr, old, new) ({ char ret; __asm__ __volatile__("lock; cmpxchgl %2,%0; setz %1": "+m"(*ptr), "=q"(ret): "r"(new),"a"(old): "memory"); ret; })
+// #define WMB() __asm__ __volatile__("sfence" ::: "memory")
+// #define RMB() __asm__ __volatile__("lfence" ::: "memory")
+
+#ifdef __x86_64__  
+    #define WMB() __asm__ __volatile__("sfence":::"memory")  
+    #define RMB() __asm__ __volatile__("lfence":::"memory")  
+    #define CAS(ptr, old, new)({ char ret; __asm__ __volatile__("lock; cmpxchgl %2,%0; setz %1": "+m"(*ptr), "=q"(ret): "r"(new),"a"(old): "memory"); ret;})  
+#else  
+    #define WMB() __asm__ __volatile__("dmb ish":::"memory")  
+    #define RMB() __asm__ __volatile__("dmb ish":::"memory")  
+    #define CAS(ptr, old, new) atomic_cas(ptr, old, new)  
+    static inline int atomic_cas(volatile uint32_t* ptr, uint32_t old_val, uint32_t new_val)  
+    {  
+        unsigned long ret;  
+        uint32_t oval;  
+        WMB();  
+        asm volatile("// atomic_cmpxchg\n"  
+            "1: ldxr %w1, %2\n"  
+            " cmp %w1, %w3\n"  
+            " b.ne 2f\n"  
+            " stxr %w0, %w4, %2\n"  
+            " cbnz %w0, 1b\n"  
+            "2:"  
+            : "=&r" (ret), "=&r" (oval), "+Q" (*ptr)  
+            : "Ir" (old_val), "r" (new_val)  
+            : "cc");  
+        RMB();  
+        return old_val == oval && ret == 0;  
+    }  
+#endif
 
 #endif // _COMMDEFS_H_
