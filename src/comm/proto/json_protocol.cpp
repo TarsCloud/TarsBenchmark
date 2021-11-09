@@ -40,22 +40,39 @@ namespace bm
         return 0;                                          \
     }
 
-#define READNUM(st, vt, vt2, f, fv)           \
+#define READINT(st, vt, vt2, f, fv)           \
     if (f.type.find(st) == 0)                 \
     {                                         \
         if (f.usigned)                        \
         {                                     \
             vt2 tmp = 0;                      \
             is.read(tmp, f.tag, false);       \
-            return new JsonValueNum(tmp, fv); \
+            return new JsonValueNum((int64_t)tmp, fv); \
         }                                     \
         else                                  \
         {                                     \
             vt tmp = 0;                       \
             is.read(tmp, f.tag, false);       \
-            return new JsonValueNum(tmp, fv); \
+            return new JsonValueNum((int64_t)tmp, fv); \
         }                                     \
     }
+
+#define READFLOAT(st, vt, vt2, f, fv)           \
+if (f.type.find(st) == 0)                 \
+{                                         \
+if (f.usigned)                        \
+{                                     \
+vt2 tmp = 0;                      \
+is.read(tmp, f.tag, false);       \
+return new JsonValueNum((double)tmp, fv); \
+}                                     \
+else                                  \
+{                                     \
+vt tmp = 0;                       \
+is.read(tmp, f.tag, false);       \
+return new JsonValueNum((double)tmp, fv); \
+}                                     \
+}
 
     IMPLEMENT_DYNCREATE(jsonProtocol, jsonProtocol)
 
@@ -267,12 +284,12 @@ namespace bm
 
     JsonValuePtr jsonProtocol::decode(TarsInputStream<BufferReader> &is, JsonField &f)
     {
-        READNUM(PT_BYTE, Char, Short, f, true);
-        READNUM(PT_SHORT, Short, Int32, f, true);
-        READNUM(PT_INT, Int32, Int64, f, true);
-        READNUM(PT_LONG, Int64, Int64, f, true);
-        READNUM(PT_FLOAT, Float, Float, f, false);
-        READNUM(PT_DOUBLE, Double, Double, f, false);
+        READINT(PT_BYTE, Char, Short, f, true);
+        READINT(PT_SHORT, Short, Int32, f, true);
+        READINT(PT_INT, Int32, Int64, f, true);
+        READINT(PT_LONG, Int64, Int64, f, true);
+        READFLOAT(PT_FLOAT, Float, Float, f, false);
+        READFLOAT(PT_DOUBLE, Double, Double, f, false);
 
         if (f.type.find(PT_STRING) == 0)
         {

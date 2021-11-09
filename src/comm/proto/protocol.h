@@ -145,7 +145,7 @@ namespace bm
          *
          * @return 返回码
          */
-        int decodeReturn(TarsInputStream<BufferReader> &isf)
+        int64_t decodeReturn(TarsInputStream<BufferReader> &isf)
         {
             size_t n = 0;
             int retcode = 0;
