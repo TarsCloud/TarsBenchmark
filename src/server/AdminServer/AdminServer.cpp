@@ -158,7 +158,7 @@ void AdminServer::scanActiveNode(long cur_time, bool refresh)
             map<string, NodePrx> nodeprx;
             map<string, NodeStat> nodestat;
             // TC_Config &conf = Application::getConfig();
-            string node_obj = ServerConfig::Application + ".NodeServer.NodeObj");
+            string node_obj = ServerConfig::Application + ".NodeServer.NodeObj";
             vector<TC_Endpoint> eps = Application::getCommunicator()->getEndpoint4All(node_obj);
             for (size_t i = 0; i < eps.size(); i++)
             {
