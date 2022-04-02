@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.pass }}
       - name: Get version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        run: echo "::set-output name=VERSION::${GITHUB_REF#refs/tags/}"
       - name: make
         run: mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4
       - name: build docker
