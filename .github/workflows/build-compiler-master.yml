@@ -1,6 +1,5 @@
 name: build-master
 
-
 on:
   push:
     branches:
