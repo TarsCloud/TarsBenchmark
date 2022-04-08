@@ -6,7 +6,7 @@ cloud:
   version: latest
   readme: README.md
   readme_cn: README.zh.md
-  description: DCache is a distributed cache based on tars.
+  description: The stress test system based on tars can easily complete the stress test of tars service.
   description_cn: 基于Tars构建的压力测试系统, 可以方便的完成tars服务的压力测试.
   changelist: Changelist.md
   collaborators:
