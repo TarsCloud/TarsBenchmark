@@ -1,0 +1,20 @@
+cloud:
+  group: benchmark
+  name: benchmark-system
+  type: product
+  logo: logo/admin-logo.png
+  version: latest
+  readme: README.md
+  readme_cn: README.zh.md
+  description: DCache is a distributed cache based on tars.
+  description_cn: 基于Tars构建的压力测试系统, 可以方便的完成tars服务的压力测试.
+  changelist: Changelist.md
+  collaborators:
+    - 156695134@qq.com
+    - ruanshudong@qq.com
+  repository: https://github.com/TarsCloud/TarsBenchmark.git
+  assets:
+    - assets
+  servers:
+    - benchmark/AdminServer
+    - benchmark/NodeServer

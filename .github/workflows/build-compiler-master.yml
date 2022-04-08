@@ -23,3 +23,4 @@ jobs:
         run: |
           exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/AdminServer yaml/admin-values.yaml latest true
           exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/NodeServer yaml/node-values.yaml latest true
+          exec-build-cloud-product.sh yaml/benchmark.yaml latest
