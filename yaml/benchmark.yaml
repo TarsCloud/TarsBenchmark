@@ -2,7 +2,7 @@ cloud:
   group: benchmark
   name: benchmark-system
   type: product
-  logo: logo/admin-logo.png
+  logo: logo/Benchmark.png
   version: latest
   readme: README.md
   readme_cn: README.zh.md
@@ -15,6 +15,7 @@ cloud:
   repository: https://github.com/TarsCloud/TarsBenchmark.git
   assets:
     - assets
+    - logo
   servers:
     - benchmark/AdminServer
     - benchmark/NodeServer

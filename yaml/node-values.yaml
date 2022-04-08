@@ -2,7 +2,7 @@
 cloud:
   group: benchmark 
   name: NodeServer
-  logo: node-logo.png
+  logo: logo/node-logo.png
   version: latest
   changelist: Changelist.md
   lang: cpp
@@ -19,6 +19,7 @@ cloud:
   protocols: []
   assets: 
     - assets
+    - logo
 app: benchmark
 server: NodeServer
 template: tars.cpp
