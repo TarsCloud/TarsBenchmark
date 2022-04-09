@@ -26,4 +26,4 @@ jobs:
         run: |
           exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/AdminServer yaml/admin-values.yaml ${{ steps.get_version.outputs.VERSION }} true
           exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/NodeServer yaml/node-values.yaml ${{ steps.get_version.outputs.VERSION }} true
-          exec-build-cloud-product.sh yaml/benchmark.yaml l${{ steps.get_version.outputs.VERSION }}
+          exec-build-cloud-product.sh yaml/benchmark.yaml ${{ steps.get_version.outputs.VERSION }}
