@@ -46,4 +46,10 @@ repo:
   id:
   image: tarscloud/benchmark.adminserver
   secret: cloud-market-secret
-
+config:
+  - name: test1.conf
+    content: |
+      test1
+  - name: test2.conf
+    content: |
+      test2
