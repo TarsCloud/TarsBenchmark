@@ -17,6 +17,7 @@ cloud:
   readme: README.md
   readme_cn: README.zh.md
   protocols: []
+  independent: false
   assets: 
     - assets
     - logo
