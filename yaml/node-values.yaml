@@ -39,13 +39,13 @@ profile: |
 servants:
   - name: NodeObj
     port: 31819
-    isTars: false
+    isTars: true 
     isTcp: true
-    thread: 1
+    thread: 5
     capacity: 100000
     connection: 100000
     timeout: 60000
-replicas: 1
+replicas: 2
 hostNetwork: false
 hostIPC: false
 hostPorts: []
