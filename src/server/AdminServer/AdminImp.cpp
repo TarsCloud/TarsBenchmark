@@ -89,13 +89,14 @@ int AdminImp::startup(const BenchmarkUnit& req, TarsCurrentPtr curr)
         }
         catch (TC_Exception& e)
         {
-            TLOGTARS("parse endpoint fail:" << e.what() << ", " << req.endpoints[i] << endl);
+            TLOG_ERROR("parse endpoint fail:" << e.what() << ", " << req.endpoints[i] << endl);
             has_bad_endpoint = true;
         }
     }
 
     if (has_bad_endpoint || req.endpoints.size() == 0)
     {
+        TLOG_ERROR("err endpoint" << endl);
         PROC_TRY_EXIT(ret_code, BM_NODE_ERR_ENDPOINT, err_code, req.endpoints.size(), err_msg, "err endpoint")
     }
 
@@ -103,11 +104,13 @@ int AdminImp::startup(const BenchmarkUnit& req, TarsCurrentPtr curr)
     int ret = check(req, task.conf, ep.getTimeout());
     if (ret != 0)
     {
+        TLOG_ERROR("check param" << endl);
         PROC_TRY_EXIT(ret_code, ret, err_code, 0, err_msg, "check param")
     }
 
     if ((req.speed % req.links != 0) || (req.speed / req.links) > 1000)
     {
+        TLOG_ERROR("link and speed not match" << endl);
         PROC_TRY_EXIT(ret_code, BM_NODE_ERR_CONNECTION, err_code, 0, err_msg, "link and speed not match")
     }
 
@@ -116,6 +119,7 @@ int AdminImp::startup(const BenchmarkUnit& req, TarsCurrentPtr curr)
     string main_key = GetMainKey(task.conf);
     if (summary.task.find(main_key) != summary.task.end())
     {
+        TLOG_ERROR("task is running" << endl);
         PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_TASK, err_code, 0, err_msg, "task is running")
     }
 
@@ -128,6 +132,7 @@ int AdminImp::startup(const BenchmarkUnit& req, TarsCurrentPtr curr)
 
     if (need_speed < 0 || totol_left_speed < need_speed)
     {
+        TLOG_ERROR("need more nodes, need_speed:" << need_speed << ", totol_left_speed:" << totol_left_speed << ", endpoints.size:" << req.endpoints.size() << endl);
         PROC_TRY_EXIT(ret_code, BM_NODE_ERR_RESOURCE, err_code, totol_left_speed, err_msg, "need more nodes")
     }
 
@@ -237,11 +242,13 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
 
     if (req.proto != "tars" && req.proto != "json")
     {
+        TLOG_ERROR("protocol don't support" << endl);
         PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_PROTO, err_code, 0, errmsg, "protocol don't support")
     }
 
     if (req.endpoints.size() == 0)
     {
+        TLOG_ERROR("err endpoint" << endl);
         PROC_TRY_EXIT(ret_code, BM_NODE_ERR_ENDPOINT, err_code, req.endpoints.size(), errmsg, "err endpoint")
     }
 
@@ -251,6 +258,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
     int ret = check(req, tconf, ep.getTimeout());
     if (ret != 0)
     {
+        TLOG_ERROR("check param" << endl);
         PROC_TRY_EXIT(ret_code, ret, err_code, 0, err_msg, "check param")
     }
 
@@ -266,6 +274,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
     ret = proto->encode(sendbuf, sendlen, seq);
     if (ret != 0)
     {
+        TLOG_ERROR("encode fail" << endl);
         PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_ENCODE, err_code, ret, errmsg, "encode fail")
     }
 
@@ -282,6 +291,7 @@ int AdminImp::test(const BenchmarkUnit& req, string& rsp, string& errmsg, TarsCu
 
     if (ret != 0)
     {
+        TLOG_ERROR("socket sendrecv fail" << endl);
         PROC_TRY_EXIT(ret_code, BM_ADMIN_ERR_SOCKET, err_code, ret, errmsg, "socket sendrecv fail")
     }
 

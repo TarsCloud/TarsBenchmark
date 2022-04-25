@@ -160,15 +160,30 @@ void AdminServer::scanActiveNode(long cur_time, bool refresh)
             // TC_Config &conf = Application::getConfig();
             string node_obj = ServerConfig::Application + ".NodeServer.NodeObj";
             vector<TC_Endpoint> eps = Application::getCommunicator()->getEndpoint4All(node_obj);
+
+			TLOG_DEBUG("nodeObj:" << node_obj << ", ep size:" << eps.size() << endl);
+
             for (size_t i = 0; i < eps.size(); i++)
             {
-                NodePrx prx;  NodeStat stat;
-                string obj_name = node_obj + "@" + eps[i].toString();
-                Application::getCommunicator()->stringToProxy<NodePrx>(obj_name, prx);
+				try
+				{
+					string obj_name = node_obj + "@" + eps[i].toString();
 
-                prx->capacity(stat);
-                nodeprx[eps[i].getHost()]  = prx;
-                nodestat[eps[i].getHost()] = stat;
+//					TLOG_DEBUG("nodeObj:" << obj_name << endl);
+
+					NodeStat stat;
+					NodePrx prx = Application::getCommunicator()->stringToProxy<NodePrx>(obj_name);
+
+					prx->tars_ping();
+
+					prx->capacity(stat);
+					nodeprx[eps[i].getHost()] = prx;
+					nodestat[eps[i].getHost()] = stat;
+				}
+				catch(exception &ex)
+				{
+					TLOG_ERROR(ex.what() << endl);
+				}
             }
 
             Lock lock(*this);
