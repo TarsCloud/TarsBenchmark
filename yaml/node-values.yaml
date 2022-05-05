@@ -41,7 +41,7 @@ servants:
     port: 31819
     isTars: true 
     isTcp: true
-    thread: 5
+    thread: 1
     capacity: 100000
     connection: 100000
     timeout: 60000
