@@ -105,6 +105,11 @@ namespace bm
             }
 
             _recv_buff.erase(_recv_buff.begin(), _recv_buff.begin() + rcv_len);
+            if (!_proto->needConnected())
+            {
+                this->close();
+                break;
+            }
         }
         return BM_SUCC;
     }

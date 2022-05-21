@@ -24,7 +24,7 @@ namespace bm
     {
         DECLARE_DYNCREATE(httpProtocol)
     public:
-        httpProtocol() { _random_flag = false; }
+        httpProtocol()  {}
         virtual ~httpProtocol() {}
 
         /**
@@ -93,6 +93,7 @@ namespace bm
 
     private:
         string _req_buff;
+        bool _req_connected = true;
     };
 }; // namespace bm
 #endif

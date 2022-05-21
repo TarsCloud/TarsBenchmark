@@ -82,6 +82,11 @@ namespace bm
                 if (kvh.size() == 2)
                 {
                     http.setHeader(kvh[0], kvh[1]);
+                    if (kvh[0] == "Connection" && kvh[1] == "close")
+                    {
+                        //  判断是否是短链接
+                        _req_connected = false;
+                    }
                 }
             }
         }
@@ -118,6 +123,7 @@ namespace bm
 
             uniq_no = 1;
             len = _req_buff.length();
+            _connected = _req_connected;
             memcpy(buf, _req_buff.c_str(), len);
             return 0;
         }
@@ -140,16 +146,11 @@ namespace bm
         ostringstream oss;
         try
         {
+            uniq_no = 1;
             TC_HttpResponse http_rsp;
             if (!http_rsp.decode(buf, len))
             {
                 return BM_PACKET_DECODE;
-            }
-
-            if (http_rsp.getStatus() == 0)
-            {
-                uniq_no = -1;
-                return 0;
             }
 
             if (out != NULL)
@@ -157,7 +158,12 @@ namespace bm
                 *out = http_rsp.getContent();
             }
 
-            uniq_no = 1;
+            // 判断是否是短链接
+            if (http_rsp.getHeader("Connection") == "close")
+            {
+                _connected = false;
+            }
+
             return http_rsp.getStatus() == 200 ? 0 : http_rsp.getStatus();
         }
         catch (exception &e)

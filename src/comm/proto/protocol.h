@@ -59,6 +59,13 @@ namespace bm
         virtual int isSupportSeq() { return false; }
 
         /**
+         * @brief  是否保持长链接
+         *
+         * @return true: 是; false: 否
+         */
+        virtual int needConnected() { return _connected; }
+
+        /**
          * @brief  判断收包是否完整
          *
          * @param buf  数据包指针
@@ -158,7 +165,8 @@ namespace bm
             return retcode;
         }
     protected:
-        bool _random_flag;
+        bool _random_flag = false;
+        bool _connected = true;
     };
 }; // namespace bm
 #endif

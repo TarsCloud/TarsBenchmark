@@ -1,0 +1,6 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/data/home/linfengchen/github/TarsBenchmark'
+make: Leaving directory `/data/home/linfengchen/github/TarsBenchmark'
+ 
+make: *** No targets specified and no makefile found.  Stop.
+

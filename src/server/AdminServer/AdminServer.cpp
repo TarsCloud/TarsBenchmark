@@ -54,79 +54,78 @@ void AdminServer::daemon()
         {
             switch (it->second.state)
             {
-                case TS_IDLE:
+            case TS_IDLE:
+            {
+                // 此处可以做IP地域调度
+                map<string, int> speed_quota;
+                TaskConf tconf = it->second.conf;
+                Int32 left_speed = tconf.speed * tconf.endpoints.size();
+                Int32 totol_speed = tconf.speed * tconf.endpoints.size();
+                for (auto itt = tmp_summary.nodes.begin(); itt != tmp_summary.nodes.end() && left_speed > 0; itt++)
                 {
-                    // 此处可以做IP地域调度
-                    map<string, int> speed_quota;
-                    TaskConf tconf = it->second.conf;
-                    Int32 left_speed  = tconf.speed * tconf.endpoints.size();
-                    Int32 totol_speed = tconf.speed * tconf.endpoints.size();
-                    for(auto itt = tmp_summary.nodes.begin(); itt != tmp_summary.nodes.end() && left_speed > 0; itt++)
+                    Int32 cost_speed = std::min(itt->second.left_speed, left_speed);
+                    tconf.links = it->second.conf.links * cost_speed / totol_speed;
+                    tconf.speed = cost_speed / tconf.endpoints.size();
+                    if (tconf.speed > 0 && tconf.links > 0)
                     {
-                        Int32 cost_speed = std::min(itt->second.left_speed, left_speed);
-                        tconf.links = it->second.conf.links * cost_speed / totol_speed;
-                        tconf.speed = cost_speed / tconf.endpoints.size();
-                        if (tconf.speed > 0 && tconf.links > 0)
-                        {
-                            _next_scan_time = cur_time;
-                            startupNodeTask(itt->first, tconf);
+                        _next_scan_time = cur_time;
+                        startupNodeTask(itt->first, tconf);
 
-                            left_speed -= cost_speed;
-                            itt->second.left_speed -= cost_speed;
-                            speed_quota[itt->first] = cost_speed;
-                        }
+                        left_speed -= cost_speed;
+                        itt->second.left_speed -= cost_speed;
+                        speed_quota[itt->first] = cost_speed;
                     }
-
-                    Lock lock(*this);
-                    resetStat(_summary.result[it->first]);
-                    resetStat(_summary.total_result[it->first]);
-                    _summary.task[it->first].state = TS_RUNNING;
-                    _summary.task[it->first].start_time = cur_time;
-                    _summary.task[it->first].fetch_time = cur_time;
-                    _summary.task[it->first].speed_quota = speed_quota;
-                    break;
                 }
-                case TS_RUNNING:
-                {
-                    // 采集任务状态
-                    for (auto & item : it->second.speed_quota)
-                    {
-                        ResultStat stat;
-                        int ret = queryNodeTask(item.first, it->second.conf, stat);
-                        if (ret == 0)
-                        {
-                            Lock lock(*this);
-                            _summary.result[it->first] += stat;
-                            _summary.total_result[it->first] += stat;
-                        }
-                    }
 
-                    // 超时退出机制
-                    int left_time = it->second.duration == 0 ? (it->second.fetch_time + 300 - cur_time) :
-                                    (it->second.start_time + it->second.duration - cur_time);
-                    if (left_time < 0)
+                Lock lock(*this);
+                resetStat(_summary.result[it->first]);
+                resetStat(_summary.total_result[it->first]);
+                _summary.task[it->first].state = TS_RUNNING;
+                _summary.task[it->first].start_time = cur_time;
+                _summary.task[it->first].fetch_time = cur_time;
+                _summary.task[it->first].speed_quota = speed_quota;
+                break;
+            }
+            case TS_RUNNING:
+            {
+                // 采集任务状态
+                for (auto &item : it->second.speed_quota)
+                {
+                    ResultStat stat;
+                    int ret = queryNodeTask(item.first, it->second.conf, stat);
+                    if (ret == 0)
                     {
                         Lock lock(*this);
-                        _summary.task[it->first].state = TS_FINISHED;
+                        _summary.result[it->first] += stat;
+                        _summary.total_result[it->first] += stat;
                     }
-                    break;
                 }
-                default:
-                {
-                    // 执行关闭逻辑
-                    _next_scan_time = cur_time;
-                    for (auto & item : it->second.speed_quota)
-                    {
-                        shutdownNodeTask(item.first, it->second.conf);
-                    }
 
+                // 超时退出机制
+                int left_time = it->second.duration == 0 ? (it->second.fetch_time + 300 - cur_time) : (it->second.start_time + it->second.duration - cur_time);
+                if (left_time < 0)
+                {
                     Lock lock(*this);
-                    _summary.task.erase(it->first);
-                    _summary.result.erase(it->first);
-                    auto& total_res = _summary.total_result[it->first];
-                    total_res.avg_speed = calcSpeed(total_res, cur_time);
-                    break;
+                    _summary.task[it->first].state = TS_FINISHED;
                 }
+                break;
+            }
+            default:
+            {
+                // 执行关闭逻辑
+                _next_scan_time = cur_time;
+                for (auto &item : it->second.speed_quota)
+                {
+                    shutdownNodeTask(item.first, it->second.conf);
+                }
+
+                Lock lock(*this);
+                _summary.task.erase(it->first);
+                _summary.result.erase(it->first);
+                auto &total_res = _summary.total_result[it->first];
+                total_res.avg_speed = calcSpeed(total_res, cur_time);
+                break;
+            }
             }
         }
 
@@ -134,7 +133,7 @@ void AdminServer::daemon()
 
         if (ret_code != 0)
         {
-            FDLOG(__FUNCTION__) << (TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << err_msg << "|"  << endl;
+            FDLOG(__FUNCTION__) << (TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << err_msg << "|" << endl;
         }
 
         if ((TNOWMS - f_start) < 1000)
@@ -161,29 +160,25 @@ void AdminServer::scanActiveNode(long cur_time, bool refresh)
             string node_obj = ServerConfig::Application + ".NodeServer.NodeObj";
             vector<TC_Endpoint> eps = Application::getCommunicator()->getEndpoint4All(node_obj);
 
-			TLOG_DEBUG("nodeObj:" << node_obj << ", ep size:" << eps.size() << endl);
+            TLOG_DEBUG("nodeObj:" << node_obj << ", ep size:" << eps.size() << endl);
 
             for (size_t i = 0; i < eps.size(); i++)
             {
-				try
-				{
-					string obj_name = node_obj + "@" + eps[i].toString();
+                try
+                {
+                    NodeStat stat;
+                    string obj_name = node_obj + "@" + eps[i].toString();
+                    NodePrx prx = Application::getCommunicator()->stringToProxy<NodePrx>(obj_name);
 
-//					TLOG_DEBUG("nodeObj:" << obj_name << endl);
-
-					NodeStat stat;
-					NodePrx prx = Application::getCommunicator()->stringToProxy<NodePrx>(obj_name);
-
-					prx->tars_ping();
-
-					prx->capacity(stat);
-					nodeprx[eps[i].getHost()] = prx;
-					nodestat[eps[i].getHost()] = stat;
-				}
-				catch(exception &ex)
-				{
-					TLOG_ERROR(ex.what() << endl);
-				}
+                    prx->tars_ping();
+                    prx->capacity(stat);
+                    nodeprx[eps[i].getHost()] = prx;
+                    nodestat[eps[i].getHost()] = stat;
+                }
+                catch (exception &ex)
+                {
+                    TLOG_ERROR(ex.what() << endl);
+                }
             }
 
             Lock lock(*this);
@@ -194,7 +189,7 @@ void AdminServer::scanActiveNode(long cur_time, bool refresh)
         // 清除非法运行的压测实例
         for (auto &it : _summary.nodes)
         {
-            for(auto ite = it.second.executors.begin(); ite != it.second.executors.end();)
+            for (auto ite = it.second.executors.begin(); ite != it.second.executors.end();)
             {
                 string main_key = ite->proto + "." + ite->service;
                 if (_summary.task.find(main_key) == _summary.task.end())
@@ -213,7 +208,7 @@ void AdminServer::scanActiveNode(long cur_time, bool refresh)
             }
         }
     }
-    catch (TC_Exception& e)
+    catch (TC_Exception &e)
     {
         FDLOG("error") << "exception:" << e.what() << endl;
     }
@@ -224,7 +219,7 @@ void AdminServer::scanActiveNode(long cur_time, bool refresh)
 }
 
 ////////////////////////////////////////////////////////////////
-int AdminServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
+int AdminServer::startupNodeTask(const string &ipaddr, const TaskConf &task)
 {
     int ret_code = 0;
     int err_code = 0;
@@ -258,7 +253,7 @@ int AdminServer::startupNodeTask(const string& ipaddr, const TaskConf& task)
 }
 
 ////////////////////////////////////////////////////////////////
-int AdminServer::shutdownNodeTask(const string& ipaddr, const TaskConf& task)
+int AdminServer::shutdownNodeTask(const string &ipaddr, const TaskConf &task)
 {
     int ret_code = 0;
     int err_code = 0;
@@ -282,7 +277,7 @@ int AdminServer::shutdownNodeTask(const string& ipaddr, const TaskConf& task)
 }
 
 ////////////////////////////////////////////////////////////////
-int AdminServer::queryNodeTask(const string& ipaddr, const TaskConf& task, ResultStat& stat)
+int AdminServer::queryNodeTask(const string &ipaddr, const TaskConf &task, ResultStat &stat)
 {
     int ret_code = 0;
     int err_code = 0;
@@ -301,13 +296,13 @@ int AdminServer::queryNodeTask(const string& ipaddr, const TaskConf& task, Resul
     PROC_TRY_END(err_msg, ret_code, BM_EXCEPTION, BM_EXCEPTION)
     stat = rsp.stat;
 
-    TLOGDEBUG((TNOWMS - f_start)  << "|" << ret_code << "|" << err_code << "|" << err_msg << "|" << ipaddr << "|task:" << logTars(task) << "|stat:" << logTars(stat) << endl);
+    TLOGDEBUG((TNOWMS - f_start) << "|" << ret_code << "|" << err_code << "|" << err_msg << "|" << ipaddr << "|task:" << logTars(task) << "|stat:" << logTars(stat) << endl);
 
     return ret_code;
 }
 
 ////////////////////////////////////////////////////////////////
-int AdminServer::queryResult(const string &key, ResultStat& stat)
+int AdminServer::queryResult(const string &key, ResultStat &stat)
 {
     Lock lock(*this);
     auto task = _summary.task.find(key);
@@ -329,27 +324,27 @@ int AdminServer::queryResult(const string &key, ResultStat& stat)
     return BM_ADMIN_ERR_NOTFIND;
 }
 
-void AdminServer::getSummary(BenchmarkSummary& summary)
+void AdminServer::getSummary(BenchmarkSummary &summary)
 {
     Lock lock(*this);
     summary = _summary;
 }
 
-void AdminServer::updateTask(const string &key, const TaskStat& task)
+void AdminServer::updateTask(const string &key, const TaskStat &task)
 {
     Lock lock(*this);
     _summary.task[key] = task;
 }
 
 /////////////////////////////////////////////////////////////////
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     try
     {
         g_app.main(argc, argv);
         g_app.waitForShutdown();
     }
-    catch (std::exception& e)
+    catch (std::exception &e)
     {
         cerr << "std::exception:" << e.what() << std::endl;
     }
