@@ -14,7 +14,7 @@ cloud:
     - ruanshudong@qq.com
     - shevqko@qq.com
   repository: https://github.com/TarsCloud/TarsBenchmark.git
-  readme: REAMDE.en.md
+  readme: README.en.md
   readme_cn: README.md
   assets: 
     - assets
