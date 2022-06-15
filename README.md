@@ -1,65 +1,31 @@
-[点我查看中文版](README.zh.md)
+- [English](Benchmark.en.md)
 
-## Introduction
+## 简介
 
-**tb**(TarsBenchmark)It is a non-code benchmark tool specially tailored for tars service, with the following features:
+TarsBenchamrk 系统是基于 tars 框架开发的一套压力测试系统, 可以方便的对 Tars 服务以及其他服务完成压力测试, 它有三个服务组成:
 
-- High performance: 8-core machine TPS supports more than 20W/s;
-- Network compatibility: The network layer supports TCP and UDP protocol;
-- Protocol scalability: It supports http/tars service benchmark, open to third-protocol agreements
-- Perfect real-time monitor. Provide the number of TPS/Success Rate/Cost time within the cycle;
+- benchmark/AdminServer: 压力测试管理服务, 收集压力测试过程中的数据, 只能部署在一台节点上
+- benchmark/NodeServer: 压测试驱动服务, 如果需要加大测试压力, 可以部署多节点上
+- benchmark/WebServer: 压力测试系统管理平台, 它属于 TarsWeb 的扩展服务, 注意 >= TarsFramework:v3.1.0 & TarsWeb:v3.1.0 才可以使用
 
-## Framework
+同时整个系统依赖数据库, WebServer 启动时需要连接 mysql, 且自动会创建表, 运行过程中会将数据写入到 db 中.
 
-The tb is designed in a multi-process model. The main process is responsible for resource scheduling and display, and the benchmark process is responsible for network transmission and reception and statistics. The network layer can flexibly choose TCP or UDP; adopts a protocol factory to manage various service protocols, supports http/tars by default; the main process and the benchmark process exchange signals through control information, and the data interacts through the lock-free shared memory queue to achieve the lowest resource consumption. The main process periodically collects each The network statistics of the benchmark process are output to the console after a simple summary.
+## 支持说明
 
-![tb system](assets/tb-platform.png)
+在< TarsWeb:v3.1.0 之前, 压测管理平台(WebServer)被内置在 TarsWeb 中, 之后版本为了提供 TarsWeb 的扩展性, TarsWeb 支持了服务插件化, 即你可以实现独立的 web 服务和 TarsWeb 整合到一起, 从而当各个子模块升级时无须升级 TarsWeb, 具体方式请参考 TarsWeb 相关的文档.
 
-## Usage
+## 安装方式
 
-Sample
+推荐使用新版本 > TarsFramework:v3.1.0 时, 直接从云市场安装网关服务, 建议以容器方式启动网关, 这样不依赖操作系统 stdc++.so 的版本.
 
-```text
-./tb -c 600 -s 6000 -D 192.168.31.1 -P 10505 -p tars -S tars.DemoServer.DemoObj -M test -C test.txt
-```
+[容器方式启动业务方式请参考](https://doc.tarsyun.com/#/installation/service-docker.md)
 
-Description
+## 配置说明
 
-```text
-  -h                   help information
-  -c                   number of connections
-  -D                   target server address(ipv4)
-  -P                   target server port
-  -p                   service protocol(tars|http)
-  -t(optional)         overtime time，default 3 second
-  -T(optional)         network protocol，default tcp
-  -I(optional)         continue time(by second)，default 1h
-  -i(optional)         view interval(by second)，default 10s
-  -s(optional)         maximum tps limit per target server
-  -n(optional)         maximum process
-```
+在安装压力测试系统时, 需要依赖 mysql, 因此在安装注意配置依赖的 mysql 地址
 
-See details in [develop.md](https://github.com/TarsCloud/TarsDocs_en/blob/master/benchmark/develop.md)
+- WebServer 请修改`config.json`
 
-## Quick Start
+## 压测工具说明
 
-The online benchmark service can be implemented with the latest version of [TarsWeb](https://github.com/TarsCloud/TarsWeb). release steps are as follows:
-
-```shell
-./install.sh webhost token adminsip nodeip
-```
-
-Description:
-
-```text
-webhost                  TarsWeb management side, for example: http://webhost
-token                    Which can obtain the http://webhost/auth.html#/token through the management side
-adminsip                 The IP address of the AdminServer deployment, it must be deployed at a single point
-nodeip                   The IP address of the NodeServer deployment, it should be separated from the AdminServer
-```
-
-**AdminServer** is recommended to deploy together with tarsregistry, **NodeServer** is recommended to expand the capacity on the management side. The more machines deployed, the stronger the ability to support parallel benchmark.
-
-### Demo
-
-![demo](assets/demo_en.gif)
+你可以基于源码编译, 生成独立的压力测试工具(tb), 可以使用它来完成压力测试(命令行交互模式), [请参考说明文档](./Benchmark.md)

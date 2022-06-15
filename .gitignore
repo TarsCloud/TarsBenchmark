@@ -1,0 +1,8 @@
+node_modules/
+dist/
+log/
+cmake-build-debug/
+build/
+src/server/AdminServer/Admin.h
+src/server/NodeServer/Node.h
+.idea/

@@ -1,15 +1,15 @@
 
 cloud:
   group: benchmark 
-  name: NodeServer
-  logo: logo/node-logo.png
+  name: AdminServer
+  logo: logo/admin-logo.png
   version: latest
   changelist: Changelist.md
   lang: cpp
   description: >-
-    A codeless pressure measurement tool specially tailored for the tar service. Nodeserver is the execution service of the pressure measurement tool
+    It is a codeless pressure measurement tool specially tailored for the tar service. Adminserver is the driver service of the pressure measurement tool
   description_cn:
-    专门为tars服务量身订做的无码压测工具, NodeServer是压测工具的执行服务.
+    专门为tars服务量身订做的无码压测工具, AdminServer是压测工具的驱动服务
   collaborators:
     - 156695134@qq.com
     - ruanshudong@qq.com
@@ -22,34 +22,29 @@ cloud:
     - assets
     - logo
 app: benchmark
-server: NodeServer
+server: AdminServer 
 template: tars.cpp
 profile: |
   <benchmark>
-    ##压测线程数量
-    totalThreads=6
-    ##单线程最大qps
-    maxThreadSpeed=30000
-    ##共享内存队列配置
-    shmBase=202005010
-    shmSize=1048576
+    ##测试开辟send/recv内存大小
+    sendSize=4194304
+    recvSize=8388608
   </benchmark>
-
-
 servants:
-  - name: NodeObj
-    port: 31819
-    isTars: true 
+  - name: AdminObj
+    port: 11100
+    isTars: true
     isTcp: true
-    thread: 1
+    thread: 5
     capacity: 100000
     connection: 100000
     timeout: 60000
-replicas: 2
+replicas: 1
 hostNetwork: false
 hostIPC: false
 hostPorts: []
 repo:
   id:
-  image: tarscloud/benchmark.nodeserver
+  image: tarscloud/benchmark.adminserver
   secret: cloud-market-secret
+

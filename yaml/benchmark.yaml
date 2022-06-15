@@ -7,7 +7,7 @@ cloud:
   readme: README.md
   readme_cn: README.zh.md
   description: The stress test system based on tars can easily complete the stress test of tars service.
-  description_cn: 基于Tars构建的压力测试系统, 可以方便的完成tars服务的压力测试.
+  description_cn: 基于Tars构建的压力测试系统, 可以方便的完成tars服务的接口测试以及压力测试.
   changelist: Changelist.md
   collaborators:
     - 156695134@qq.com
@@ -19,3 +19,4 @@ cloud:
   servers:
     - benchmark/AdminServer
     - benchmark/NodeServer
+    - benchmark/WebServer

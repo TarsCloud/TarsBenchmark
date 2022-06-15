@@ -24,6 +24,6 @@ jobs:
         run: mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4
       - name: build docker
         run: |
-          exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/AdminServer yaml/admin-values.yaml ${{ steps.get_version.outputs.VERSION }} true
-          exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/NodeServer yaml/node-values.yaml ${{ steps.get_version.outputs.VERSION }} true
+          exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/AdminServer yaml/admin.yaml ${{ steps.get_version.outputs.VERSION }} true
+          exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/NodeServer yaml/node.yaml ${{ steps.get_version.outputs.VERSION }} true
           exec-build-cloud-product.sh yaml/benchmark.yaml ${{ steps.get_version.outputs.VERSION }}

@@ -1,0 +1,53 @@
+
+cloud:
+  group: benchmark 
+  name: NodeServer
+  logo: logo/node-logo.png
+  version: latest
+  changelist: Changelist.md
+  lang: cpp
+  description: >-
+    A codeless pressure measurement tool specially tailored for the tar service. Nodeserver is the execution service of the pressure measurement tool
+  description_cn:
+    专门为tars服务量身订做的无码压测工具, NodeServer是压测工具的执行服务.
+  collaborators:
+    - 156695134@qq.com
+    - ruanshudong@qq.com
+  repository: https://github.com/TarsCloud/TarsBenchmark.git
+  readme: README.md
+  readme_cn: README.zh.md
+  protocols: []
+  independent: false
+  assets: 
+    - assets
+    - logo
+app: benchmark
+server: NodeServer
+template: tars.cpp
+profile: |
+  <benchmark>
+    ##压测线程数量
+    totalThreads=6
+    ##单线程最大qps
+    maxThreadSpeed=30000
+    ##共享内存队列配置
+    shmBase=202005010
+    shmSize=1048576
+  </benchmark>
+servants:
+  - name: NodeObj
+    port: 31819
+    isTars: true 
+    isTcp: true
+    thread: 1
+    capacity: 100000
+    connection: 100000
+    timeout: 60000
+replicas: 2
+hostNetwork: false
+hostIPC: false
+hostPorts: []
+repo:
+  id:
+  image: tarscloud/benchmark.nodeserver
+  secret: cloud-market-secret

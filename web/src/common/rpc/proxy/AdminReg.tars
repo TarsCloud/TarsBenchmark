@@ -1,0 +1,174 @@
+/**
+ * Tencent is pleased to support the open source community by making Tars available.
+ *
+ * Copyright (C) 2016THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the BSD 3-Clause License (the "License"); you may not use this file except 
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * https://opensource.org/licenses/BSD-3-Clause
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed 
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR 
+ * CONDITIONS OF ANY KIND, either express or implied. See the License for the 
+ * specific language governing permissions and limitations under the License.
+ */
+
+module tars
+{
+
+    enum tarsErrCode
+    {
+        //请求的node节点没有注册或者节点心跳超时
+        EM_TARS_NODE_NOT_REGISTRY_ERR = 1001,
+        //主控请求node节点超时
+        EM_TARS_CALL_NODE_TIMEOUT_ERR = 1002,
+        //从主控数据库获取服务的描述信息错误
+        EM_TARS_LOAD_SERVICE_DESC_ERR = 1003,
+        //服务可能处在停止或者发布过程中
+        EM_TARS_SERVICE_STATE_ERR = 1004,
+        //同样的请求已经在处理了
+        EM_TARS_REQ_ALREADY_ERR = 1005,
+        //请求来自非法的ip地址,如并非合法的主控地址
+        EM_TARS_INVALID_IP_ERR = 1006,
+        //参数错误
+        EM_TARS_PARAMETER_ERR = 1007,
+        //非tars方面的问题，用于node判断业务机器问题等
+        EM_TARS_OTHER_ERR = 1008,
+        //获取patch file异常
+        EM_TARS_GET_PATCH_FILE_ERR = 1009,
+        //调用patch server准备发布包失败
+        EM_TARS_PREPARE_ERR = 1010,
+        //不能执行
+        EM_TARS_CAN_NOT_EXECUTE = 1011,
+		//tarsnode没有连接
+		EM_TARS_NODE_NO_CONNECTION = 1012,
+		//未知错误
+        EM_TARS_UNKNOWN_ERR = -1,
+        //成功
+        EM_TARS_SUCCESS = 0
+    };
+
+	struct PluginConf
+	{
+	    0 optional string name;
+	    1 optional string name_en;
+	    2 optional string obj;
+	    3 optional int    type;     //类型: 1, 全局插件; 2: 服务级别插件
+	    4 optional string path;     //转发路径
+	    5 optional bool   k8s;
+	};
+
+    struct AuthConf
+    {
+        0 optional string flag;
+        1 optional string role;
+        2 optional string uid;
+    };
+
+    struct AuthConfList
+    {
+        0 optional vector<AuthConf> auths;
+    };
+
+    /**
+     * admin 管理接口
+     */
+    interface AdminReg
+    {
+        /**
+         * ping node
+         *
+         * @param name: node id
+         * @param out result : 结果描述
+         *
+         * @return : true-ping通；false-不通
+         */
+        bool pingNode(string name, out string result);
+
+        /**
+         * 启动特定server
+         *
+         * @param application: 应用
+         * @param serverName : server名
+         * @param nodeName   : node id
+         * @param out result : 结果描述
+         *
+         * @return : 返回值详见tarsErrCode枚举值
+         */
+        int startServer(string application,string serverName, string nodeName, out string result);
+
+        /**
+         * 停止特定server
+         *
+         * @param application: 应用
+         * @param serverName : server名
+         * @param nodeName   : node id
+         * @param out result : 结果描述
+         *
+         * @return : 返回值详见tarsErrCode枚举值
+         */
+        int stopServer(string application,string serverName, string nodeName, out string result);
+
+        /**
+         * 重启特定server
+         *
+         * @param application: 应用
+         * @param serverName : server名
+         * @param nodeName   : node id
+         * @param out result : 结果描述
+         *
+         * @return : 返回值详见tarsErrCode枚举值
+         */
+        int restartServer(string application,string serverName, string nodeName, out string result);
+
+        /**
+         * 通知server
+         *
+         * @param application: 应用
+         * @param serverName : server名
+         * @param nodeName   : node id
+         * @param command    : 命令
+         * @param out result : 结果描述
+         *
+         * @return : 返回值详见tarsErrCode枚举值
+         */
+        int notifyServer(string application,string serverName, string nodeName, string command, out string result);
+
+		/**
+		 * 注册插件
+		 *
+		 * @return : 返回值详见tarsErrCode枚举值
+		 */
+        int registerPlugin(PluginConf conf);
+
+		/**
+		 * 是否有有开发权限
+		 *
+		 * @return : 返回值详见tarsErrCode枚举值
+		 */
+		int hasDevAuth(string application, string serverName, string uid, out bool has);
+
+		/**
+		 * 是否有运维权限
+		 *
+		 * @return : 返回值详见tarsErrCode枚举值
+		 */
+		int hasOpeAuth(string application, string serverName, string uid, out bool has);
+
+		/**
+		 * 是否有有管理员权限
+		 *
+		 * @return : 返回值详见tarsErrCode枚举值
+		 */
+		int hasAdminAuth(string uid, out bool has);
+
+		/**
+		 * 解析ticket, uid不为空则有效, 否则无效需要重新登录
+		 *
+		 * @return : 返回值详见tarsErrCode枚举值
+		 */
+		int checkTicket(string ticket, out string uid);
+    };
+};
+
