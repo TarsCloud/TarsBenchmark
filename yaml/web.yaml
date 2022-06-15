@@ -61,5 +61,5 @@ config:
                   "idle": 10000
               }
           },
-          "path": "/plugins/base/gateway"
+          "path": "/plugins/base/benchmark"
       }
