@@ -1,4 +1,4 @@
-[点我查看中文版](README.zh.md)
+[点我查看中文版](Benchmark.md)
 
 ## Introduction
 
