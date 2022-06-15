@@ -28,7 +28,7 @@ const {
 	Serve
 } = require("static-koa-router");
 const KoaRouter = require("koa-router");
-
+const AdminService = require("./common/AdminService");
 let webConf = require('./config/webConf');
 
 const app = new Koa();
