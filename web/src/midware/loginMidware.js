@@ -30,7 +30,7 @@ module.exports = async (ctx, next) => {
 			return;
 		}
 
-		let uid = await AdminService.ticket(ticket);
+		let uid = await AdminService.checkTicket(ticket);
 
 		if (!uid) {
 			ctx.makeResObj(403, "no auth", {});
