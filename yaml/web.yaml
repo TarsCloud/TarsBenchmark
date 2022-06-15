@@ -1,8 +1,8 @@
 
 cloud:
-  group: Base
-  name: GatewayWebServer
-  logo: logo.png
+  group: benchmark 
+  name: WebServer
+  logo: logo/Benchmark.png
   version: latest
   changelist: Changelist.md
   lang: nodejs
@@ -17,16 +17,16 @@ cloud:
   readme: REAMDE.en.md
   readme_cn: README.md
   assets: 
-    - images
-    - doc 
+    - assets
+    - logo
   independent: false
-app: Base
-server: GatewayWebServer
+app: benchmark
+server: WebServer
 template: tars.nodejs
 profile: ""
 servants:
   - name: WebObj
-    port: 10500
+    port: 10000
     isTars: false
     isTcp: true
     thread: 2
@@ -39,7 +39,7 @@ hostIPC: false
 hostPorts: []
 repo:
   id:
-  image: docker.tarsyun.com/base/gatewaywebserver
+  image: docker.tarsyun.com/benchmark/webserver
   secret: cloud-market-secret
 config:
   - name: config.json
@@ -47,7 +47,6 @@ config:
       {
           "webConf": {
               "port": 10500,
-              "defaultLanguage": "cn",
               "alter": true
           },
           "dbConf": {
