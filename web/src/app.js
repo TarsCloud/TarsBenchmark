@@ -59,7 +59,6 @@ const appInitialize = () => {
 	app.use(benchmarkApiRouter.routes()).use(benchmarkApiRouter.allowedMethods());
 
 	//注意这里路由前缀一样的, 接口处理以后不要next, 否则匹配到静态路由了
-	//注意这里路由前缀一样的, 接口处理以后不要next, 否则匹配到静态路由了
 	const staticRouter = new KoaRouter({
 		prefix: webConf.path
 	});
@@ -80,7 +79,7 @@ const registerPlugin = async () => {
 		webConf.benchmarkObj = config.get("tars.application.server.app") + ".AdminServer.AdminObj";
 
 		try {
-			const rst = await AdminService.registerPlugin("压测管理平台", "TarsBenchmarkWeb", config.get("tars.application.server.app") + "." + config.get("tars.application.server.server") + ".WebObj", 2, webConf.path);
+			const rst = await AdminService.registerPlugin("接口测试", "TarsBenchmarkWeb", config.get("tars.application.server.app") + "." + config.get("tars.application.server.server") + ".WebObj", 2, webConf.path);
 
 			console.log(rst);
 		} catch (e) {
@@ -90,14 +89,14 @@ const registerPlugin = async () => {
 	} else {
 
 		try {
-			const rst = await AdminService.registerPlugin("压测管理平台", "TarsBenchmarkWeb", "Base.TarsBenchmarkWeb.WebObj", 2, webConf.path);
+			const rst = await AdminService.registerPlugin("接口测试", "TarsBenchmarkWeb", "Base.TarsBenchmarkWeb.WebObj", 2, webConf.path);
 
 			console.log(rst);
 		} catch (e) {
 			console.log("error:", e.message);
 		}
 
-		webConf.benchmarkObj = "Base.AdminServer.AdminObj";
+		webConf.benchmarkObj = "benchmark.AdminServer.AdminObj";
 	}
 }
 
@@ -115,7 +114,6 @@ const initialize = async () => {
 	console.log(webConf);
 
 	await registerPlugin();
-
 
 	const hostname = process.env.HTTP_IP || "0.0.0.0";
 	const port = process.env.HTTP_PORT || webConf.webConf.port;
