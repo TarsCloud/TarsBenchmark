@@ -21,6 +21,7 @@ cloud:
   assets: 
     - assets
     - logo
+    - docs
 app: benchmark
 server: AdminServer 
 template: tars.cpp

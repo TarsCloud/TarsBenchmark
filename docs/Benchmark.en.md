@@ -1,5 +1,7 @@
 [点我查看中文版](Benchmark.md)
 
+[Benchmark](../README.en.md)
+
 ## Introduction
 
 **tb**(TarsBenchmark)It is a non-code benchmark tool specially tailored for tars service, with the following features:
@@ -13,7 +15,7 @@
 
 The tb is designed in a multi-process model. The main process is responsible for resource scheduling and display, and the benchmark process is responsible for network transmission and reception and statistics. The network layer can flexibly choose TCP or UDP; adopts a protocol factory to manage various service protocols, supports http/tars by default; the main process and the benchmark process exchange signals through control information, and the data interacts through the lock-free shared memory queue to achieve the lowest resource consumption. The main process periodically collects each The network statistics of the benchmark process are output to the console after a simple summary.
 
-![tb system](assets/tb-platform.png)
+![tb system](../assets/tb-platform.png)
 
 ## Usage
 
@@ -62,4 +64,4 @@ nodeip                   The IP address of the NodeServer deployment, it should 
 
 ### Demo
 
-![demo](assets/demo_en.gif)
+![demo](../assets/demo_en.gif)

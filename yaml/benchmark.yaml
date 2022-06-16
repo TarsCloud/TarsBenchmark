@@ -16,6 +16,7 @@ cloud:
   assets:
     - assets
     - logo
+    - docs
   servers:
     - benchmark/AdminServer
     - benchmark/NodeServer

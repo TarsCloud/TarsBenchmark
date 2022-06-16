@@ -1,5 +1,7 @@
 [English](Benchmark.en.md)
 
+[压力测试系统](../README.md)
+
 # 简介
 
 **tb**(TarsBenchmark)是专门为 tars 服务量身订做的无码压测工具，具备以下特性：
@@ -27,7 +29,7 @@
 
 tb 工具采用多进程方式设计，主进程负责资源调度和外显，压测进程负责网络收发和统计，网络层可以灵活选择 TCP or UDP; 采用协议代理工厂模式管理各类 service 协议，默认支持 http/tars 协议的压测，支持协议自动发现; 主进程和压测进程之间控制信息通过信号方式交互，数据信息通过无锁共享内存队列交互，以达到最低的资源消耗，主进程会周期地搜集各压测进程的网络统计信息，经过简单汇总之后输出到控制台。
 
-![tb系统结构](assets/tb-platform.png)
+![tb系统结构](../assets/tb-platform.png)
 
 ## 使用说明
 
@@ -76,4 +78,4 @@ nodeip                   压测节点服务NodeServer部署的IP地址，建议�
 
 ### 使用 Demo
 
-![demo](assets/demo_cn.gif)
+![demo](../assets/demo_cn.gif)

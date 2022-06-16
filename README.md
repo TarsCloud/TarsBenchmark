@@ -6,7 +6,7 @@ TarsBenchamrk 系统是基于 tars 框架开发的一套压力测试系统, 可�
 
 - benchmark/AdminServer: 压力测试管理服务, 收集压力测试过程中的数据, 只能部署在一台节点上
 - benchmark/NodeServer: 压测试驱动服务, 如果需要加大测试压力, 可以部署多节点上
-- benchmark/WebServer: 压力测试系统管理平台, 它属于 TarsWeb 的扩展服务, 注意 >= TarsFramework:v3.1.0 & TarsWeb:v3.1.0 才可以使用
+- benchmark/BenchmarkWebServer: 压力测试系统管理平台, 它属于 TarsWeb 的扩展服务, 注意 >= TarsFramework:v3.1.0 & TarsWeb:v3.1.0 才可以使用
 
 同时整个系统依赖数据库, WebServer 启动时需要连接 mysql, 且自动会创建表, 运行过程中会将数据写入到 db 中.
 
@@ -28,4 +28,4 @@ TarsBenchamrk 系统是基于 tars 框架开发的一套压力测试系统, 可�
 
 ## 压测工具说明
 
-你可以基于源码编译, 生成独立的压力测试工具(tb), 可以使用它来完成压力测试(命令行交互模式), [请参考说明文档](./Benchmark.md)
+你可以基于源码编译, 生成独立的压力测试工具(tb), 可以使用它来完成压力测试(命令行交互模式), [请参考说明文档](../docs/Benchmark.md)

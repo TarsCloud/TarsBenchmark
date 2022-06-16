@@ -19,6 +19,7 @@ cloud:
   assets: 
     - assets
     - logo
+    - docs
   independent: false
 app: benchmark
 server: BenchmarkWebServer
