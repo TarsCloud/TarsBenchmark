@@ -449,7 +449,6 @@ export default {
   },
   data() {
     return {
-      k8s: false,
       showCase: false,
       upsertCaseContentModal: false,
       upsertCaseConfigModalName: "",
@@ -489,9 +488,8 @@ export default {
       const loading = this.$Loading.show();
       caseInfo.servant = this.servant;
       caseInfo.fn = this.currentFn.name;
-      caseInfo.k8s = this.k8s;
 
-      console.log(caseInfo);
+      // console.log(caseInfo);
 
       this.$ajax
         .postJSON("/server/api/upsert_bm_case", caseInfo)
@@ -614,7 +612,6 @@ export default {
           startParams.endpoints = this.queryFullEndpoints();
           break;
       }
-      startParams.k8s = this.k8s;
       this.$ajax
         .postJSON(path, startParams)
         .then((data) => {
@@ -673,7 +670,6 @@ export default {
       this.$ajax
         .getJSON("/server/api/get_benchmark_des", {
           id: id,
-          k8s: this.k8s,
         })
         .then((data) => {
           this.fnList = data;
@@ -689,7 +685,6 @@ export default {
         .getJSON("/server/api/get_bm_case_list", {
           servant: this.servant,
           fn: this.currentFn.name,
-          k8s: this.k8s,
         })
         .then((data) => {
           this.bmCaseList = data;
@@ -705,7 +700,6 @@ export default {
       this.$ajax
         .getJSON("/server/api/get_bm_result_by_id", {
           id: id,
-          k8s: this.k8s,
         })
         .then((data) => {
           data.results = JSON.parse(data.results || "[]");
@@ -732,7 +726,6 @@ export default {
           .postJSON("/server/api/delete_bm_case", {
             id: row.id,
             servant: row.servant,
-            k8s: this.k8s,
           })
           .then((data) => {
             setTimeout(() => {
@@ -771,7 +764,6 @@ export default {
       this.$ajax
         .getJSON("/server/api/get_endpoints", {
           servant: this.servant,
-          k8s: this.k8s,
         })
         .then((data) => {
           this.endpoints = {};
@@ -838,6 +830,33 @@ export default {
         "ret_map"
       );
     },
+    getParam(paramName) {
+      var paramValue = null;
+      var isFound = false;
+
+      if (
+        location.search.indexOf("?") == 0 &&
+        location.search.indexOf("=") > 1
+      ) {
+        var arrSource = unescape(location.search)
+          .substring(1, location.search.length)
+          .split("&");
+        var i = 0;
+        while (i < arrSource.length && !isFound) {
+          if (arrSource[i].indexOf("=") > 0) {
+            if (
+              arrSource[i].split("=")[0].toLowerCase() ==
+              paramName.toLowerCase()
+            ) {
+              paramValue = arrSource[i].split("=")[1];
+              isFound = true;
+            }
+          }
+          i++;
+        }
+      }
+      return paramValue;
+    },
   },
   props: {
     servantList: {
@@ -867,9 +886,7 @@ export default {
   beforeDestory() {
     this.stopPollingResult();
   },
-  mounted() {
-    this.k8s = location.pathname.indexOf("k8s.html") != -1;
-  },
+  mounted() {},
 };
 </script>
 

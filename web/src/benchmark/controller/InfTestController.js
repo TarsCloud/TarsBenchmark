@@ -78,20 +78,9 @@ async function getContext(tarsFilePath) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-function getRegistry(k8s) {
+function getRegistry() {
 
 	return registry;
-
-	// let Tars = require('../../common/rpc').registry;
-	// if (k8s && k8s == 'true') {
-	// 	Tars = require('../../../rpc/k8s').registry;
-
-	// } else {
-	// 	Tars = require('../../../rpc/index').registry;
-	// }
-
-
-	// return Tars;
 }
 
 
@@ -99,7 +88,6 @@ InfTestController.interfaceDebug = async (ctx) => {
 	try {
 		let {
 			id,
-			k8s,
 			objName,
 			application,
 			server_name,
@@ -111,8 +99,6 @@ InfTestController.interfaceDebug = async (ctx) => {
 		if (!await AdminService.hasDevAuth(application, server_name, ctx.uid)) {
 			ctx.makeNotAuthResObj();
 		} else {
-
-			// let client = getRegistry(k8s);
 
 			let rsp = await getInfTestService().debug({
 				id,
@@ -136,7 +122,6 @@ InfTestController.uploadTarsFile = async (ctx) => {
 		application,
 		server_name,
 		set_name,
-		k8s
 	} = ctx.paramsObj;
 	// tars文件上传目录，和发布包同一个根目录
 	let baseUploadPath = WebConf.pkgUploadPath.path;
@@ -199,7 +184,6 @@ InfTestController.getFileList = async (ctx) => {
 		let {
 			application,
 			server_name,
-			k8s
 		} = ctx.paramsObj;
 		if (!await AdminService.hasOpeAuth(application, server_name, ctx.uid)) {
 			ctx.makeNotAuthResObj();
@@ -233,7 +217,6 @@ InfTestController.getContexts = async (ctx) => {
 			type,
 			module_name,
 			interface_name,
-			k8s
 		} = ctx.paramsObj;
 		if (!await AdminService.hasOpeAuth(application, server_name, ctx.uid)) {
 			ctx.makeNotAuthResObj();
@@ -265,7 +248,6 @@ InfTestController.getParams = async (ctx) => {
 			module_name,
 			interface_name,
 			function_name,
-			k8s
 		} = ctx.paramsObj;
 		if (!await AdminService.hasOpeAuth(application, server_name, ctx.uid)) {
 			ctx.makeNotAuthResObj();
@@ -283,7 +265,6 @@ InfTestController.deleteTarsFile = async (ctx) => {
 	try {
 		let {
 			id,
-			k8s
 		} = ctx.paramsObj;
 		ctx.makeResObj(200, '', await getInfTestService().deleteTarsFile(id));
 	} catch (e) {
@@ -297,7 +278,6 @@ InfTestController.getStructs = async (ctx) => {
 		let {
 			id,
 			module_name,
-			k8s
 		} = ctx.paramsObj;
 		let ret = await getInfTestService().getStructs(id, module_name);
 		ctx.makeResObj(200, '', ret);
@@ -311,7 +291,6 @@ InfTestController.getBenchmarkDes = async (ctx) => {
 	try {
 		let {
 			id,
-			k8s
 		} = ctx.paramsObj;
 		let ret = await getInfTestService().getBenchmarkDes(id);
 		ctx.makeResObj(200, '', ret);
@@ -325,7 +304,6 @@ InfTestController.getBmCaseList = async (ctx) => {
 		let {
 			servant,
 			fn,
-			k8s
 		} = ctx.paramsObj;
 		let [application, server_name] = servant.split(".")
 		if (!await AdminService.hasOpeAuth(application, server_name, ctx.uid)) {
@@ -344,7 +322,6 @@ InfTestController.getBmResultById = async (ctx) => {
 	try {
 		let {
 			id,
-			k8s
 		} = ctx.paramsObj;
 		let ret = await getInfTestService().getBmResultById(id);
 		console.log(ret);
@@ -363,9 +340,7 @@ InfTestController.getBmResultById = async (ctx) => {
 
 InfTestController.upsertBmCase = async (ctx) => {
 	try {
-		let {
-			k8s
-		} = ctx.paramsObj;
+		let {} = ctx.paramsObj;
 
 		let fields = ["id", "servant", "fn", "des", "in_values", "endpoints", "links", "speed", "duration", "is_deleted"],
 			caseInfo = {}
@@ -388,7 +363,6 @@ InfTestController.upsertBmCase = async (ctx) => {
 InfTestController.deleteBmCase = async (ctx) => {
 	try {
 		let {
-			k8s,
 			id,
 			servant
 		} = ctx.paramsObj;
@@ -410,7 +384,6 @@ InfTestController.startBenchmark = async (ctx) => {
 	try {
 		let {
 			servant,
-			k8s
 		} = ctx.paramsObj
 		let [application, server_name] = servant.split(".")
 		if (!await AdminService.hasDevAuth(application, server_name, ctx.uid)) {
@@ -430,7 +403,6 @@ InfTestController.stopBenchmark = async (ctx) => {
 	try {
 		let {
 			servant,
-			k8s
 		} = ctx.paramsObj
 		let [application, server_name] = servant.split(".")
 		if (!await AdminService.hasDevAuth(application, server_name, ctx.uid)) {
@@ -450,7 +422,6 @@ InfTestController.testBenchmark = async (ctx) => {
 	try {
 		let {
 			servant,
-			k8s
 		} = ctx.paramsObj
 		let [application, server_name] = servant.split(".")
 		if (!await AdminService.hasDevAuth(application, server_name, ctx.uid)) {
@@ -470,7 +441,6 @@ InfTestController.getEndpoints = async (ctx) => {
 	try {
 		let {
 			servant,
-			k8s
 		} = ctx.paramsObj
 		let [application, server_name] = servant.split(".")
 		if (!await AdminService.hasOpeAuth(application, server_name, ctx.uid)) {
@@ -478,7 +448,7 @@ InfTestController.getEndpoints = async (ctx) => {
 			return;
 		}
 
-		let rst = await getRegistry(k8s).findObjectById(servant);
+		let rst = await getRegistry().findObjectById(servant);
 		// let ret = await AdminService.getEndpoints(servant);
 		ctx.makeResObj(200, '', rst.response.return.value);
 	} catch (e) {
@@ -489,14 +459,7 @@ InfTestController.getEndpoints = async (ctx) => {
 
 InfTestController.isBenchmarkInstalled = async (ctx) => {
 	try {
-		// let adminObj = WebConf.infTestConf.benchmarkAdmin;
-		let k8s = ctx.paramsObj.k8s;
-
-		// console.log(adminObj, k8s);
-
-		// let rst = getBenchmark(k8s).tars_ping();
-
-		let rst = await getRegistry(k8s).findObjectById(WebConf.infTestConf.benchmarkAdmin);
+		let rst = await getRegistry().findObjectById(WebConf.infTestConf.benchmarkAdmin);
 		let ret = rst.response.return.value;
 		if (ret && ret.length) {
 			ctx.makeResObj(200, '', true);
@@ -533,7 +496,6 @@ const testCaseConfStruct = {
 InfTestController.getTestCaseList = async (ctx) => {
 	const {
 		f_id,
-		k8s,
 		application,
 		server_name,
 		module_name,
@@ -575,7 +537,6 @@ InfTestController.interfaceAddCase = async (ctx) => {
 	try {
 		const {
 			f_id,
-			k8s,
 			test_case_name,
 			objName,
 			file_name,
@@ -616,7 +577,6 @@ InfTestController.deleteTestCase = async (ctx) => {
 	try {
 		let {
 			case_id,
-			k8s
 		} = ctx.paramsObj;
 		ctx.makeResObj(200, '', await getInfTestService().deleteTestCase(case_id));
 	} catch (e) {
@@ -629,7 +589,6 @@ InfTestController.modifyTestCase = async (ctx) => {
 	try {
 		const {
 			case_id,
-			k8s,
 			test_case_name,
 			params,
 			prior_set

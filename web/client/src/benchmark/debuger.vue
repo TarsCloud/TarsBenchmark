@@ -1174,16 +1174,11 @@ export default {
   },
   created() {},
   mounted() {
-    console.log(location);
-
     this.treeid = this.getParam("treeid");
 
-    console.log(this.treeid);
-    this.k8s = location.pathname.indexOf("k8s.html") != -1;
+    this.k8s = this.getParam("k8s");
 
     this.serverData = this.getServerData();
-
-    console.log(this.serverData);
 
     this.getObjList();
 
