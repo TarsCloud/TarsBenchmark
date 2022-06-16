@@ -526,18 +526,6 @@ export default {
           );
         });
     },
-    // getBmInstalled() {
-    //   this.$ajax
-    //     .getJSON("/api/is_benchmark_installed", { k8s: this.k8s })
-    //     .then((data) => {
-    //       this.isBmInstalled = data;
-    //     })
-    //     .catch((e) => {
-    //       // console.error("get bm installed status error", e);
-    //       this.$tip.error(`error:${e.err_msg || e.message}`);
-    //       this.isBmInstalled = false;
-    //     });
-    // },
     openTarsUploadFileModal() {
       this.uploadModal.show = true;
       this.uploadModal.model = {
@@ -660,7 +648,7 @@ export default {
           })
           .then((data) => {
             if (data.length) {
-              console.log(data);
+              // console.log(data);
               this.objList = data;
               this.objName = data[0].servant;
             }
@@ -937,8 +925,7 @@ export default {
       if (this.k8s) {
         this.$tars
           .getJSON("/k8s/api/pod_list", {
-            ServerId:
-              this.serverData.application + "." + this.serverData.server_name,
+            tree_node_id: this.treeid,
           })
           .then((data) => {
             loading.hide();
@@ -1048,7 +1035,7 @@ export default {
       if (this.k8s) {
         this.$tars
           .getJSON("/k8s/api/pod_list", {
-            ServerId: server.ServerId,
+            tree_node_id: this.treeid,
           })
           .then((adapterData) => {
             loading.hide();
@@ -1183,7 +1170,6 @@ export default {
     this.getObjList();
 
     this.getFileList();
-    // this.getBmInstalled();
     this.getServerList();
   },
 };

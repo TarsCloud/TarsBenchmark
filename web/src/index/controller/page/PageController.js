@@ -21,7 +21,7 @@ PageController.index = async (ctx) => {
 
     const treeid = ctx.paramsObj.treeid;
 
-    let redirect = `${WebConf.path}/index.html?treeid=${treeid}`;
+    let redirect = `${WebConf.path}/index.html` + ctx.request.url.substring(ctx.request.url.indexOf("?"));
 
     // console.log(redirect);
 
