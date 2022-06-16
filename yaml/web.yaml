@@ -1,7 +1,7 @@
 
 cloud:
   group: benchmark 
-  name: WebServer
+  name: BenchmarkWebServer
   logo: logo/Benchmark.png
   version: latest
   changelist: Changelist.md
@@ -21,7 +21,7 @@ cloud:
     - logo
   independent: false
 app: benchmark
-server: WebServer
+server: BenchmarkWebServer
 template: tars.nodejs
 profile: ""
 servants:
@@ -39,7 +39,7 @@ hostIPC: false
 hostPorts: []
 repo:
   id:
-  image: docker.tarsyun.com/benchmark/webserver
+  image: docker.tarsyun.com/benchmark/benchmarkwebserver
   secret: cloud-market-secret
 config:
   - name: config.json

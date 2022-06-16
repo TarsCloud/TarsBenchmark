@@ -19,4 +19,4 @@ cloud:
   servers:
     - benchmark/AdminServer
     - benchmark/NodeServer
-    - benchmark/WebServer
+    - benchmark/BenchmarkWebServer
