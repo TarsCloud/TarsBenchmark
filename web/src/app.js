@@ -86,7 +86,7 @@ const registerPlugin = async () => {
 		const AdminService = require("./common/AdminService");
 
 		try {
-			const rst = await AdminService.registerPlugin("接口测试", "TarsBenchmarkWeb", config.get("tars.application.server.app") + "." + config.get("tars.application.server.server") + ".WebObj", 2, webConf.path);
+			const rst = await AdminService.registerPlugin("接口测试", "BenchmarkWeb", config.get("tars.application.server.app") + "." + config.get("tars.application.server.server") + ".WebObj", 2, webConf.path);
 
 			console.log(rst);
 		} catch (e) {
@@ -96,7 +96,7 @@ const registerPlugin = async () => {
 	} else {
 
 		try {
-			const rst = await AdminService.registerPlugin("接口测试", "TarsBenchmarkWeb", "Base.TarsBenchmarkWeb.WebObj", 2, webConf.path);
+			const rst = await AdminService.registerPlugin("接口测试", "BenchmarkWeb", "Base.TarsBenchmarkWeb.WebObj", 2, webConf.path);
 
 			console.log(rst);
 		} catch (e) {

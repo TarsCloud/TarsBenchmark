@@ -99,7 +99,7 @@
           :title="$t('inf.benchmark.inputValue')"
           prop="in_values"
         ></let-table-column>
-        <let-table-column :title="$t('operate.operates')" width="240px">
+        <let-table-column :title="$t('operate.operates')" width="300px">
           <template slot-scope="scope">
             <let-table-operation @click="initCaseContentForm(scope.row)">{{
               $t("inf.benchmark.modifyCase")
