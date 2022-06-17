@@ -56,7 +56,7 @@
         },
         "title": {
             "listTitle": "协议文件列表",
-            "dlgTitle": "上传协议文件",
+            "dlgTitle": "上传协议文件"
         },
         "dlg": {
             "selectLabel": "模块/接口/方法",
