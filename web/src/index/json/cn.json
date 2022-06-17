@@ -40,7 +40,10 @@
         "operates": "操作",
         "view": "查看",
         "search": "查询",
-        "save": "保存"
+        "save": "保存",
+        "goback": "返回",
+        "addTestCase": "添加测试用例",
+        "testCaseList": "测试用例列表"
     },
     "inf": {
         "list": {
@@ -53,7 +56,7 @@
         },
         "title": {
             "listTitle": "协议文件列表",
-            "dlgTitle": "上传协议文件"
+            "dlgTitle": "上传协议文件",
         },
         "dlg": {
             "selectLabel": "模块/接口/方法",
@@ -64,8 +67,11 @@
             "objName": "Servant名",
             "testCastName": "用例名称",
             "fileName": "文件名",
-            "upload": "上传"
-
+            "upload": "上传",
+            "module": "名字空间",
+            "method": "函数名",
+            "user": "用户",
+            "node": "节点"
         },
         "benchmark": {
             "app": "应用名称",

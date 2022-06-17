@@ -492,7 +492,7 @@ export default {
       // console.log(caseInfo);
 
       this.$ajax
-        .postJSON("/server/api/upsert_bm_case", caseInfo)
+        .postJSON("/api/upsert_bm_case", caseInfo)
         .then((data) => {
           this.upsertCaseContentModal = false;
           this.upsertCaseConfigModal = false;
@@ -592,7 +592,7 @@ export default {
       let path = "";
       switch (op) {
         case "start":
-          path = "/server/api/start_benchmark";
+          path = "/api/start_benchmark";
           startParams.para_input = this.currentFn.inParams;
           startParams.para_value = this.currentCase.in_values;
           startParams.para_output = this.currentFn.outParams;
@@ -602,10 +602,10 @@ export default {
           startParams.duration = this.caseModel.duration;
           break;
         case "stop":
-          path = "/server/api/stop_benchmark";
+          path = "/api/stop_benchmark";
           break;
         case "test":
-          path = "/server/api/test_benchmark";
+          path = "/api/test_benchmark";
           startParams.para_input = this.currentFn.inParams;
           startParams.para_value = this.currentCase.in_values;
           startParams.para_output = this.currentFn.outParams;
@@ -668,7 +668,7 @@ export default {
     },
     getBenchmarkDes(id) {
       this.$ajax
-        .getJSON("/server/api/get_benchmark_des", {
+        .getJSON("/api/get_benchmark_des", {
           id: id,
         })
         .then((data) => {
@@ -682,7 +682,7 @@ export default {
     },
     getBenchmarkCaseList() {
       this.$ajax
-        .getJSON("/server/api/get_bm_case_list", {
+        .getJSON("/api/get_bm_case_list", {
           servant: this.servant,
           fn: this.currentFn.name,
         })
@@ -698,7 +698,7 @@ export default {
     getResultById(id) {
       this.result.id = id;
       this.$ajax
-        .getJSON("/server/api/get_bm_result_by_id", {
+        .getJSON("/api/get_bm_result_by_id", {
           id: id,
         })
         .then((data) => {
@@ -723,7 +723,7 @@ export default {
         // caseInfo.is_deleted = 1;
         // console.log(row);
         this.$ajax
-          .postJSON("/server/api/delete_bm_case", {
+          .postJSON("/api/delete_bm_case", {
             id: row.id,
             servant: row.servant,
           })
@@ -762,7 +762,7 @@ export default {
     objChange() {
       if (!this.servant) return;
       this.$ajax
-        .getJSON("/server/api/get_endpoints", {
+        .getJSON("/api/get_endpoints", {
           servant: this.servant,
         })
         .then((data) => {

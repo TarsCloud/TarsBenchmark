@@ -21,12 +21,7 @@ const TarsStruct = require('./TarsStruct').TarsStruct;
 
 const TarsClient = function (context, k8s, interface, objName, setName) {
 
-	let Tars;
-	if (k8s) {
-		Tars = require('../../../rpc/k8s').client;
-	} else {
-		Tars = require('../../../rpc/index').client;
-	}
+	let Tars = require('../../common/rpc/index').client;
 
 	if (k8s && process.env.TARS_K8S_PROXY) {
 		let pos = objName.indexOf("@");

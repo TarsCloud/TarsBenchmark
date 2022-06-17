@@ -42,7 +42,10 @@
         "delete": "delete",
         "operates": "Operates",
         "view": "view",
-        "search": "search"
+        "search": "search",
+        "goback": "Back",
+        "addTestCase": "Add Test Case",
+        "testCaseList": "Test Case List"
     },
     "inf": {
         "list": {
@@ -66,7 +69,11 @@
             "objName": "Servant Name",
             "testCastName": "testcase name",
             "fileName": "file name",
-            "upload": "upload"
+            "upload": "upload",
+            "module": "Module",
+            "method": "Func",
+            "user": "User",
+            "node": "Node"
         },
         "benchmark": {
             "app": "Application",

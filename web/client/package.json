@@ -16,6 +16,7 @@
     "lodash": "^4.17.14",
     "n-zepto": "^1.2.0",
     "request": "^2.88.0",
+    "v-charts": "^1.19.0",
     "vue": "^2.6.11",
     "vue-axios": "^3.0.1",
     "vue-clipboard2": "^0.3.1",

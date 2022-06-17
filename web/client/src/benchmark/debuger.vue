@@ -47,7 +47,7 @@
           :title="$t('inf.benchmark.updateTime')"
           prop="posttime"
         ></let-table-column>
-        <let-table-column :title="$t('operate.operates')" width="260px">
+        <let-table-column :title="$t('operate.operates')" width="300px">
           <template slot-scope="scope">
             <let-table-operation @click="showDebuger(scope.row)">{{
               $t("inf.list.debug")
@@ -164,20 +164,6 @@
           $t("inf.dlg.upload")
         }}</let-button>
       </let-form>
-    </let-modal>
-    <!-- 提示benchmark服务安装弹窗 -->
-    <let-modal
-      :title="$t('inf.benchmark.installBenchmark')"
-      v-model="showInstallBm"
-      width="400px"
-      :headShow="false"
-    >
-      <div>
-        <p>{{ $t("inf.benchmark.installTip") }}</p>
-        <!--
-                <p>{{$t('inf.benchmark.installTutorial')}}：<a href="https://github.com/TarsCloud/TarsBenchmark/blob/master/README.zh.md#QuickStart" target="_blank">{{$t('inf.benchmark.installScript')}}</a></p>
-                -->
-      </div>
     </let-modal>
 
     <div v-if="addTestCase && !showCaseList">
@@ -299,17 +285,17 @@
           width="150px"
         ></let-table-column>
         <let-table-column
-          :title="$t('module.title')"
+          :title="$t('inf.dlg.module')"
           prop="module_name"
           width="100px"
         ></let-table-column>
         <let-table-column
-          :title="$t('callChain.method')"
+          :title="$t('inf.dlg.method')"
           prop="function_name"
           width="100px"
         ></let-table-column>
         <let-table-column
-          :title="$t('nodes.user')"
+          :title="$t('inf.dlg.user')"
           prop="modify_user"
           width="100px"
         ></let-table-column>
@@ -332,7 +318,7 @@
           </template>
         </let-table-column>
 
-        <let-table-column :title="$t('serverList.table.th.ip')">
+        <let-table-column :title="$t('inf.dlg.node')">
           <template slot-scope="scope">
             <div v-for="(item, index) in totalServerList" :key="index">
               <let-table-operation @click="doNodedebug(item, scope.row)">{{
@@ -478,8 +464,8 @@ export default {
 
       showDebug: false,
       showBm: false,
-      showInstallBm: false,
-      isBmInstalled: null,
+      // showInstallBm: false,
+      // isBmInstalled: null,
       contextData: [],
 
       debuger_panel: false,
@@ -601,19 +587,19 @@ export default {
       this.getObjList();
     },
     showBenchmark(row) {
-      if (this.isBmInstalled === null) return;
-      if (this.isBmInstalled) {
-        this.showBm = true;
-        this.showDebug = false;
-        this.showCaseList = false;
-        this.addTestCase = false;
-        this.modifyTestCase = false;
-        this.$nextTick(() => {
-          this.$refs.bm.getBenchmarkDes(row.f_id);
-        });
-      } else {
-        this.showInstallBm = true;
-      }
+      // if (this.isBmInstalled === null) return;
+      // if (this.isBmInstalled) {
+      this.showBm = true;
+      this.showDebug = false;
+      this.showCaseList = false;
+      this.addTestCase = false;
+      this.modifyTestCase = false;
+      this.$nextTick(() => {
+        this.$refs.bm.getBenchmarkDes(row.f_id);
+      });
+      // } else {
+      //   this.showInstallBm = true;
+      // }
     },
     deleteTarsFile(id) {
       this.$confirm(this.$t("inf.dlg.deleteMsg"), this.$t("common.alert"))
@@ -660,7 +646,7 @@ export default {
           });
       } else {
         this.$tars
-          .getJSON("/server/api/all_adapter_conf_list", {
+          .getJSON("/api/all_adapter_conf_list", {
             application: this.serverData.application,
             server_name: this.serverData.server_name,
           })
@@ -947,7 +933,7 @@ export default {
           });
       } else {
         this.$tars
-          .getJSON("/server/api/server_list", {
+          .getJSON("/api/server_list", {
             tree_node_id: this.treeid,
           })
           .then((data) => {
@@ -1067,7 +1053,7 @@ export default {
           });
       } else {
         this.$tars
-          .getJSON("/server/api/adapter_conf_list", {
+          .getJSON("/api/adapter_conf_list", {
             id: server.id,
           })
           .then((adapterData) => {
