@@ -26,6 +26,7 @@ jobs:
       - name: build benchmark web docker
         run: |
           cd web/src; npm install; cd ../..
+          cp -rf /usr/local/tars/cpp/tools/tars2case web/
           exec-build-cloud.sh tarscloud/tars.nodejsbase nodejs web yaml/web.yaml latest true          
       - name: build benchmark system
         run: |

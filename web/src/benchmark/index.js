@@ -3,7 +3,10 @@ const InfTestController = require('./controller/InfTestController');
 const benchmarkApiConf = [
     //接口测试
     ['post', '/interface_test', InfTestController.interfaceDebug, {}],
-    ['post', '/upload_tars_file', InfTestController.uploadTarsFile, {}],
+    ['post', '/upload_tars_file', InfTestController.uploadTarsFile, {
+        application: 'notEmpty',
+        server_name: 'notEmpty',
+    }],
     ['get', '/get_file_list', InfTestController.getFileList, {
         application: 'notEmpty',
         server_name: 'notEmpty',
@@ -66,7 +69,7 @@ const benchmarkApiConf = [
     ['get', '/get_endpoints', InfTestController.getEndpoints, {
         servant: 'notEmpty',
     }],
-    ['get', '/is_benchmark_installed', InfTestController.isBenchmarkInstalled, {}],
+    // ['get', '/is_benchmark_installed', InfTestController.isBenchmarkInstalled, {}],
     // 测试用例
     ['post', '/interface_add_testcase', InfTestController.interfaceAddCase, {
         f_id: 'notEmpty',

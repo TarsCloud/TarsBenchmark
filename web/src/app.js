@@ -17,10 +17,9 @@
 const Koa = require('koa');
 const onerror = require('koa-onerror');
 const bodyparser = require('koa-bodyparser');
-// const staticRouter = require('koa-static-router');
 const TarsConfig = require("@tars/config");
+const multer = require('koa-multer');
 const Configure = require('@tars/utils').Config;
-// const TarsUtils = require("@tars/utils");
 const localeMidware = require('./midware/localeMidware');
 const http = require('http');
 const path = require('path');
@@ -39,7 +38,14 @@ app.proxy = true;
 onerror(app);
 
 const appInitialize = () => {
+
 	app.use(bodyparser());
+
+	const upload = multer({
+		dest: webConf.baseUploadPath + '/'
+	});
+	//这里决定了上传包的name只能叫suse
+	app.use(upload.array('suse', 5));
 
 	//国际化多语言中间件
 	app.use(localeMidware);
@@ -111,6 +117,9 @@ const initialize = async () => {
 
 		Object.assign(webConf, conf);
 	}
+
+	webConf.baseUploadPath = path.join(__dirname, "..");
+
 	console.log(webConf);
 
 	await registerPlugin();

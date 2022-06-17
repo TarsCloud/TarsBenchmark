@@ -22,6 +22,7 @@ const {
 
 const util = require('../../tools/util');
 const fs = require('fs-extra');
+const path = require('path');
 const TarsParser = require('../service/TarsParser/TarsParser');
 const InfTestBaseService = require('../service/InfTestBaseService');
 const AdminService = require('../../common/AdminService');
@@ -111,7 +112,7 @@ InfTestController.interfaceDebug = async (ctx) => {
 			ctx.makeResObj(200, '', JSON.stringify(rsp));
 		}
 	} catch (e) {
-		logger.error('[interfaceDebug]:', e, ctx);
+		logger.error('[interfaceDebug]:', e.message);
 		console.error(e);
 		ctx.makeResObj(500, e.message);
 	}
@@ -124,8 +125,10 @@ InfTestController.uploadTarsFile = async (ctx) => {
 		set_name,
 	} = ctx.paramsObj;
 	// tars文件上传目录，和发布包同一个根目录
-	let baseUploadPath = WebConf.pkgUploadPath.path;
+	let baseUploadPath = WebConf.baseUploadPath;
 	let tarsFilePath = `${baseUploadPath}/tars_files/${application}/${server_name}`;
+	logger.info(baseUploadPath);
+	logger.info(tarsFilePath);
 	try {
 		await fs.ensureDirSync(tarsFilePath);
 		if (!await AdminService.hasOpeAuth(application, server_name, ctx.uid)) {
@@ -170,9 +173,8 @@ InfTestController.uploadTarsFile = async (ctx) => {
 			ctx.makeResObj(200, '', ret);
 		}
 	} catch (e) {
-		logger.error('[uploadTarsFile]:', e, ctx);
+		logger.error('[uploadTarsFile]:', e.message);
 		ctx.makeResObj(500, e.toString() || "#inf.error.parseFail#");
-		// ctx.makeResObj(500, "#inf.error.parseFail#");
 	} finally {
 		// 删除重命名后的文件
 		//fs.remove(`${tarsFilePath}`);
@@ -203,7 +205,7 @@ InfTestController.getFileList = async (ctx) => {
 			}));
 		}
 	} catch (e) {
-		logger.error('[getFileList]:', e, ctx);
+		logger.error('[getFileList]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -234,7 +236,7 @@ InfTestController.getContexts = async (ctx) => {
 			ctx.makeResObj(200, '', contexts);
 		}
 	} catch (e) {
-		logger.error('[getContexts]:', e, ctx);
+		logger.error('[getContexts]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -256,7 +258,7 @@ InfTestController.getParams = async (ctx) => {
 			ctx.makeResObj(200, '', params);
 		}
 	} catch (e) {
-		logger.error('[getContexts]:', e, ctx);
+		logger.error('[getContexts]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -268,7 +270,7 @@ InfTestController.deleteTarsFile = async (ctx) => {
 		} = ctx.paramsObj;
 		ctx.makeResObj(200, '', await getInfTestService().deleteTarsFile(id));
 	} catch (e) {
-		logger.error('[deleteTarsFile]:', e, ctx);
+		logger.error('[deleteTarsFile]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -282,7 +284,7 @@ InfTestController.getStructs = async (ctx) => {
 		let ret = await getInfTestService().getStructs(id, module_name);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[deleteTarsFile]:', e, ctx);
+		logger.error('[deleteTarsFile]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -295,7 +297,7 @@ InfTestController.getBenchmarkDes = async (ctx) => {
 		let ret = await getInfTestService().getBenchmarkDes(id);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[getBenchmarkDes]:', e, ctx);
+		logger.error('[getBenchmarkDes]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -313,7 +315,7 @@ InfTestController.getBmCaseList = async (ctx) => {
 		let ret = await getInfTestService().getBmCaseList(servant, fn);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[getBmCaseList]:', e, ctx);
+		logger.error('[getBmCaseList]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -333,7 +335,7 @@ InfTestController.getBmResultById = async (ctx) => {
 		}
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[getBmResultById]:', e, ctx);
+		logger.error('[getBmResultById]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -355,7 +357,7 @@ InfTestController.upsertBmCase = async (ctx) => {
 		let ret = await getInfTestService().upsertBmCase(caseInfo);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[upsertBmCase]:', e, ctx);
+		logger.error('[upsertBmCase]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -375,7 +377,7 @@ InfTestController.deleteBmCase = async (ctx) => {
 		let ret = await getInfTestService().deleteBmCase(id, servant);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[upsertBmCase]:', e, ctx);
+		logger.error('[upsertBmCase]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -394,7 +396,7 @@ InfTestController.startBenchmark = async (ctx) => {
 		let ret = await getInfTestService().startBenchmark(ctx.paramsObj);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[startBenchmark]:', e, ctx);
+		logger.error('[startBenchmark]:', e.message);
 		ctx.makeResObj(400, e.message);
 	}
 }
@@ -413,7 +415,7 @@ InfTestController.stopBenchmark = async (ctx) => {
 		let ret = await getInfTestService().stopBenchmark(ctx.paramsObj);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[stopBenchmark]:', e, ctx);
+		logger.error('[stopBenchmark]:', e.message);
 		ctx.makeResObj(400, e.message);
 	}
 }
@@ -432,7 +434,7 @@ InfTestController.testBenchmark = async (ctx) => {
 		let ret = await getInfTestService().testBenchmark(ctx.paramsObj);
 		ctx.makeResObj(200, '', ret);
 	} catch (e) {
-		logger.error('[testBenchmark]:', e, ctx);
+		logger.error('[testBenchmark]:', e.message);
 		ctx.makeResObj(400, e.message);
 	}
 }
@@ -452,26 +454,26 @@ InfTestController.getEndpoints = async (ctx) => {
 		// let ret = await AdminService.getEndpoints(servant);
 		ctx.makeResObj(200, '', rst.response.return.value);
 	} catch (e) {
-		logger.error('[getEndpoints]:', e, ctx);
+		logger.error('[getEndpoints]:', e.message);
 		ctx.makeResObj(500, "get endpoints error");
 	}
 }
 
-InfTestController.isBenchmarkInstalled = async (ctx) => {
-	try {
-		let rst = await getRegistry().findObjectById(WebConf.infTestConf.benchmarkAdmin);
-		let ret = rst.response.return.value;
-		if (ret && ret.length) {
-			ctx.makeResObj(200, '', true);
-		} else {
-			ctx.makeResObj(200, '', false);
-		}
-	} catch (e) {
-		logger.error('[isBenchmarkInstalled]:', e.message);
-		// ctx.makeResObj(500, 'get benchmark admin status error', false);
-		ctx.makeResObj(200, '', true);
-	}
-}
+// InfTestController.isBenchmarkInstalled = async (ctx) => {
+// 	try {
+// 		let rst = await getRegistry().findObjectById(WebConf.infTestConf.benchmarkAdmin);
+// 		let ret = rst.response.return.value;
+// 		if (ret && ret.length) {
+// 			ctx.makeResObj(200, '', true);
+// 		} else {
+// 			ctx.makeResObj(200, '', false);
+// 		}
+// 	} catch (e) {
+// 		logger.error('[isBenchmarkInstalled]:', e.message);
+// 		// ctx.makeResObj(500, 'get benchmark admin status error', false);
+// 		ctx.makeResObj(200, '', true);
+// 	}
+// }
 
 
 const testCaseConfStruct = {
@@ -528,7 +530,7 @@ InfTestController.getTestCaseList = async (ctx) => {
 		}
 
 	} catch (e) {
-		logger.error('[getTestCaseList]', e, ctx);
+		logger.error('[getTestCaseList]', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -567,7 +569,7 @@ InfTestController.interfaceAddCase = async (ctx) => {
 			ctx.makeResObj(200, '', ret);
 		}
 	} catch (e) {
-		logger.error('[interfaceAddCase]:', e, ctx);
+		logger.error('[interfaceAddCase]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -580,7 +582,7 @@ InfTestController.deleteTestCase = async (ctx) => {
 		} = ctx.paramsObj;
 		ctx.makeResObj(200, '', await getInfTestService().deleteTestCase(case_id));
 	} catch (e) {
-		logger.error('[deleteTestCase]:', e, ctx);
+		logger.error('[deleteTestCase]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
@@ -595,7 +597,7 @@ InfTestController.modifyTestCase = async (ctx) => {
 		} = ctx.paramsObj;
 		ctx.makeResObj(200, '', await getInfTestService().modifyTestCase(case_id, test_case_name, params, ctx.uid));
 	} catch (e) {
-		logger.error('[modifyTestCase]:', e, ctx);
+		logger.error('[modifyTestCase]:', e.message);
 		ctx.makeErrResObj();
 	}
 }
