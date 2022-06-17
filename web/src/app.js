@@ -27,7 +27,6 @@ const {
 	Serve
 } = require("static-koa-router");
 const KoaRouter = require("koa-router");
-const AdminService = require("./common/AdminService");
 let webConf = require('./config/webConf');
 
 const app = new Koa();
@@ -83,6 +82,8 @@ const registerPlugin = async () => {
 		config.parseFile(process.env.TARS_CONFIG);
 
 		webConf.benchmarkObj = config.get("tars.application.server.app") + ".AdminServer.AdminObj";
+
+		const AdminService = require("./common/AdminService");
 
 		try {
 			const rst = await AdminService.registerPlugin("接口测试", "TarsBenchmarkWeb", config.get("tars.application.server.app") + "." + config.get("tars.application.server.server") + ".WebObj", 2, webConf.path);

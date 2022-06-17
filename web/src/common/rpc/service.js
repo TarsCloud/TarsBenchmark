@@ -19,6 +19,8 @@ const logger = require('../../logger');
 const RPCClientPrx = (communicator, proxy, moduleName, interfaceName, servantName, setInfo) => {
     var module = proxy[moduleName];
 
+    // console.log(communicator.getProperty("locator"));
+
     var rpcClient = communicator.stringToProxy(module[interfaceName + 'Proxy'], servantName, setInfo);
     for (let p in rpcClient) {
         if (!rpcClient.hasOwnProperty(p) && p != 'getTimeout' && p != 'setTimeout') {

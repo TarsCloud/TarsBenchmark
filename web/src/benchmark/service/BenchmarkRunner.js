@@ -34,26 +34,15 @@ class BenchmarkRunner {
         this._timer = null
         this._endTimer = null
 
-        if (k8s) {
-            const {
-                benchmarkPrx,
-                benchmarkStruct,
-                benchmarkNodeStruct
-            } = require('../../../rpc/k8s');
-            this.benchmarkPrx = benchmarkPrx;
-            this.benchmarkStruct = benchmarkStruct;
-            this.benchmarkNodeStruct = benchmarkNodeStruct;
-        } else {
-            const {
-                benchmarkPrx,
-                benchmarkStruct,
-                benchmarkNodeStruct
-            } = require('../../../rpc/index');
+        const {
+            benchmarkPrx,
+            benchmarkStruct,
+            benchmarkNodeStruct
+        } = require('../../common/rpc/index');
 
-            this.benchmarkPrx = benchmarkPrx;
-            this.benchmarkStruct = benchmarkStruct;
-            this.benchmarkNodeStruct = benchmarkNodeStruct;
-        }
+        this.benchmarkPrx = benchmarkPrx;
+        this.benchmarkStruct = benchmarkStruct;
+        this.benchmarkNodeStruct = benchmarkNodeStruct;
 
     }
     //启动压测， 只有该servant+fn的case全部是stopped状态的才应该启动

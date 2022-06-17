@@ -15,18 +15,29 @@
  */
 
 const client = require("@tars/rpc/protal.js").client;
-const AdminRegProxy = require("./proxy/AdminRegProxy");
-
-const {
-    RPCClientPrx
-} = require('./service');
 
 if (!process.env.TARS_CONFIG) {
     client.setProperty("locator", "tars.tarsregistry.QueryObj@tcp -h 127.0.0.1 -p 17890");
 }
+
+const AdminRegProxy = require("./proxy/AdminRegProxy");
+const BenchmarkAdminProxy = require("./proxy/BenchmarkAdminProxy");
+const BenchmarkNode = require("./proxy/BenchmarkNodeTars");
+const webConf = require("../../config/webConf");
+
+const {
+    RPCClientPrx,
+    RPCStruct
+} = require('./service');
+
 module.exports = {
 
     adminRegPrx: RPCClientPrx(client, AdminRegProxy, 'tars', 'AdminReg', 'tars.tarsAdminRegistry.AdminRegObj'),
+    adminRegStruct: RPCStruct(AdminRegProxy, 'tars'),
+
+    benchmarkPrx: RPCClientPrx(client, BenchmarkAdminProxy, 'bm', 'Admin', webConf.benchmarkObj),
+    benchmarkStruct: RPCStruct(BenchmarkAdminProxy, 'bm'),
+    benchmarkNodeStruct: RPCStruct(BenchmarkNode, 'bm'),
 
     client: client,
 };

@@ -17,10 +17,8 @@
 
 const {
     adminRegPrx,
-} = require('./rpc');
-const {
     adminRegStruct
-} = require('./rpc/struct');
+} = require('./rpc');
 
 const logger = require('../logger');
 
