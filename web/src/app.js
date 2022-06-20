@@ -23,7 +23,7 @@ const Configure = require('@tars/utils').Config;
 const localeMidware = require('./midware/localeMidware');
 const http = require('http');
 const path = require('path');
-const logger = require('logger');
+const logger = require('./logger');
 
 const {
 	Serve

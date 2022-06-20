@@ -13,6 +13,7 @@
         "@tars/logs": "^2.1.1",
         "@tars/rpc": "*",
         "@tars/stream": "*",
+        "axios": "^0.27.2",
         "compressing": "^1.5.0",
         "debug": "^2.6.3",
         "eslint": "^4.19.1",
