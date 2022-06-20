@@ -5,13 +5,13 @@
       ref="tarsFileListLoading"
       v-if="
         !showDebug &&
-          !showBm &&
-          !showCaseList &&
-          !addTestCase &&
-          !modifyTestCase
+        !showBm &&
+        !showCaseList &&
+        !addTestCase &&
+        !modifyTestCase
       "
     >
-      <div class="table_head" style="height:50px">
+      <div class="table_head" style="height: 50px">
         <h4>
           {{ this.$t("inf.title.listTitle") }}
           <i
@@ -646,7 +646,7 @@ export default {
           });
       } else {
         this.$tars
-          .getJSON("/api/all_adapter_conf_list", {
+          .getJSON("/server/api/all_adapter_conf_list", {
             application: this.serverData.application,
             server_name: this.serverData.server_name,
           })
@@ -845,8 +845,9 @@ export default {
         .catch((err) => {
           loading.hide();
           this.$tip.error(
-            `${this.$t("get_testcase_list.failed")}: ${err.err_msg ||
-              err.message}`
+            `${this.$t("get_testcase_list.failed")}: ${
+              err.err_msg || err.message
+            }`
           );
         });
     },
@@ -933,7 +934,7 @@ export default {
           });
       } else {
         this.$tars
-          .getJSON("/api/server_list", {
+          .getJSON("/server/api/server_list", {
             tree_node_id: this.treeid,
           })
           .then((data) => {
@@ -1047,13 +1048,14 @@ export default {
           .catch((err) => {
             loading.hide();
             this.$tip.error(
-              `${this.$t("serverList.restart.failed")}: ${err.err_msg ||
-                err.message}`
+              `${this.$t("serverList.restart.failed")}: ${
+                err.err_msg || err.message
+              }`
             );
           });
       } else {
         this.$tars
-          .getJSON("/api/adapter_conf_list", {
+          .getJSON("/server/api/adapter_conf_list", {
             id: server.id,
           })
           .then((adapterData) => {
@@ -1069,8 +1071,9 @@ export default {
           .catch((err) => {
             loading.hide();
             this.$tip.error(
-              `${this.$t("serverList.restart.failed")}: ${err.err_msg ||
-                err.message}`
+              `${this.$t("serverList.restart.failed")}: ${
+                err.err_msg || err.message
+              }`
             );
           });
       }
