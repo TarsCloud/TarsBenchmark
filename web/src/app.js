@@ -23,6 +23,8 @@ const Configure = require('@tars/utils').Config;
 const localeMidware = require('./midware/localeMidware');
 const http = require('http');
 const path = require('path');
+const logger = require('logger');
+
 const {
 	Serve
 } = require("static-koa-router");
@@ -75,6 +77,8 @@ const appInitialize = () => {
 }
 
 const registerPlugin = async () => {
+
+	logger.info("registerPlugin");
 
 	if (process.env.TARS_CONFIG) {
 
@@ -156,4 +160,6 @@ const initialize = async () => {
 		});
 }
 
-initialize();
+initialize().catch(e => {
+	logger.error(e);
+});
