@@ -1149,7 +1149,7 @@ export default {
   mounted() {
     this.treeid = this.getParam("treeid");
 
-    this.k8s = this.getParam("k8s");
+    this.k8s = this.getParam("k8s") == "true";
 
     this.serverData = this.getServerData();
 
