@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-    container: tarscloud/base-compiler
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -17,10 +16,32 @@ jobs:
           registry: docker.tarsyun.com
           username: ${{ secrets.name }}
           password: ${{ secrets.pass }}
-      - name: make
-        run: mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4
-      - name: build docker
+      - name: Create Build
         run: |
-          exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/AdminServer yaml/admin.yaml latest true
-          exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/NodeServer yaml/node.yaml latest true
-          exec-build-cloud-product.sh yaml/benchmark.yaml latest
+          docker run --rm --privileged tonistiigi/binfmt:latest --install all
+          docker buildx create --name k8s-framework-builder --use
+          docker buildx inspect --bootstrap --builder k8s-framework-builder
+      - name: Buildx Admin
+        run: |
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/admin.yaml latest Dockerfile.admin"
+      - name: Create Admin Docker
+        run: |
+          ./docker-buildx-cloud.sh
+      - name: Buildx Node
+        run: |
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/node.yaml latest Dockerfile.node"
+      - name: Create Node Docker
+        run: |
+          ./docker-buildx-cloud.sh
+      - name: Buildx Web
+        run: |
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/web.yaml latest Dockerfile.nodejs"
+      - name: Create web Docker
+        run: |
+          ./docker-buildx-cloud.sh
+      - name: Buildx Product
+        run: |
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile-product.sh yaml/benchmark.yaml latest"
+      - name: Create web Docker
+        run: |
+          ./docker-buildx-cloud-product.sh

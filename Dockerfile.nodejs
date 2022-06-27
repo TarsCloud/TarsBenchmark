@@ -1,0 +1,14 @@
+FROM tarscloud/base-compiler as First
+
+
+RUN mkdir -p /data
+COPY . /data
+RUN cd /data/web/src; npm install; cd ../..
+RUN cp -rf /usr/local/tars/cpp/tools/tars2case web/
+
+FROM tarscloud/tars.nodejsbase
+
+ENV ServerType=nodejs
+
+RUN mkdir -p /usr/local/server/bin/
+COPY --from=First /data/web/ /usr/local/server/bin/
