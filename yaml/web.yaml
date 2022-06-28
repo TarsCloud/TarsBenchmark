@@ -6,7 +6,7 @@ cloud:
   changelist: Changelist.md
   lang: nodejs
   description: Tarsbenchmark stress test system management platform.
-  description_cn: TarsBenchmark压力测试系统管理平台, 注意 >= TarsFramework:v3.1.0 & TarsWeb:v3.1.0 才可以使用
+  description_cn: TarsBenchmark压力测试系统管理平台
   collaborators:
     - ruanshudong@qq.com
     - shevqko@qq.com
@@ -22,7 +22,7 @@ cloud:
 app: benchmark
 server: BenchmarkWebServer
 template: tars.nodejs
-profile: ''
+profile: ""
 servants:
   - name: WebObj
     port: 11200
