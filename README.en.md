@@ -1,4 +1,4 @@
-- [中文文档](README.en.md)
+- [中文文档](README.md)
 
 ## Introduction
 
@@ -6,7 +6,7 @@ Tarsbenchamrk system is a set of stress testing system developed based on the ta
 
 - Benchmark/AdminServer: a stress test management service that collects data during stress tests and can only be deployed on one node
 - Benchmark/NodeServer: pressure test driven service. If you need to increase the test pressure, you can deploy it on multiple nodes
-- Benchmark/BenchmarkWebServer: stress test system management platform, which belongs to the extended service of tarsweb. Note that only >= tarsframework:v3.1.0 & tarsweb:v3.1.0 can be used
+- Benchmark/BenchmarkWebServer: stress test system management platform, which belongs to the extended service of tarsweb. Note that only >= (>= tarscloud/framework:v3.0.10) can be used
 
 At the same time, the whole system depends on the database. When BenchmarkWebServer starts, it needs to connect to MySQL, and automatically creates tables. During operation, it will write data to DB
 

@@ -26,19 +26,19 @@ jobs:
           docker buildx inspect --bootstrap --builder k8s-framework-builder
       - name: Buildx Admin
         run: |
-          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/admin.yaml ${{ steps.get_version.outputs.VERSION }} Dockerfile.admin"
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/admin.yaml ${{ steps.get_version.outputs.VERSION }} dockerfile/Dockerfile.admin"
       - name: Create Admin Docker
         run: |
           ./docker-buildx-cloud.sh
       - name: Buildx Node
         run: |
-          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/node.yaml ${{ steps.get_version.outputs.VERSION }} Dockerfile.node"
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/node.yaml ${{ steps.get_version.outputs.VERSION }} dockerfile/Dockerfile.node"
       - name: Create Node Docker
         run: |
           ./docker-buildx-cloud.sh
       - name: Buildx Web
         run: |
-          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh nodejs yaml/web.yaml ${{ steps.get_version.outputs.VERSION }} Dockerfile.nodejs"
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh nodejs yaml/web.yaml ${{ steps.get_version.outputs.VERSION }} dockerfile/Dockerfile.nodejs"
       - name: Create web Docker
         run: |
           ./docker-buildx-cloud.sh

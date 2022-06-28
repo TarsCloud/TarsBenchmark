@@ -23,19 +23,19 @@ jobs:
           docker buildx inspect --bootstrap --builder k8s-framework-builder
       - name: Buildx Admin
         run: |
-          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/admin.yaml latest Dockerfile.admin"
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/admin.yaml latest dockerfile/Dockerfile.admin"
       - name: Create Admin Docker
         run: |
           ./docker-buildx-cloud.sh
       - name: Buildx Node
         run: |
-          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/node.yaml latest Dockerfile.node"
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh cpp yaml/node.yaml latest dockerfile/Dockerfile.node"
       - name: Create Node Docker
         run: |
           ./docker-buildx-cloud.sh
       - name: Buildx Web
         run: |
-          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh nodejs yaml/web.yaml latest Dockerfile.nodejs"
+          docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile.sh nodejs yaml/web.yaml latest dockerfile/Dockerfile.nodejs"
       - name: Create web Docker
         run: |
           ./docker-buildx-cloud.sh
