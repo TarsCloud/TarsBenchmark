@@ -45,14 +45,6 @@ jobs:
       - name: Buildx Product
         run: |
           docker run -v `pwd`:/data --entrypoint "" tarscloud/base-deploy sh -c "cd /data && /usr/bin/create-buildx-dockerfile-product.sh yaml/benchmark.yaml ${{ steps.get_version.outputs.VERSION }}"
-      - name: Create web Docker
+      - name: Create Product Docker
         run: |
           ./docker-buildx-cloud-product.sh
-
-      # - name: make
-      #   run: mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release && make -j4
-      # - name: build docker
-      #   run: |
-      #     exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/AdminServer yaml/admin.yaml ${{ steps.get_version.outputs.VERSION }} true
-      #     exec-build-cloud.sh tarscloud/tars.cppbase cpp build/bin/NodeServer yaml/node.yaml ${{ steps.get_version.outputs.VERSION }} true
-      #     exec-build-cloud-product.sh yaml/benchmark.yaml ${{ steps.get_version.outputs.VERSION }}
