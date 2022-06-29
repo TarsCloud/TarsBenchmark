@@ -1,6 +1,5 @@
-
 cloud:
-  group: benchmark 
+  group: benchmark
   name: AdminServer
   logo: logo/admin-logo.png
   version: latest
@@ -8,8 +7,7 @@ cloud:
   lang: cpp
   description: >-
     It is a codeless pressure measurement tool specially tailored for the tar service. Adminserver is the driver service of the pressure measurement tool
-  description_cn:
-    专门为tars服务量身订做的无码压测工具, AdminServer是压测工具的驱动服务
+  description_cn: 专门为tars服务量身订做的无码压测工具, AdminServer是压测工具的驱动服务
   collaborators:
     - 156695134@qq.com
     - ruanshudong@qq.com
@@ -18,12 +16,13 @@ cloud:
   readme_cn: README.md
   protocols: []
   independent: false
-  assets: 
+  container: tars.cppbase
+  assets:
     - assets
     - logo
     - docs
 app: benchmark
-server: AdminServer 
+server: AdminServer
 template: tars.cpp
 profile: |
   <benchmark>
@@ -48,4 +47,3 @@ repo:
   id:
   image: tarscloud/benchmark.adminserver
   secret: cloud-market-secret
-

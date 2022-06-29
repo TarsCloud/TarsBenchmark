@@ -19,6 +19,7 @@ cloud:
     - docs
   independent: false
   deploy: yaml/web.yaml
+  container: tars.nodejsbase
 app: benchmark
 server: BenchmarkWebServer
 template: tars.nodejs
