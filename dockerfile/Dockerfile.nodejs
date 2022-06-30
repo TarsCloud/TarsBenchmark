@@ -17,3 +17,4 @@ COPY --from=First /data/web/ /usr/local/server/bin/
 RUN mkdir -p /usr/local/server/bin/tars_nodejs
 RUN npm install @tars/node-agent -g
 RUN mv /usr/local/lib/node_modules/@tars/node-agent /usr/local/server/bin/tars_nodejs/
+
