@@ -1,3 +1,12 @@
+## 20220801 v2.0.1
+
+### en
+
+- Fix: when the pressure benchmark service is under great pressure, update database cause bug
+### cn
+
+- 修复: 压测服务压力大时候, 更新数据库异常的bug
+
 ## 20220627 v2.0.0
 
 ### en
