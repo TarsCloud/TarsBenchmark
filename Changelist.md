@@ -1,3 +1,13 @@
+
+
+## 20220808 v2.0.2
+
+### en
+
+- Fix: timeout problem caused by no closing transaction during database access
+### cn
+
+- 修复: 数据库访问时, 没有关闭事务带来的超时问题
 ## 20220801 v2.0.1
 
 ### en
