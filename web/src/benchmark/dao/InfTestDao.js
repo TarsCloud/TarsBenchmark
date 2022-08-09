@@ -115,9 +115,6 @@ module.exports = {
                 posttime: new Date()
             }, options)
 
-            // await running.save({
-            // 	transaction
-            // })
             return false
         }
         return running

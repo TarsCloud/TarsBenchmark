@@ -1,6 +1,6 @@
 // const InfTestDao = require('../../../app/dao/InfTestDao');
 
-const WebConf = require('../../config/webConf');
+// const WebConf = require('../../config/webConf');
 
 
 //TODO:协议中增加返回值枚举，替换此处硬编码

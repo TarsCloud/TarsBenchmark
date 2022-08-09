@@ -30,7 +30,6 @@ RunnerCallback.isBmCaseRunning = async (caseId, servant, fn) => {
             await transaction.commit();
             return true;
         }
-        await InfTestDao.startBenchmark(caseId, transaction)
         await transaction.commit();
         return isRunning;
     } catch (e) {

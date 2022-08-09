@@ -1,13 +1,15 @@
 
 
-## 20220808 v2.0.2
+## 20220809 v2.0.2
 
 ### en
 
 - Fix: timeout problem caused by no closing transaction during database access
+- Fix: Bug of restarting the pressure test task when querying the pressure test data
 ### cn
 
 - 修复: 数据库访问时, 没有关闭事务带来的超时问题
+- 修复: 查询压测数据时, 重新启动压测任务的bug
 ## 20220801 v2.0.1
 
 ### en
