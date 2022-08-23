@@ -9,3 +9,7 @@ else()
 endif()
 
 target_link_libraries(tb tarsutil)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(tb -static-libgcc -static-libstdc++)
+endif()

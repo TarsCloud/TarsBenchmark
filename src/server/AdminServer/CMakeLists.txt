@@ -10,3 +10,7 @@ else()
 endif()
 
 target_link_libraries(AdminServer tarsutil)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(AdminServer -static-libgcc -static-libstdc++)
+endif()

@@ -9,3 +9,7 @@ else()
 endif()
 
 target_link_libraries(NodeServer tarsutil)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(NodeServer -static-libgcc -static-libstdc++)
+endif()
